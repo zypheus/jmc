@@ -1,0 +1,43 @@
+.account-page__head .h3 {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.account-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.account-card__title {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #0f172a;
+}
+
+.account-avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 3px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.account-avatar-preview__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.account-avatar-preview__initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #334155;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+}

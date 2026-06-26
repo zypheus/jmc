@@ -1,0 +1,62 @@
+/*
+ * JMC branding — local copy (not committed; see branding.css.example).
+ */
+@import url('../vendor/fontsource/poppins/latin-400.css');
+@import url('../vendor/fontsource/poppins/latin-600.css');
+@import url('../vendor/fontsource/poppins/latin-700.css');
+
+:root {
+  --brand-font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --brand-font-family-heading: var(--brand-font-family);
+  --brand-font-family-mono: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', Consolas, monospace;
+
+  --brand-primary: #ffd700;
+  --brand-accent: #2e7d32;
+  --brand-text-dark: #333;
+  --brand-text-light: #fff;
+
+  --brand-page-bg: #ffffff;
+  --brand-school-name-color: #1f4ea7;
+
+  --brand-nav-link: #1f4ea7;
+  --brand-nav-link-active: #ffffff;
+  --brand-nav-hover-bg: #ffffff;
+  --brand-nav-hover-text: #2e7d32;
+
+  --brand-logout-bg: #1f4ea7;
+  --brand-logout-text: #ffffff;
+
+  --brand-button-bg: #1f4ea7;
+  --brand-button-text: #ffffff;
+  --brand-button-hover-bg: #2e7d32;
+  --brand-button-hover-text: #ffffff;
+
+  --brand-danger-bg: #1f4ea7;
+  --brand-danger-hover-bg: #2e7d32;
+  --brand-danger-text: #ffffff;
+
+  --brand-success-bg: #1f4ea7;
+  --brand-success-hover-bg: #2e7d32;
+  --brand-success-text: #ffffff;
+
+  --brand-footer-bg: #1f4ea7;
+
+  --brand-kiosk-gradient-from: #1f4ea7;
+  --brand-kiosk-gradient-to: #2e7d32;
+
+  --primary-yellow: var(--brand-primary);
+  --secondary-green: var(--brand-accent);
+  --text-dark: var(--brand-text-dark);
+  --text-light: var(--brand-text-light);
+}
+
+:root {
+  --bs-primary: var(--brand-primary);
+  --bs-primary-rgb: 255, 215, 0;
+
+  --bs-success: var(--brand-accent);
+  --bs-success-rgb: 46, 125, 50;
+
+  --bs-link-color: var(--brand-accent);
+  --bs-link-hover-color: var(--brand-accent);
+}

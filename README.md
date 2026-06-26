@@ -1,59 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# JMC — Attendance + Library Management
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Combined system for **JOSE MARIA COLLEGE Foundation Inc.**: school attendance (BCCI-PANTAS lineage) and full library management (USM lineage) in one Laravel app.
 
-## About Laravel
+- **Attendance patrons** and **library patrons** are stored in **separate** tables.
+- Staff use **Spatie roles**: `library_admin`, `library_staff`, `attendance_admin`, `attendance_staff`, `super_admin`.
+- **Frontend:** Inertia.js + React + TypeScript + **shadcn/ui** (Radix + Tailwind 4) for auth, registration, attendance, and library admin.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Progress tracker: [`documentation/taskmd.md`](documentation/taskmd.md)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2+
+- MySQL 8+
+- Node.js 20+
+- Composer 2
 
-## Learning Laravel
+## Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+php artisan storage:link
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+`db:seed` loads sample data ported from USM and BCCI-PANTAS:
 
-## Laravel Sponsors
+| Domain | Sample data |
+|--------|-------------|
+| Library | 6 programs, 170 courses, 10 students, 12 employees, 18 book copies, circulation logs, fines policy, 4 rooms, 15 feedback |
+| Attendance | 5 programs, 5 students, 5 employees, 54 scan logs, kiosk sections, 7 feedback |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**Test QR codes (attendance kiosk `/attendance`):** `AS-00000001` … `AS-00000005`  
+**Library patrons (circulation):** `S-00000001` … `S-00000010` (separate from attendance)
 
-### Premium Partners
+Configure MySQL in `.env`:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=jmc
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Contributing
+Optional SMS modem for scan notifications:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+SMS_MODEM_URL=
+```
 
-## Code of Conduct
+## Run locally
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer run dev
+```
 
-## Security Vulnerabilities
+Or separately: `php artisan serve` and `npm run dev`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Seeded staff accounts
 
-## License
+Password for all: `password`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Role | Email |
+|------|-------|
+| library_admin | library_admin@jmc.test |
+| library_staff | library_staff@jmc.test |
+| attendance_admin | attendance_admin@jmc.test |
+| attendance_staff | attendance_staff@jmc.test |
+| super_admin | super_admin@jmc.test |
+
+## Key routes
+
+| URL | Purpose |
+|-----|---------|
+| `/login` | Staff login |
+| `/register` | Public patron registration (attendance or library) |
+| `/attendance` | Public attendance kiosk |
+| `/opac` | Public library catalog |
+| `/dashboard/*` | Role-specific Inertia dashboards |
+| `/files` | Library document repository |
+| `/students`, `/employees`, `/pending`, `/logs` | Library admin (Inertia + shadcn) |
+| `/ebooks`, `/admin/catalog-frameworks`, `/admin/catalog-select-options` | Library catalog admin tools |
+| `/admin/activities`, `/reports/library-holdings` | Library activity + holdings reports |
+
+## Library navigation hierarchy
+
+Library shell (`LibraryLayout`) now uses config-driven grouped navigation with role-aware filtering and breadcrumbs:
+
+- Home
+- Catalog
+- Circulation
+- Patrons
+- Rooms
+- Reports
+- Admin
+
+## shadcn/ui
+
+Components live in `resources/js/components/ui/`. Add more with:
+
+```bash
+npx shadcn@latest add <component>
+```
+
+JMC brand tokens are in `resources/css/app.css` (blue `#1f4ea7`, green `#2e7d32`, gold `#ffd700`).
+
+## Verification
+
+```bash
+php artisan db:seed
+php artisan test --filter=LibraryInertiaPagesTest
+php artisan test
+npm run build
+./vendor/bin/pint
+```
+
+## Documentation
+
+- Auth flow: `documentation/authfolow.md`
+- Registration flow: `documentation/patronregistrationflow.md`
+- Task tracker: `documentation/taskmd.md`
+- Agent guide: `AGENTS.md`

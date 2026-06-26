@@ -1,0 +1,201 @@
+/* Public library patron self-registration (/register) */
+.patron-register {
+    min-height: 100vh;
+    background: linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--brand-button-bg, #1f4ea7) 6%, #f8fafc) 0%,
+        #f1f5f9 45%,
+        #f8fafc 100%
+    );
+    padding: 1.5rem 1rem 3rem;
+}
+
+.patron-register__shell {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.patron-register__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.patron-register__brand {
+    text-decoration: none;
+    color: inherit;
+}
+
+.patron-register__brand-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--brand-button-bg, #1f4ea7);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.patron-register__brand-sub {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0.15rem 0 0;
+}
+
+.patron-register__home-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.patron-register__home-link:hover {
+    color: var(--brand-button-bg, #1f4ea7);
+    border-color: var(--brand-button-bg, #1f4ea7);
+}
+
+.patron-register__hero {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.patron-register__hero h1 {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.35rem;
+}
+
+.patron-register__hero p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+    max-width: 36rem;
+    margin-inline: auto;
+}
+
+.patron-register__notice {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #1e40af;
+}
+
+.patron-register__card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.patron-register__tabs {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    margin-bottom: 1.25rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.patron-register__tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
+}
+
+.patron-register__tab:hover {
+    background: #fff;
+    color: var(--brand-button-bg, #1f4ea7);
+}
+
+.patron-register__tab.is-active {
+    background: var(--brand-button-bg, #1f4ea7);
+    color: #fff;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--brand-button-bg, #1f4ea7) 35%, transparent);
+}
+
+.patron-register__tab.is-active--staff {
+    background: var(--brand-accent, #2e7d32);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--brand-accent, #2e7d32) 35%, transparent);
+}
+
+.patron-register__panel {
+    display: none;
+}
+
+.patron-register__panel.is-active {
+    display: block;
+}
+
+.patron-register__alert {
+    border-radius: 10px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.patron-register__submit {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.patron-register__submit--student {
+    background: var(--brand-button-bg, #1f4ea7);
+}
+
+.patron-register__submit--student:hover {
+    background: var(--brand-button-hover-bg, #2e7d32);
+}
+
+.patron-register__submit--staff {
+    background: var(--brand-accent, #2e7d32);
+}
+
+.patron-register__submit--staff:hover {
+    filter: brightness(0.92);
+}
+
+@media (max-width: 576px) {
+    .patron-register {
+        padding: 1rem 0.75rem 2rem;
+    }
+
+    .patron-register__card {
+        padding: 1rem;
+    }
+
+    .patron-register__tabs {
+        flex-direction: column;
+    }
+}

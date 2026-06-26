@@ -9,7 +9,7 @@ Run all commands from this directory (`jmc/`).
 - PHP 8.2+, Laravel 12
 - Inertia.js + React + TypeScript (frontend application layer)
 - Tailwind CSS + shadcn/ui (primary UI system for React pages)
-- PostgreSQL (recommended primary database for reporting and constraints)
+- MySQL (primary database; attendance and library patron data are stored in separate domain tables)
 - Laravel Sanctum + `spatie/laravel-permission` for auth and roles
 
 ## Cursor Skills And Rules
@@ -57,7 +57,8 @@ php artisan route:list
 
 - Attendance check-in/check-out, status rules, and correction logs
 - Library catalog, copies, checkout/return/renewal, and fines
-- Shared student/staff identity and role-based access
+- Separated patron identity: attendance patrons and library patrons live in distinct domain tables
+- Shared staff users (`users` table) with Spatie role-based access across modules
 - Reports and audit history for sensitive operations
 
 ## Coding Standards
