@@ -128,20 +128,11 @@ Route::middleware(['auth', 'role:attendance_admin|attendance_staff'])->prefix('a
     Route::get('/section-picker', [SettingsController::class, 'sectionSettings'])->name('section.settings');
     Route::post('/section-picker', [SettingsController::class, 'updateSectionSettings'])->name('section.settings.update');
 
-    Route::get('/feedbacks', [FeedController::class, 'index'])->name('feedback.index');
-
     Route::get('/sms-blast', [SmsController::class, 'index'])->name('sms.page');
     Route::post('/sms/send', [SmsController::class, 'send'])->name('sms.send');
     Route::get('/sms/scan-message', [SmsController::class, 'scanMessage'])->name('sms.scanMessage');
     Route::post('/sms/scan-message', [SmsController::class, 'updateScanMessage'])->name('sms.scanMessage.update');
     Route::get('/sms/count', [SmsController::class, 'count'])->name('sms.count');
-
-    Route::get('/logs', [AttendanceLogController::class, 'index'])->name('logs.index');
-    Route::get('/logs/reports', [AttendanceLogController::class, 'reportsHub'])->name('logs.reports.hub');
-    Route::get('/logs/reports/dashboard', [AttendanceLogController::class, 'reportsDashboard'])->name('logs.reports.dashboard');
-    Route::get('/logs/reports/export', [AttendanceLogController::class, 'reportsExportCsv'])->name('logs.reports.export');
-    Route::get('/logs/export/excel', [AttendanceLogController::class, 'exportExcel'])->name('logs.export.excel');
-    Route::get('/logs/export/pdf', [AttendanceLogController::class, 'exportPdf'])->name('logs.export.pdf');
 });
 
 // Attendance admin only
@@ -157,6 +148,15 @@ Route::middleware(['auth', 'role:attendance_admin'])->prefix('attendance')->name
     Route::get('/employees/{id}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
     Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+
+    Route::get('/feedbacks', [FeedController::class, 'index'])->name('feedback.index');
+
+    Route::get('/logs', [AttendanceLogController::class, 'index'])->name('logs.index');
+    Route::get('/logs/reports', [AttendanceLogController::class, 'reportsHub'])->name('logs.reports.hub');
+    Route::get('/logs/reports/dashboard', [AttendanceLogController::class, 'reportsDashboard'])->name('logs.reports.dashboard');
+    Route::get('/logs/reports/export', [AttendanceLogController::class, 'reportsExportCsv'])->name('logs.reports.export');
+    Route::get('/logs/export/excel', [AttendanceLogController::class, 'exportExcel'])->name('logs.export.excel');
+    Route::get('/logs/export/pdf', [AttendanceLogController::class, 'exportPdf'])->name('logs.export.pdf');
 });
 
 // =============================================================================

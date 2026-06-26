@@ -1,16 +1,41 @@
 export interface AuthUser {
     id: number;
+    name: string;
     fname: string;
     lname: string;
     fullName: string;
     email: string;
     roles: string[];
+    role: string | null;
+    isAdmin: boolean;
+    initials: string;
+    avatarUrl: string | null;
+}
+
+export interface AdminActivityItem {
+    id: number;
+    title: string;
+    body: string | null;
+    action_url: string | null;
+    created_at: string | null;
+    is_unread: boolean;
+}
+
+export interface AdminActivityPayload {
+    unreadCount: number;
+    activities: AdminActivityItem[];
+    urls: {
+        markSeen?: string;
+        recent?: string;
+    };
 }
 
 export interface PageProps {
     auth: {
         user: AuthUser | null;
     };
+    routeName?: string | null;
+    adminActivity?: AdminActivityPayload | null;
     flash: {
         success?: string | null;
         error?: string | null;

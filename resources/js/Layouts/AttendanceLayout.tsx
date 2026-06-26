@@ -1,88 +1,78 @@
-import { Link, usePage } from '@inertiajs/react';
-import { PropsWithChildren } from 'react';
-import {
-    BarChart3,
-    ClipboardCheck,
-    LayoutDashboard,
-    QrCode,
-    Settings,
-    Users,
-} from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import { PropsWithChildren, useMemo } from 'react';
 
 import AdminAppShell from '@/components/layout/AdminAppShell';
-import type { LibraryBreadcrumbItem } from '@/config/libraryNavigation';
+import {
+    type AdminNavigationItem,
+    resolveBreadcrumbs,
+} from '@/config/libraryNavigation';
 import type { PageProps } from '@/types';
-import { cn } from '@/lib/utils';
 
-const navItems = [
-    { href: '/dashboard/attendance-admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-    { href: '/attendance', label: 'Kiosk', icon: QrCode },
-    { href: '/attendance/pending', label: 'Pending', icon: ClipboardCheck },
-    { href: '/attendance/students', label: 'Students', icon: Users },
-    { href: '/attendance/employees', label: 'Employees', icon: Users },
-    { href: '/attendance/logs', label: 'Logs', icon: ClipboardCheck },
-    { href: '/attendance/logs/reports', label: 'Reports', icon: BarChart3 },
-    { href: '/attendance/section-picker', label: 'Settings', icon: Settings },
+const attendanceNavigation: AdminNavigationItem[] = [
+    {
+        label: 'Home',
+        href: '/dashboard/attendance-admin',
+        routeName: 'dashboard.attendance-admin',
+        icon: 'Home',
+    },
+    {
+        label: 'Attendance',
+        icon: 'ClipboardCheck',
+        children: [
+            { label: 'Kiosk', href: '/attendance', routeName: 'attendance.scan' },
+            { label: 'Pending', href: '/attendance/pending', routeName: 'attendance.pending.index' },
+            { label: 'Students', href: '/attendance/students', routeName: 'attendance.students.index' },
+            { label: 'Employees', href: '/attendance/employees', routeName: 'attendance.employees.index' },
+            { label: 'Logs', href: '/attendance/logs', routeName: 'attendance.logs.index', adminOnly: true },
+            { label: 'Reports', href: '/attendance/logs/reports', routeName: 'attendance.logs.reports.hub', adminOnly: true },
+            { label: 'Gate Feedback', href: '/attendance/feedbacks', routeName: 'attendance.feedback.index', adminOnly: true },
+            { label: 'Settings', href: '/attendance/section-picker', routeName: 'attendance.section.settings' },
+            { label: 'SMS Blast', href: '/attendance/sms-blast', routeName: 'attendance.sms.page' },
+        ],
+    },
 ];
-
-function resolveAttendanceBreadcrumb(currentPath: string): LibraryBreadcrumbItem[] {
-    const match = navItems.find((item) =>
-        item.exact ? currentPath === item.href : currentPath.startsWith(item.href),
-    );
-
-    return [
-        { label: 'Attendance', href: '/dashboard/attendance-admin', isCurrent: false },
-        {
-            label: match?.label ?? 'Administration',
-            href: null,
-            isCurrent: true,
-        },
-    ];
-}
 
 export default function AttendanceLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage<PageProps>();
-    const { auth, flash } = props;
+    const { auth, flash, routeName, adminActivity } = props;
     const currentPath = url.split('?')[0];
-    const breadcrumbs = resolveAttendanceBreadcrumb(currentPath);
+    const isAdmin = auth.user?.isAdmin ?? false;
+    const navigation = useMemo(
+        () => attendanceNavigation
+            .map((item) => {
+                if (!item.children?.length) {
+                    return item;
+                }
 
-    const sidebar = (
-        <nav className="space-y-0.5">
-            {navItems.map((item) => {
-                const active = item.exact
-                    ? currentPath === item.href
-                    : currentPath.startsWith(item.href);
-                const Icon = item.icon;
+                const children = item.children.filter((child) => !child.adminOnly || isAdmin);
+                return {
+                    ...item,
+                    children,
+                };
+            })
+            .filter((item) => {
+                if (item.adminOnly && !isAdmin) {
+                    return false;
+                }
 
-                return (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                            'flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                            active
-                                ? 'bg-[#23408E] text-white shadow-sm'
-                                : 'text-foreground hover:bg-[#F8FAFC]',
-                        )}
-                    >
-                        <Icon className="size-4 shrink-0" />
-                        {item.label}
-                    </Link>
-                );
-            })}
-        </nav>
+                if (item.children) {
+                    return item.children.length > 0;
+                }
+
+                return true;
+            }),
+        [isAdmin],
     );
+    const breadcrumbs = resolveBreadcrumbs(navigation, routeName, currentPath);
 
     return (
         <AdminAppShell
-            brandHref="/dashboard/attendance-admin"
-            brandTitle="PANTAS"
-            brandSubtitle="JMC Attendance"
-            portalLabel="Admin portal"
-            footerText="JOSE MARIA COLLEGE Foundation Inc. — Attendance System"
+            navigation={navigation}
+            currentPath={currentPath}
+            routeName={routeName}
             breadcrumbs={breadcrumbs}
-            sidebar={sidebar}
             auth={auth}
+            adminActivity={adminActivity ?? null}
             flash={flash}
         >
             {children}
