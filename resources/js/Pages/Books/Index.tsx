@@ -1,9 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 
-import EmptyState from '@/components/library/EmptyState';
+import CatalogWelcomePanel from '@/components/library/CatalogWelcomePanel';
 import FilterSidebarCard from '@/components/library/FilterSidebarCard';
-import PageHeader from '@/components/library/PageHeader';
 import StatusBadge from '@/components/library/StatusBadge';
 import PaginationLinks from '@/components/PaginationLinks';
 import { Button } from '@/components/ui/button';
@@ -89,23 +88,23 @@ export default function Index({
             <Head title="Library Catalog" />
 
             <div className="space-y-6">
-                <PageHeader
-                    eyebrow="Library"
-                    title="Library catalog"
-                    description="Search and browse library books."
-                    actions={
-                        <>
-                            <Link href="/dashboard/library-admin">
-                                <Button variant="outline" size="sm">
-                                    Dashboard
-                                </Button>
-                            </Link>
-                        </>
-                    }
-                />
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#23408E]">
+                            Catalog
+                        </p>
+                        <h1 className="text-2xl font-semibold">Library catalog</h1>
+                        <p className="text-sm text-muted-foreground">Search and browse library books.</p>
+                    </div>
+                    <Link href="/dashboard/library-admin">
+                        <Button variant="outline" size="sm" className="rounded-[10px]">
+                            Dashboard
+                        </Button>
+                    </Link>
+                </div>
 
                 <div className="grid gap-6 lg:grid-cols-[280px_1fr] lg:items-start">
-                    <FilterSidebarCard title="Search catalog">
+                    <FilterSidebarCard title="Find books">
                         <form onSubmit={(e) => applyFilters(e)} className="space-y-3">
                             <div className="space-y-2">
                                 <Label htmlFor="search">Search</Label>
@@ -186,39 +185,40 @@ export default function Index({
                                 </div>
                             )}
                             <div className="flex flex-wrap gap-2 pt-1">
-                                <Button type="submit" size="sm">
+                                <Button type="submit" size="sm" className="rounded-[10px]">
                                     Search
                                 </Button>
-                                <Button type="button" variant="outline" size="sm" onClick={(e) => applyFilters(e, true)}>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="rounded-[10px]"
+                                    onClick={(e) => applyFilters(e, true)}
+                                >
                                     Show all
                                 </Button>
                             </div>
                         </form>
                     </FilterSidebarCard>
 
-                    <Card>
-                        <CardHeader>
+                    <Card className="rounded-2xl border-[#E5E7EB] shadow-sm">
+                        <CardHeader className="border-b border-[#E5E7EB]">
                             <CardTitle>
                                 {hasActiveQuery
                                     ? `${library_books.total} result${library_books.total === 1 ? '' : 's'}`
                                     : 'Catalog results'}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pt-6">
                             {!hasActiveQuery ? (
-                                <EmptyState
-                                    title="Search to begin"
-                                    description="Enter search criteria on the left or click Show all to browse the catalog."
-                                    actionLabel="Show all books"
-                                    onAction={() =>
-                                        router.get('/books', { show_all: 1 }, { preserveState: true })
-                                    }
-                                />
+                                <CatalogWelcomePanel />
                             ) : library_books.data.length === 0 ? (
-                                <EmptyState
-                                    title="No books found"
-                                    description="Try adjusting filters to find matching catalog records."
-                                />
+                                <div className="py-10 text-center">
+                                    <p className="font-medium">No books found</p>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                        Try adjusting filters to find matching catalog records.
+                                    </p>
+                                </div>
                             ) : (
                                 <>
                                     <Table>

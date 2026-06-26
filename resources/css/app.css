@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -9,7 +13,7 @@
 @source '../**/*.tsx';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
     --color-background: var(--background);
@@ -39,18 +43,18 @@
 
 @layer base {
     .theme {
-        --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
     }
 
     :root {
-        /* JMC branding: blue #1f4ea7, green #2e7d32, gold #ffd700 */
-        --background: oklch(0.99 0 0);
+        /* JMC branding: primary #23408E, secondary #2E7D32, gold #ffd700 */
+        --background: oklch(0.985 0.004 260);
         --foreground: oklch(0.32 0.02 260);
         --card: oklch(1 0 0);
         --card-foreground: oklch(0.32 0.02 260);
         --popover: oklch(1 0 0);
         --popover-foreground: oklch(0.32 0.02 260);
-        --primary: oklch(0.42 0.14 264);
+        --primary: oklch(0.38 0.12 264);
         --primary-foreground: oklch(0.99 0 0);
         --secondary: oklch(0.52 0.13 145);
         --secondary-foreground: oklch(0.99 0 0);
@@ -62,8 +66,8 @@
         --destructive-foreground: oklch(0.99 0 0);
         --border: oklch(0.91 0.01 260);
         --input: oklch(0.91 0.01 260);
-        --ring: oklch(0.42 0.14 264);
-        --radius: 0.5rem;
+        --ring: oklch(0.38 0.12 264);
+        --radius: 0.625rem;
     }
 
     * {
@@ -71,6 +75,42 @@
     }
 
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background font-sans text-foreground;
+    }
+}
+
+@layer components {
+    .admin-shell {
+        min-height: 100svh;
+    }
+
+    .dashboard-hero {
+        border-radius: 1rem;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .dashboard-stat-card {
+        border-radius: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dashboard-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px color-mix(in oklch, var(--primary) 12%, transparent);
+    }
+
+    .dashboard-welcome {
+        border-radius: 1rem;
+    }
+
+    .dashboard-module-card {
+        border-radius: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .dashboard-module-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px color-mix(in oklch, var(--primary) 10%, transparent);
+        border-color: color-mix(in oklch, var(--primary) 25%, var(--border));
     }
 }
