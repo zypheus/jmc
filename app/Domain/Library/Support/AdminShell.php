@@ -5,6 +5,7 @@ namespace App\Domain\Library\Support;
 use App\Domain\Library\Models\AdminActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 class AdminShell
 {
@@ -64,8 +65,8 @@ class AdminShell
             'unreadCount' => $unreadCount,
             'activities' => $activities,
             'urls' => [
-                'markSeen' => route('library.admin.activities.mark_seen'),
-                'recent' => route('library.admin.activities.recent'),
+                'markSeen' => route(Route::has('admin.activities.mark_seen') ? 'admin.activities.mark_seen' : 'library.admin.activities.mark_seen'),
+                'recent' => route(Route::has('admin.activities.recent') ? 'admin.activities.recent' : 'library.admin.activities.recent'),
             ],
         ];
     }

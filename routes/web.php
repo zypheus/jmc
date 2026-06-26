@@ -340,3 +340,65 @@ Route::middleware(['auth', 'role:library_admin'])->name('library.')->group(funct
 
     Route::redirect('/view-users', '/staff-users')->name('users.index');
 });
+
+// =============================================================================
+// USM-compatible route aliases (keep jmc handlers, expose USM names/URLs)
+// =============================================================================
+
+// Public aliases
+Route::get('/opac', [BookController::class, 'landingPage'])->name('landing');
+Route::get('/rooms/book', [RoomReservationController::class, 'create'])->name('rooms.book');
+Route::get('/rooms/schedule', [RoomReservationController::class, 'schedule'])->name('rooms.schedule');
+
+// Staff + admin aliases
+Route::middleware(['auth', 'role:library_admin|library_staff'])->group(function () {
+    Route::get('/admin/activities', [AdminActivityController::class, 'index'])->name('admin.activities.index');
+    Route::get('/admin/activities/recent', [AdminActivityController::class, 'recent'])->name('admin.activities.recent');
+    Route::post('/admin/activities/mark-seen', [AdminActivityController::class, 'markSeen'])->name('admin.activities.mark_seen');
+
+    Route::get('/download-book-report', [BookController::class, 'downloadBookReport'])->name('book.report.download');
+    Route::get('/reports/library-holdings', [LibraryHoldingsReportController::class, 'create'])->name('reports.library_holdings.create');
+    Route::post('/reports/library-holdings', [LibraryHoldingsReportController::class, 'download'])->name('reports.library_holdings.download');
+    Route::get('/catalog/copy/openlibrary', [OpenLibraryCopyCatalogController::class, 'searchForm'])->name('catalog.copy.openlibrary.form');
+    Route::match(['get', 'post'], '/catalog/copy/openlibrary/search', [OpenLibraryCopyCatalogController::class, 'search'])->name('catalog.copy.openlibrary.search');
+    Route::post('/catalog/copy/openlibrary/store', [OpenLibraryCopyCatalogController::class, 'store'])->name('catalog.copy.openlibrary.store');
+    Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('feedback.index');
+});
+
+// Attendance admin aliases for canonical attendance-logs URLs
+Route::middleware(['auth', 'role:attendance_admin'])->group(function () {
+    Route::get('/attendance-logs', [AttendanceLogController::class, 'index'])->name('attendance_logs.index');
+    Route::get('/attendance-logs/reports', [AttendanceLogController::class, 'reportsHub'])->name('attendance_logs.reports.hub');
+    Route::get('/attendance-logs/reports/dashboard', [AttendanceLogController::class, 'reportsDashboard'])->name('attendance_logs.reports.dashboard');
+    Route::get('/attendance-logs/reports/export', [AttendanceLogController::class, 'reportsExportCsv'])->name('attendance_logs.reports.export');
+    Route::get('/attendance-logs/export/excel', [AttendanceLogController::class, 'exportExcel'])->name('attendance_logs.export.excel');
+    Route::get('/attendance-logs/export/pdf', [AttendanceLogController::class, 'exportPdf'])->name('attendance_logs.export.pdf');
+
+    Route::get('/admin/attendance-feedbacks', [FeedController::class, 'index'])->name('admin.attendance.feedbacks');
+});
+
+// Library admin aliases
+Route::middleware(['auth', 'role:library_admin'])->group(function () {
+    Route::get('/logs', [BookLogController::class, 'index'])->name('logs.index');
+    Route::post('/logs', [BookLogController::class, 'store'])->name('logs.store');
+    Route::post('/logs/{book}/renew', [BookLogController::class, 'renew'])->name('logs.renew');
+
+    Route::get('/students', [LibraryStudentController::class, 'index'])->name('students.index');
+    Route::get('/employees', [LibraryEmployeeController::class, 'index'])->name('employees.index');
+
+    Route::get('/admin/circulation-policy', [CirculationPolicyController::class, 'edit'])->name('circulation.policy.edit');
+    Route::post('/admin/circulation-policy', [CirculationPolicyController::class, 'update'])->name('circulation.policy.update');
+    Route::get('/admin/fines/outstanding', [FineClearanceController::class, 'index'])->name('fines.outstanding');
+    Route::post('/admin/fines/logs/{bookLog}/clear', [FineClearanceController::class, 'clear'])->name('fines.logs.clear');
+
+    Route::get('/rooms/logs', [RoomReservationController::class, 'logs'])->name('rooms.logs');
+    Route::get('/rooms/pending', [RoomReservationController::class, 'pending'])->name('rooms.pending');
+    Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+
+    Route::get('/prospectus', [ProspectusController::class, 'index'])->name('prospectus.index');
+    Route::get('/files', [FileController::class, 'index'])->name('files.index');
+    Route::get('/sms-blast', [LibrarySMSController::class, 'index'])->name('sms.page');
+    Route::get('/admin/catalog-frameworks', [CatalogFrameworkAdminController::class, 'index'])->name('admin.catalog_frameworks.index');
+    Route::get('/admin/catalog-select-options', [CatalogMarcSelectOptionsController::class, 'index'])->name('admin.catalog_select_options.index');
+    Route::redirect('/view-users', '/staff-users')->name('users.index');
+});
