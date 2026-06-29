@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
@@ -6,15 +5,8 @@ import AppHeader from '@/components/app/AppHeader';
 import AppSidebar from '@/components/app/AppSidebar';
 import FlashAlerts from '@/components/FlashAlerts';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { filterNavigation } from '@/lib/authorization';
+import { submitLogout } from '@/lib/logout';
 import { isNavigationBranchActive, resolveBreadcrumbs } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { PageProps } from '@/types';
@@ -35,7 +27,6 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [openGroupId, setOpenGroupId] = useState<string | null>(null);
-    const [logoutOpen, setLogoutOpen] = useState(false);
     const visibleNavigation = useMemo(() => filterNavigation(navigation, auth, module), [navigation, auth, module]);
     const breadcrumbs = useMemo(
         () => resolveBreadcrumbs(visibleNavigation, module, auth, routeName),
@@ -110,7 +101,7 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
                     adminActivity={adminActivity}
                     onOpenMobile={() => setMobileOpen(true)}
                     onToggleCollapsed={() => setCollapsed((value) => !value)}
-                    onLogout={() => setLogoutOpen(true)}
+                    onLogout={submitLogout}
                 />
                 <main className="flex-1 p-4 md:p-6 xl:p-8">
                     <FlashAlerts flash={flash} />
@@ -118,18 +109,6 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
                 </main>
             </div>
 
-            <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Log out of JMC?</DialogTitle>
-                        <DialogDescription>Your current staff session will end. You can sign in again at any time.</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setLogoutOpen(false)}>Cancel</Button>
-                        <Button type="button" variant="destructive" onClick={() => router.post(route('logout'))}>Log out</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

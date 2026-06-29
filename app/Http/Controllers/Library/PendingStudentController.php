@@ -183,6 +183,7 @@ class PendingStudentController extends Controller
                 'course' => $pending->course,
                 'year' => $pending->year,
                 'mobile_number' => $pending->mobile_number,
+                'email' => $pending->email,
                 'address' => $pending->address,
                 'emergency_person' => $pending->emergency_person,
                 'emergency_relationship' => $pending->emergency_relationship,

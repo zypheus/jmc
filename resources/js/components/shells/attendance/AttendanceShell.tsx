@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/react';
 import { ChevronLeft, Menu, X } from 'lucide-react';
 import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
@@ -7,15 +6,8 @@ import FlashAlerts from '@/components/FlashAlerts';
 import AttendanceSidebar from '@/components/shells/attendance/AttendanceSidebar';
 import ModuleSwitcher from '@/components/app/ModuleSwitcher';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { filterNavigation } from '@/lib/authorization';
+import { submitLogout } from '@/lib/logout';
 import { resolveBreadcrumbs } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { PageProps } from '@/types';
@@ -39,7 +31,6 @@ export default function AttendanceShell({
 }: AttendanceShellProps) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [logoutOpen, setLogoutOpen] = useState(false);
     const visibleNavigation = useMemo(() => filterNavigation(navigation, auth, 'attendance'), [navigation, auth]);
     const breadcrumbs = useMemo(
         () => resolveBreadcrumbs(visibleNavigation, 'attendance', auth, routeName),
@@ -71,7 +62,7 @@ export default function AttendanceShell({
             routeName={routeName}
             auth={auth}
             collapsed={isCollapsed}
-            onLogout={() => setLogoutOpen(true)}
+            onLogout={submitLogout}
             onNavigate={onNavigate}
         />
     );
@@ -155,20 +146,6 @@ export default function AttendanceShell({
                 </main>
             </div>
 
-            <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Log out of JMC?</DialogTitle>
-                        <DialogDescription>
-                            Your current staff session will end. You can sign in again at any time.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setLogoutOpen(false)}>Cancel</Button>
-                        <Button type="button" variant="destructive" onClick={() => router.post(route('logout'))}>Log out</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

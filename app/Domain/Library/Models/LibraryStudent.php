@@ -23,6 +23,7 @@ class LibraryStudent extends Model
         'profile_picture',
         'student_signature',
         'mobile_number',
+        'email',
         'address',
         'emergency_person',
         'emergency_relationship',

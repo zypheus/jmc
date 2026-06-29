@@ -5,20 +5,19 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Auth\ModuleAccessService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class AuthController extends Controller
 {
     public function __construct(private readonly ModuleAccessService $moduleAccess) {}
 
-    public function showLogin(): Response
+    public function showLogin(): View
     {
-        return Inertia::render('Auth/Login');
+        return view('landing.page', ['openLoginModal' => true]);
     }
 
     public function login(Request $request): RedirectResponse
@@ -59,7 +58,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('home');
     }
 
     protected function redirectForRole(User $user): RedirectResponse
