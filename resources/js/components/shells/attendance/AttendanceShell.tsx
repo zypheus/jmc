@@ -4,6 +4,7 @@ import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import AppBreadcrumbs from '@/components/app/AppBreadcrumbs';
 import FlashAlerts from '@/components/FlashAlerts';
 import AttendanceSidebar from '@/components/shells/attendance/AttendanceSidebar';
+import LogoutConfirmDialog from '@/components/app/LogoutConfirmDialog';
 import ModuleSwitcher from '@/components/app/ModuleSwitcher';
 import { Button } from '@/components/ui/button';
 import { filterNavigation } from '@/lib/authorization';
@@ -31,6 +32,7 @@ export default function AttendanceShell({
 }: AttendanceShellProps) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [logoutOpen, setLogoutOpen] = useState(false);
     const visibleNavigation = useMemo(() => filterNavigation(navigation, auth, 'attendance'), [navigation, auth]);
     const breadcrumbs = useMemo(
         () => resolveBreadcrumbs(visibleNavigation, 'attendance', auth, routeName),
@@ -62,7 +64,7 @@ export default function AttendanceShell({
             routeName={routeName}
             auth={auth}
             collapsed={isCollapsed}
-            onLogout={submitLogout}
+            onLogout={() => setLogoutOpen(true)}
             onNavigate={onNavigate}
         />
     );
@@ -146,6 +148,7 @@ export default function AttendanceShell({
                 </main>
             </div>
 
+            <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={submitLogout} />
         </div>
     );
 }

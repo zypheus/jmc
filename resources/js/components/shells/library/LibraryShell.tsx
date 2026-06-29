@@ -4,6 +4,7 @@ import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import AppBreadcrumbs from '@/components/app/AppBreadcrumbs';
 import FlashAlerts from '@/components/FlashAlerts';
 import LibrarySidebar from '@/components/shells/library/LibrarySidebar';
+import LogoutConfirmDialog from '@/components/app/LogoutConfirmDialog';
 import ModuleSwitcher from '@/components/app/ModuleSwitcher';
 import NotificationMenu from '@/components/app/NotificationMenu';
 import UserMenu from '@/components/app/UserMenu';
@@ -35,6 +36,7 @@ export default function LibraryShell({
 }: LibraryShellProps) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [logoutOpen, setLogoutOpen] = useState(false);
     const visibleNavigation = useMemo(() => filterNavigation(navigation, auth, 'library'), [navigation, auth]);
     const breadcrumbs = useMemo(
         () => resolveBreadcrumbs(visibleNavigation, 'library', auth, routeName),
@@ -133,7 +135,7 @@ export default function LibraryShell({
                     <div className="ml-auto flex shrink-0 items-center gap-1.5">
                         <ModuleSwitcher auth={auth} module="library" />
                         <NotificationMenu payload={adminActivity} />
-                        <UserMenu auth={auth} onLogout={submitLogout} />
+                        <UserMenu auth={auth} onLogout={() => setLogoutOpen(true)} />
                     </div>
                 </header>
                 <main className="flex-1 p-4 md:p-6 xl:p-8">
@@ -142,6 +144,7 @@ export default function LibraryShell({
                 </main>
             </div>
 
+            <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={submitLogout} />
         </div>
     );
 }

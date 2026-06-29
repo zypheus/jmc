@@ -3,6 +3,7 @@ import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import AppHeader from '@/components/app/AppHeader';
 import AppSidebar from '@/components/app/AppSidebar';
+import LogoutConfirmDialog from '@/components/app/LogoutConfirmDialog';
 import FlashAlerts from '@/components/FlashAlerts';
 import { Button } from '@/components/ui/button';
 import { filterNavigation } from '@/lib/authorization';
@@ -27,6 +28,7 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+    const [logoutOpen, setLogoutOpen] = useState(false);
     const visibleNavigation = useMemo(() => filterNavigation(navigation, auth, module), [navigation, auth, module]);
     const breadcrumbs = useMemo(
         () => resolveBreadcrumbs(visibleNavigation, module, auth, routeName),
@@ -101,7 +103,7 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
                     adminActivity={adminActivity}
                     onOpenMobile={() => setMobileOpen(true)}
                     onToggleCollapsed={() => setCollapsed((value) => !value)}
-                    onLogout={submitLogout}
+                    onLogout={() => setLogoutOpen(true)}
                 />
                 <main className="flex-1 p-4 md:p-6 xl:p-8">
                     <FlashAlerts flash={flash} />
@@ -109,6 +111,7 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
                 </main>
             </div>
 
+            <LogoutConfirmDialog open={logoutOpen} onOpenChange={setLogoutOpen} onConfirm={submitLogout} />
         </div>
     );
 }

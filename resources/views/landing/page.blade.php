@@ -34,6 +34,12 @@
         </nav>
     </header>
 
+    @if(session('status') || session('success') || session('error'))
+        <div class="landing-flash {{ session('error') ? 'is-error' : 'is-success' }}" role="status">
+            {{ session('error') ?? session('success') ?? session('status') }}
+        </div>
+    @endif
+
     <main class="hero">
         <div class="hero-content">
             <h1 class="fade-in">WELCOME TO PANTAS</h1>

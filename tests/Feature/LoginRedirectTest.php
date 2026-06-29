@@ -55,6 +55,18 @@ class LoginRedirectTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_logout_redirects_to_home_with_status_message(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('logout'))
+            ->assertRedirect(route('home'))
+            ->assertSessionHas('status', 'You have been logged out.');
+
+        $this->assertGuest();
+    }
+
     public function test_dual_module_user_is_redirected_to_module_selection(): void
     {
         $user = User::factory()->create(['email' => 'dual@example.test']);
