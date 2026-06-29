@@ -86,4 +86,46 @@ class DomainRoleAccessTest extends TestCase
         $this->get('/attendance/logs')->assertRedirect(route('login'));
         $this->get('/logs')->assertRedirect(route('login'));
     }
+
+    public function test_library_staff_can_access_non_admin_library_routes(): void
+    {
+        $user = $this->userWithRole('library_staff');
+
+        $this->actingAs($user)->get('/books')->assertOk();
+        $this->actingAs($user)->get('/catalog/copy/openlibrary')->assertOk();
+        $this->actingAs($user)->get('/reports/library-holdings')->assertOk();
+    }
+
+    public function test_library_staff_cannot_access_library_admin_patron_routes(): void
+    {
+        $user = $this->userWithRole('library_staff');
+
+        $this->actingAs($user)->get('/students')->assertForbidden();
+        $this->actingAs($user)->get('/employees')->assertForbidden();
+        $this->actingAs($user)->get('/logs')->assertForbidden();
+    }
+
+    public function test_attendance_staff_cannot_access_library_patron_directories(): void
+    {
+        $user = $this->userWithRole('attendance_staff');
+
+        $this->actingAs($user)->get('/students')->assertForbidden();
+        $this->actingAs($user)->get('/employees')->assertForbidden();
+    }
+
+    public function test_attendance_staff_can_access_attendance_patron_directories(): void
+    {
+        $user = $this->userWithRole('attendance_staff');
+
+        $this->actingAs($user)->get('/attendance/students')->assertOk();
+        $this->actingAs($user)->get('/attendance/employees')->assertOk();
+    }
+
+    public function test_library_admin_cannot_access_attendance_patron_directories(): void
+    {
+        $user = $this->userWithRole('library_admin');
+
+        $this->actingAs($user)->get('/attendance/students')->assertForbidden();
+        $this->actingAs($user)->get('/attendance/employees')->assertForbidden();
+    }
 }

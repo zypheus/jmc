@@ -1,219 +1,251 @@
-export type TopNavIcon =
-    | 'Home'
-    | 'ClipboardCheck'
-    | 'Database'
-    | 'BookOpen'
-    | 'Library'
-    | 'FileBarChart'
-    | 'Shield'
-    | 'DoorOpen';
+import {
+    BookMarked,
+    BookOpen,
+    Braces,
+    Database,
+    DoorOpen,
+    FileBarChart,
+    FileDown,
+    FolderOpen,
+    History,
+    Home,
+    Library,
+    ListTree,
+    MessagesSquare,
+    ScanLine,
+    Send,
+    Shield,
+    UserCog,
+} from 'lucide-react';
 
-export interface AdminNavigationChild {
-    label: string;
-    href: string;
-    routeName?: string;
-    routePrefix?: string;
-    adminOnly?: boolean;
-}
+import type { PageProps } from '@/types';
+import type { NavigationGroup } from '@/types/navigation';
 
-export interface AdminNavigationItem {
-    label: string;
-    href?: string;
-    routeName?: string;
-    routePrefix?: string;
-    icon: TopNavIcon;
-    adminOnly?: boolean;
-    children?: AdminNavigationChild[];
-}
+const adminRoles = ['library_admin'];
 
-export interface LibraryBreadcrumbItem {
-    label: string;
-    href: string | null;
-    isCurrent: boolean;
-}
-
-export const adminNavigation: AdminNavigationItem[] = [
-    {
-        label: 'Home',
-        href: '/dashboard',
-        routePrefix: 'library.dashboard.',
-        icon: 'Home',
-    },
-    {
-        label: 'Data',
-        icon: 'Database',
-        children: [
-            { label: 'Student Data', href: '/students', routeName: 'library.students.index', adminOnly: true },
-            { label: 'Faculty & Staff Data', href: '/employees', routeName: 'library.employees.index', adminOnly: true },
-        ],
-    },
-    {
-        label: 'OPAC',
-        href: '/opac',
-        routeName: 'library.landing',
-        icon: 'BookOpen',
-    },
-    {
-        label: 'Circulation',
-        icon: 'Library',
-        children: [
-            { label: 'Circulation', href: '/logs', routeName: 'library.logs.index', adminOnly: true },
-            { label: 'Copy Cataloging', href: '/catalog/copy/openlibrary', routeName: 'library.catalog.copy.openlibrary.form' },
-            { label: 'Circulation Policy', href: '/admin/circulation-policy', routeName: 'library.circulation.policy.edit', adminOnly: true },
-        ],
-    },
-    {
-        label: 'Reports',
-        icon: 'FileBarChart',
-        children: [
-            { label: 'Outstanding Fines', href: '/admin/fines/outstanding', routeName: 'library.fines.outstanding', routePrefix: 'library.fines.', adminOnly: true },
-            { label: 'Library Holdings Report', href: '/reports/library-holdings', routeName: 'library.reports.library_holdings.create', routePrefix: 'library.reports.library_holdings.' },
-            { label: 'Download Book Report (PDF)', href: '/download-book-report', routeName: 'library.book.report.download' },
-            { label: 'Student Feedback', href: '/feedbacks', routeName: 'library.feedback.index', routePrefix: 'library.feedback.' },
-            { label: 'Activity log', href: '/admin/activities', routeName: 'library.admin.activities.index', routePrefix: 'library.admin.activities.' },
-            { label: 'Reservation Logs', href: '/rooms/logs', routeName: 'library.rooms.logs', adminOnly: true },
-        ],
-    },
-    {
-        label: 'Admin',
-        icon: 'Shield',
-        children: [
-            { label: 'Repository', href: '/files', routeName: 'library.files.index', adminOnly: true },
-            { label: 'Prospectus Manager', href: '/prospectus', routeName: 'library.prospectus.index', routePrefix: 'library.prospectus.', adminOnly: true },
-            { label: 'Staff Accounts', href: '/staff-users', routePrefix: 'staff-users.', adminOnly: true },
-            { label: 'MARC catalog frameworks', href: '/admin/catalog-frameworks', routeName: 'library.admin.catalog_frameworks.index', adminOnly: true },
-            { label: 'Catalog dropdown options', href: '/admin/catalog-select-options', routeName: 'library.admin.catalog_select_options.index', adminOnly: true },
-            { label: 'SMS Blast', href: '/sms-blast', routeName: 'library.sms.page', adminOnly: true },
-        ],
-    },
-    {
-        label: 'Room Reservations',
-        icon: 'DoorOpen',
-        children: [
-            { label: 'Manage Rooms', href: '/rooms', routeName: 'library.rooms.index', adminOnly: true },
-            { label: 'Book a Room', href: '/rooms/book', routeName: 'library.rooms.book' },
-            { label: 'View Schedule', href: '/rooms/schedule', routeName: 'library.rooms.schedule' },
-            { label: 'Pending Reservations', href: '/rooms/pending', routeName: 'library.rooms.pending', adminOnly: true },
-        ],
-    },
-];
-
-function normalizePath(pathname: string): string {
-    const basePath = pathname.split('?')[0]?.split('#')[0] ?? '/';
-    if (basePath.length > 1 && basePath.endsWith('/')) {
-        return basePath.slice(0, -1);
-    }
-    return basePath || '/';
-}
-
-export function filterNavigation(items: AdminNavigationItem[], isAdmin: boolean): AdminNavigationItem[] {
-    return items
-        .map((item) => {
-            if (item.adminOnly && !isAdmin) {
-                return null;
-            }
-
-            if (item.children?.length) {
-                const children = item.children.filter((child) => !child.adminOnly || isAdmin);
-
-                if (children.length === 0) {
-                    return null;
-                }
-
-                return {
-                    ...item,
-                    children,
-                };
-            }
-
-            return item;
-        })
-        .filter((item): item is AdminNavigationItem => item !== null);
-}
-
-export function isNavItemActive(
-    item: Pick<AdminNavigationChild, 'href' | 'routeName' | 'routePrefix'>,
-    routeName: string | null | undefined,
-    pathname: string,
-): boolean {
-    if (item.routePrefix && routeName?.startsWith(item.routePrefix)) {
-        return true;
-    }
-
-    if (item.routeName && routeName === item.routeName) {
-        return true;
-    }
-
-    const normalizedCurrentPath = normalizePath(pathname);
-    const normalizedHref = normalizePath(item.href);
-
-    if (normalizedCurrentPath === normalizedHref) {
-        return true;
-    }
-
-    if (normalizedHref === '/book') {
-        return false;
-    }
-
-    return normalizedCurrentPath.startsWith(`${normalizedHref}/`);
-}
-
-export function isNavGroupActive(
-    item: AdminNavigationItem,
-    routeName: string | null | undefined,
-    pathname: string,
-): boolean {
-    if (!item.children?.length) {
-        if (!item.href) {
-            return false;
-        }
-
-        return isNavItemActive(
-            { href: item.href, routeName: item.routeName, routePrefix: item.routePrefix },
-            routeName,
-            pathname,
-        );
-    }
-
-    return item.children.some((child) => isNavItemActive(child, routeName, pathname));
-}
-
-export function resolveBreadcrumbs(
-    items: AdminNavigationItem[],
-    routeName: string | null | undefined,
-    pathname: string,
-): LibraryBreadcrumbItem[] {
-    for (const item of items) {
-        if (item.children?.length) {
-            const child = item.children.find((entry) => isNavItemActive(entry, routeName, pathname));
-            if (child) {
-                return [
-                    { label: 'Home', href: '/book', isCurrent: false },
-                    { label: item.label, href: item.children[0]?.href ?? null, isCurrent: false },
-                    { label: child.label, href: null, isCurrent: true },
-                ];
-            }
-
-            continue;
-        }
-
-        if (item.href) {
-            const activeRoot = isNavItemActive(
-                { href: item.href, routeName: item.routeName, routePrefix: item.routePrefix },
-                routeName,
-                pathname,
-            );
-
-            if (!activeRoot) {
-                continue;
-            }
-
-            return [
-                { label: 'Home', href: '/book', isCurrent: false },
-                { label: item.label, href: null, isCurrent: true },
-            ];
-        }
-    }
-
-    return [{ label: 'Home', href: '/book', isCurrent: true }];
+export function libraryNavigation(_auth: PageProps['auth']): NavigationGroup[] {
+    return [
+        {
+            id: 'menu',
+            label: 'Menu',
+            items: [
+                {
+                    id: 'home',
+                    label: 'Home',
+                    icon: Home,
+                    routeName: 'library.books.index',
+                    routePrefixes: ['library.book.', 'library.books.'],
+                },
+                {
+                    id: 'library-kiosk',
+                    label: 'Library Kiosk',
+                    icon: ScanLine,
+                    routeName: 'library.kiosk.scan',
+                    external: true,
+                },
+                {
+                    id: 'data',
+                    label: 'Data',
+                    icon: Database,
+                    children: [
+                        {
+                            id: 'student-data',
+                            label: 'Student Data',
+                            icon: Database,
+                            routeName: 'library.students.index',
+                            routePrefixes: ['library.students.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'faculty-staff-data',
+                            label: 'Faculty & Staff Data',
+                            icon: Database,
+                            routeName: 'library.employees.index',
+                            routePrefixes: ['library.employees.'],
+                            roles: adminRoles,
+                        },
+                    ],
+                },
+                {
+                    id: 'opac',
+                    label: 'OPAC',
+                    icon: BookOpen,
+                    routeName: 'library.landing',
+                    external: true,
+                },
+                {
+                    id: 'circulation',
+                    label: 'Circulation',
+                    icon: Library,
+                    children: [
+                        {
+                            id: 'circulation-desk',
+                            label: 'Circulation',
+                            icon: Library,
+                            routeName: 'library.logs.index',
+                            routePrefixes: ['library.logs.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'copy-cataloging',
+                            label: 'Copy Cataloging',
+                            icon: Library,
+                            routeName: 'library.catalog.copy.openlibrary.form',
+                            routePrefixes: ['library.catalog.copy.openlibrary.'],
+                        },
+                        {
+                            id: 'circulation-policy',
+                            label: 'Circulation Policy',
+                            icon: Library,
+                            routeName: 'library.circulation.policy.edit',
+                            routePrefixes: ['library.circulation.policy.'],
+                            roles: adminRoles,
+                        },
+                    ],
+                },
+                {
+                    id: 'reports',
+                    label: 'Reports',
+                    icon: FileBarChart,
+                    children: [
+                        {
+                            id: 'outstanding-fines',
+                            label: 'Outstanding Fines',
+                            icon: FileBarChart,
+                            routeName: 'library.fines.outstanding',
+                            routePrefixes: ['library.fines.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'holdings-report',
+                            label: 'Library Holdings Report',
+                            icon: FileBarChart,
+                            routeName: 'library.reports.library_holdings.create',
+                            routePrefixes: ['library.reports.library_holdings.'],
+                        },
+                        {
+                            id: 'book-report-pdf',
+                            label: 'Download Book Report (PDF)',
+                            icon: FileDown,
+                            routeName: 'library.book.report.download',
+                            external: true,
+                        },
+                        {
+                            id: 'student-feedback',
+                            label: 'Student Feedback',
+                            icon: MessagesSquare,
+                            routeName: 'library.feedback.index',
+                            routePrefixes: ['library.feedback.'],
+                        },
+                        {
+                            id: 'activity-log',
+                            label: 'Activity log',
+                            icon: FileBarChart,
+                            routeName: 'library.admin.activities.index',
+                            routePrefixes: ['library.admin.activities.'],
+                        },
+                        {
+                            id: 'reservation-logs',
+                            label: 'Reservation Logs',
+                            icon: History,
+                            routeName: 'library.rooms.logs',
+                            roles: adminRoles,
+                        },
+                    ],
+                },
+                {
+                    id: 'admin',
+                    label: 'Admin',
+                    icon: Shield,
+                    roles: adminRoles,
+                    children: [
+                        {
+                            id: 'repository',
+                            label: 'Repository',
+                            icon: FolderOpen,
+                            routeName: 'library.files.index',
+                            routePrefixes: ['library.files.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'prospectus',
+                            label: 'Prospectus Manager',
+                            icon: BookMarked,
+                            routeName: 'library.prospectus.index',
+                            routePrefixes: ['library.prospectus.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'view-users',
+                            label: 'View Pantas Users',
+                            icon: UserCog,
+                            routeName: 'staff-users.index',
+                            routePrefixes: ['staff-users.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'marc-frameworks',
+                            label: 'MARC catalog frameworks',
+                            icon: Braces,
+                            routeName: 'library.admin.catalog_frameworks.index',
+                            routePrefixes: ['library.admin.catalog_frameworks.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'catalog-options',
+                            label: 'Catalog dropdown options',
+                            icon: ListTree,
+                            routeName: 'library.admin.catalog_select_options.index',
+                            routePrefixes: ['library.admin.catalog_select_options.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'sms-blast',
+                            label: 'SMS Blast',
+                            icon: Send,
+                            routeName: 'library.sms.page',
+                            routePrefixes: ['library.sms.'],
+                            roles: adminRoles,
+                        },
+                    ],
+                },
+                {
+                    id: 'room-reservations',
+                    label: 'Room Reservations',
+                    icon: DoorOpen,
+                    children: [
+                        {
+                            id: 'manage-rooms',
+                            label: 'Manage Rooms',
+                            icon: DoorOpen,
+                            routeName: 'library.rooms.index',
+                            routePrefixes: ['library.rooms.create', 'library.rooms.edit'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'book-room',
+                            label: 'Book a Room',
+                            icon: DoorOpen,
+                            routeName: 'library.rooms.book',
+                            external: true,
+                        },
+                        {
+                            id: 'view-schedule',
+                            label: 'View Schedule',
+                            icon: DoorOpen,
+                            routeName: 'library.rooms.schedule',
+                            external: true,
+                        },
+                        {
+                            id: 'pending-reservations',
+                            label: 'Pending Reservations',
+                            icon: DoorOpen,
+                            routeName: 'library.rooms.pending',
+                            roles: adminRoles,
+                        },
+                    ],
+                },
+            ],
+        },
+    ];
 }
