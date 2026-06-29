@@ -42,7 +42,7 @@
 
     <section id="about" class="about-section fade-in-scroll">
         <div class="container">
-            <img src="{{ asset('images/pantas3.png') }}" alt="PANTAS Logo Large" class="about-logo">
+            <img src="{{ asset('images/pantasLogo2.png') }}" alt="PANTAS Logo Large" class="about-logo">
             <h2 class="tagline">"Pinoy Automated Next-Generation Technology for Academic Services"</h2>
             <p class="description">
                 PANTAS (Affiliated by AREA51) is a smart digital library system designed to revolutionize how libraries operate. It bridges traditional physical resources with modern digital management using advanced RFID technology. As AREA 51's first start-up venture, PANTAS aims to build the libraries of tomorrow - offering intelligent solutions that improve efficiency, enhance security, and simplify daily operations for librarians, educators, and institutions.
