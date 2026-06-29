@@ -324,7 +324,7 @@ class StudentController extends Controller
     {
         $student = LibraryStudent::findOrFail($id);
 
-        return view('students.show', compact('student'));
+        return Inertia::render('Library/Students/Show', compact('student'));
     }
 
     // Pending list

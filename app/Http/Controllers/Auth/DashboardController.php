@@ -14,6 +14,7 @@ use App\Domain\Library\Models\LibraryPendingEmployee;
 use App\Domain\Library\Models\LibraryPendingStudent;
 use App\Domain\Library\Models\LibraryStudent;
 use App\Http\Controllers\Controller;
+use App\Services\Auth\ModuleAccessService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,31 +24,24 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(private readonly ModuleAccessService $moduleAccess) {}
+
     public function index(Request $request): RedirectResponse
     {
         $user = $request->user();
+        $activeModule = $request->session()->get('active_module');
 
-        if ($user->hasRole('super_admin')) {
-            return redirect()->route('dashboard.super-admin');
+        if (is_string($activeModule) && $this->moduleAccess->canAccessModule($user, $activeModule)) {
+            return redirect()->route($this->moduleAccess->dashboardRouteForModule($user, $activeModule));
         }
 
-        if ($user->hasRole('library_admin')) {
-            return redirect()->route('dashboard.library-admin');
-        }
+        $request->session()->forget('active_module');
 
-        if ($user->hasRole('library_staff')) {
-            return redirect()->route('dashboard.library-staff');
+        try {
+            return redirect()->route($this->moduleAccess->defaultDashboardRoute($user));
+        } catch (\InvalidArgumentException) {
+            abort(403, 'No dashboard available for your role.');
         }
-
-        if ($user->hasRole('attendance_admin')) {
-            return redirect()->route('dashboard.attendance-admin');
-        }
-
-        if ($user->hasRole('attendance_staff')) {
-            return redirect()->route('dashboard.attendance-staff');
-        }
-
-        abort(403, 'No dashboard available for your role.');
     }
 
     public function libraryAdmin(): Response

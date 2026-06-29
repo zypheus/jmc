@@ -110,7 +110,7 @@ class LibraryHoldingsReportBuilder
 
         $query = LibraryBook::query()
             ->whereNull('archived_at')
-            ->whereHas('library_programs', fn ($q) => $q->whereIn('programs.id', $programIds));
+            ->whereHas('programs', fn ($q) => $q->whereIn('library_programs.id', $programIds));
 
         if ($requireCourse) {
             $query->whereNotNull('course')->where('course', '!=', '');

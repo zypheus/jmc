@@ -101,7 +101,7 @@ class EbookController extends Controller
             'publisher' => 'nullable|string|max:255',
             'source' => 'nullable|string|max:255',
             'link' => 'nullable|url|max:255',
-            'program_id' => 'nullable|exists:programs,id',
+            'program_id' => 'nullable|exists:library_programs,id',
             'course_id' => 'nullable|exists:program_courses,id',
         ]);
 
@@ -136,7 +136,7 @@ class EbookController extends Controller
             'publisher' => 'nullable|string|max:255',
             'source' => 'nullable|string|max:255',
             'link' => 'nullable|url|max:255',
-            'program_id' => 'nullable|exists:programs,id',
+            'program_id' => 'nullable|exists:library_programs,id',
             'course_id' => 'nullable|exists:program_courses,id',
         ]);
 
@@ -214,9 +214,7 @@ class EbookController extends Controller
                 ];
             });
         } else {
-            $courses = LibraryProgramCourse::whereHas('year.program', function ($query) use ($programId) {
-                $query->where('id', $programId);
-            })->get()->map(function ($course) {
+            $courses = LibraryProgramCourse::where('program_id', $programId)->get()->map(function ($course) {
                 return [
                     'id' => $course->id,
                     'name' => $course->course_name,

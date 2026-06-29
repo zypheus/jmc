@@ -23,6 +23,7 @@ class User extends Authenticatable
         'fname',
         'lname',
         'email',
+        'is_active',
         'password',
         'profile_picture',
         'activity_last_seen_at',
@@ -52,6 +53,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
             'activity_last_seen_at' => 'datetime',
             'notification_last_seen_at' => 'datetime',

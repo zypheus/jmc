@@ -2,6 +2,7 @@
 
 namespace App\Domain\Library\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -72,6 +73,7 @@ class AdminActivity extends Model
 
     protected $fillable = [
         'user_id',
+        'module',
         'type',
         'title',
         'body',

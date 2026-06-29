@@ -13,7 +13,7 @@ export default function LibraryLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage<PageProps>();
     const { auth, flash, routeName, adminActivity } = props;
     const currentPath = url.split('?')[0];
-    const isAdmin = auth.user?.isAdmin ?? false;
+    const isAdmin = auth.isSuperAdmin || auth.user?.roles.includes('library_admin') === true;
 
     const navigation = useMemo(() => filterNavigation(adminNavigation, isAdmin), [isAdmin]);
     const breadcrumbs = useMemo(

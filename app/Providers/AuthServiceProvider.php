@@ -14,6 +14,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Gate::before(fn (User $user): ?bool => $user->hasRole('super_admin') ? true : null);
+
         // Legacy Blade layouts (ported from USM) use these gate names.
         Gate::define('isAdmin', fn (User $user) => $user->hasAnyRole([
             'library_admin',

@@ -104,7 +104,7 @@ class BookImportController extends Controller
             fclose($handle);
         }
 
-        AdminActivityLogger::catalogBulk('Books imported', 'CSV import completed', route('library.book.index'));
+        AdminActivityLogger::catalogBulk('Books imported', 'CSV import completed', route('library.books.index'));
 
         return redirect()->back()->with('success', 'CSV file imported successfully!');
     }
@@ -179,7 +179,7 @@ class BookImportController extends Controller
             }
         }
 
-        AdminActivityLogger::catalogBulk('Books imported', 'Excel import completed', route('library.book.index'));
+        AdminActivityLogger::catalogBulk('Books imported', 'Excel import completed', route('library.books.index'));
 
         return redirect()->back()->with('success', 'Excel file imported successfully!');
     }

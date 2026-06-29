@@ -300,7 +300,7 @@ export default function Scan({
 
             <div className="flex min-h-screen flex-col bg-neutral-900 text-white">
                 <header className="border-b border-neutral-700 px-6 py-4">
-                    <p className="text-sm uppercase tracking-widest text-neutral-400">Powered by PANTAS</p>
+                    <p className="text-sm uppercase tracking-widest text-neutral-400">Powered by JMC</p>
                     <h1 className="text-xl font-semibold">Attendance Scanner</h1>
                 </header>
 

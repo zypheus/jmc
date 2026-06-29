@@ -40,7 +40,7 @@ class HolidayController extends Controller
                 AdminActivity::TYPE_SETTINGS,
                 'Holiday removed',
                 $date,
-                route('library.book.index'),
+                route('library.books.index'),
                 'library_staff',
             );
 
@@ -58,7 +58,7 @@ class HolidayController extends Controller
             AdminActivity::TYPE_SETTINGS,
             'Holiday added',
             ($holiday->name ?: $date),
-            route('library.book.index'),
+            route('library.books.index'),
             'library_staff',
             $holiday,
         );

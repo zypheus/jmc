@@ -20,6 +20,7 @@ class AdminActivityLogger
     ): AdminActivity {
         return AdminActivity::create([
             'user_id' => $userId ?? self::currentStaffId(),
+            'module' => 'library',
             'type' => $type,
             'title' => $title,
             'body' => $body,
@@ -79,7 +80,7 @@ class AdminActivityLogger
             AdminActivity::TYPE_CATALOG,
             $title,
             $body,
-            $url ?? route('library.book.index'),
+            $url ?? route('library.books.index'),
             'book',
         );
     }
@@ -176,6 +177,6 @@ class AdminActivityLogger
             return null;
         }
 
-        return $user->hasAnyRole(['library_admin', 'library_staff']) ? (int) $user->id : null;
+        return $user->hasAnyRole(['library_admin', 'library_staff', 'super_admin']) ? (int) $user->id : null;
     }
 }

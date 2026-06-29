@@ -23,7 +23,7 @@ class ExportController extends Controller
         $query = LibraryBook::query();
 
         if ($request->filled('program')) {
-            $query->whereHas('library_programs', function ($q) use ($request) {
+            $query->whereHas('programs', function ($q) use ($request) {
                 $q->where('programs.id', $request->program);
             });
         }

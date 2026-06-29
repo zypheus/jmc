@@ -2,41 +2,17 @@ import { usePage } from '@inertiajs/react';
 import { PropsWithChildren, useMemo } from 'react';
 
 import AdminAppShell from '@/components/layout/AdminAppShell';
+import { attendanceNavigation } from '@/config/attendanceNavigation';
 import {
-    type AdminNavigationItem,
     resolveBreadcrumbs,
 } from '@/config/libraryNavigation';
 import type { PageProps } from '@/types';
-
-const attendanceNavigation: AdminNavigationItem[] = [
-    {
-        label: 'Home',
-        href: '/dashboard/attendance-admin',
-        routeName: 'dashboard.attendance-admin',
-        icon: 'Home',
-    },
-    {
-        label: 'Attendance',
-        icon: 'ClipboardCheck',
-        children: [
-            { label: 'Kiosk', href: '/attendance', routeName: 'attendance.scan' },
-            { label: 'Pending', href: '/attendance/pending', routeName: 'attendance.pending.index' },
-            { label: 'Students', href: '/attendance/students', routeName: 'attendance.students.index' },
-            { label: 'Employees', href: '/attendance/employees', routeName: 'attendance.employees.index' },
-            { label: 'Logs', href: '/attendance/logs', routeName: 'attendance.logs.index', adminOnly: true },
-            { label: 'Reports', href: '/attendance/logs/reports', routeName: 'attendance.logs.reports.hub', adminOnly: true },
-            { label: 'Gate Feedback', href: '/attendance/feedbacks', routeName: 'attendance.feedback.index', adminOnly: true },
-            { label: 'Settings', href: '/attendance/section-picker', routeName: 'attendance.section.settings' },
-            { label: 'SMS Blast', href: '/attendance/sms-blast', routeName: 'attendance.sms.page' },
-        ],
-    },
-];
 
 export default function AttendanceLayout({ children }: PropsWithChildren) {
     const { url, props } = usePage<PageProps>();
     const { auth, flash, routeName, adminActivity } = props;
     const currentPath = url.split('?')[0];
-    const isAdmin = auth.user?.isAdmin ?? false;
+    const isAdmin = auth.isSuperAdmin || auth.user?.roles.includes('attendance_admin') === true;
     const navigation = useMemo(
         () => attendanceNavigation
             .map((item) => {

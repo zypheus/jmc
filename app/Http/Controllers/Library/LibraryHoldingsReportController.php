@@ -26,7 +26,7 @@ class LibraryHoldingsReportController extends Controller
     public function download(Request $request, LibraryHoldingsReportBuilder $builder)
     {
         $validated = $request->validate([
-            'program_id' => 'required|integer|exists:programs,id',
+            'program_id' => 'required|integer|exists:library_programs,id',
             'program_suffix' => 'nullable|string|max:255',
             'date_accomplished' => 'nullable|string|max:255',
         ]);

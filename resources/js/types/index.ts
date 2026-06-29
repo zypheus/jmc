@@ -6,6 +6,7 @@ export interface AuthUser {
     fullName: string;
     email: string;
     roles: string[];
+    permissions: string[];
     role: string | null;
     isAdmin: boolean;
     initials: string;
@@ -33,6 +34,9 @@ export interface AdminActivityPayload {
 export interface PageProps {
     auth: {
         user: AuthUser | null;
+        availableModules: Array<'attendance' | 'library'>;
+        activeModule: 'attendance' | 'library' | 'super-admin' | null;
+        isSuperAdmin: boolean;
     };
     routeName?: string | null;
     adminActivity?: AdminActivityPayload | null;
@@ -72,6 +76,7 @@ export interface StaffUser {
     fullName: string;
     email: string;
     roles: string[];
+    isActive: boolean;
 }
 
 export interface Paginated<T> {

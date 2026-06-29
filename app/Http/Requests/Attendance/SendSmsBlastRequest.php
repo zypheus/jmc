@@ -15,7 +15,9 @@ class SendSmsBlastRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => ['required', 'string'],
+            'message' => ['required', 'string', 'max:2000'],
+            'year' => ['nullable', 'string', 'max:50'],
+            'course' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

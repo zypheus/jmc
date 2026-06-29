@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FeedbackController extends Controller
@@ -39,7 +41,7 @@ class FeedbackController extends Controller
         return redirect()->back()->with('success', 'Thank you! Your feedback has been submitted.');
     }
 
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $now = now('Asia/Manila');
 
@@ -53,7 +55,11 @@ class FeedbackController extends Controller
             ->paginate(PerPage::resolve($request, 10))
             ->withQueryString();
 
-        return view('feedbacks.index', compact('feedbacks', 'stats'));
+        return Inertia::render('Library/Feedback/Index', [
+            'feedbacks' => $feedbacks,
+            'stats' => $stats,
+            'filters' => $request->only(['search', 'from', 'to', 'contact', 'sort']),
+        ]);
     }
 
     public function exportCsv(Request $request)

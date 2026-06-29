@@ -27,8 +27,8 @@ export default function Login() {
                 <section className="relative overflow-hidden bg-gradient-to-br from-[#1f4ea7] via-[#1f4ea7] to-[#16397c] p-8 text-white">
                     <div className="absolute left-0 top-0 h-full w-2 bg-[#ffd700]" />
                     <div className="relative space-y-4">
-                        <p className="text-sm uppercase tracking-[0.2em] text-white/80">Staff Portal</p>
-                        <h1 className="text-3xl font-semibold leading-tight">JOSE MARIA COLLEGE</h1>
+                        <p className="text-sm uppercase tracking-[0.2em] text-white/80">JMC Staff Portal</p>
+                        <h1 className="text-3xl font-semibold leading-tight">JOSE MARIA COLLEGE Foundation Inc.</h1>
                         <p className="max-w-sm text-sm text-white/85">
                             Access the integrated attendance and library operations dashboard.
                         </p>

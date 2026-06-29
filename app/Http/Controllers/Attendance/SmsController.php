@@ -9,14 +9,17 @@ use App\Domain\Attendance\Services\AttendanceSessionService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attendance\SendSmsBlastRequest;
 use App\Http\Requests\Attendance\UpdateScanSmsRequest;
+use App\Services\Shared\SmsModemService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SmsController extends Controller
 {
+    public function __construct(private readonly SmsModemService $smsModem) {}
+
     public function index(): Response
     {
         $courses = AttendanceStudent::query()
@@ -47,27 +50,17 @@ class SmsController extends Controller
 
     public function count(Request $request)
     {
-        $query = AttendanceStudent::query()->whereNotNull('mobile_number');
-
-        if ($request->year) {
-            $query->where('year', $request->year);
-        }
-
-        if ($request->course) {
-            $query->where('course', $request->course);
-        }
-
-        return response()->json(['count' => $query->count()]);
+        return response()->json(['count' => $this->recipientQuery($request)->count()]);
     }
 
     public function send(SendSmsBlastRequest $request)
     {
-        $students = AttendanceStudent::query()->whereNotNull('mobile_number')->get();
+        $students = $this->recipientQuery($request)->get();
         $payload = [];
 
         foreach ($students as $student) {
             $message = str_replace('{name}', $student->full_name, $request->validated('message'));
-            $number = $this->normalizePhilippineMobile((string) $student->mobile_number);
+            $number = $this->smsModem->normalizePhilippineMobile((string) $student->mobile_number);
 
             if ($number === '') {
                 continue;
@@ -108,7 +101,7 @@ class SmsController extends Controller
 
     public function sendDirect(string $number, string $message): bool
     {
-        $number = $this->normalizePhilippineMobile($number);
+        $number = $this->smsModem->normalizePhilippineMobile($number);
 
         if ($number === '') {
             return false;
@@ -120,38 +113,23 @@ class SmsController extends Controller
     /** @param  list<array{number: string, message: string}>  $payload */
     private function postToModem(array $payload): bool
     {
-        $url = config('services.sms_modem.url');
-        $apiKey = config('services.sms_modem.key');
-
-        if (! $url) {
-            return false;
-        }
-
-        try {
-            $response = Http::withHeaders(['X-API-KEY' => $apiKey])
-                ->timeout(30)
-                ->post($url, $payload);
-
-            return $response->successful();
-        } catch (\Throwable $e) {
-            report($e);
-
-            return false;
-        }
+        return $this->smsModem->send($payload)?->successful() ?? false;
     }
 
-    private function normalizePhilippineMobile(string $number): string
+    private function recipientQuery(Request $request): Builder
     {
-        $number = preg_replace('/\s+/', '', $number);
+        $query = AttendanceStudent::query()
+            ->whereNotNull('mobile_number')
+            ->where('mobile_number', '!=', '');
 
-        if (str_starts_with($number, '0')) {
-            return '+63'.substr($number, 1);
+        if ($request->filled('year')) {
+            $query->where('year', $request->string('year')->toString());
         }
 
-        if (str_starts_with($number, '63')) {
-            return '+'.$number;
+        if ($request->filled('course')) {
+            $query->where('course', $request->string('course')->toString());
         }
 
-        return $number;
+        return $query;
     }
 }

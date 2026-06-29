@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Middleware\EnsureActiveStaff;
+use App\Http\Middleware\EnsureAttendanceAccess;
+use App\Http\Middleware\EnsureAttendanceAdmin;
+use App\Http\Middleware\EnsureLibraryAccess;
+use App\Http\Middleware\EnsureLibraryAdmin;
+use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,12 +23,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             HandleInertiaRequests::class,
+            EnsureActiveStaff::class,
         ]);
 
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'attendance.access' => EnsureAttendanceAccess::class,
+            'attendance.admin' => EnsureAttendanceAdmin::class,
+            'library.access' => EnsureLibraryAccess::class,
+            'library.admin' => EnsureLibraryAdmin::class,
+            'super-admin' => EnsureSuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

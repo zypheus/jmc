@@ -8,10 +8,12 @@ use App\Domain\Library\Models\LibraryProgramCourse;
 use App\Domain\Library\Services\AdminActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ProspectusController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $search = $request->input('search');
 
@@ -34,7 +36,7 @@ class ProspectusController extends Controller
             'courses' => LibraryProgramCourse::count(),
         ];
 
-        return view('prospectus.index', compact('programs', 'stats', 'search'));
+        return Inertia::render('Library/Prospectus/Index', compact('programs', 'stats', 'search'));
     }
 
     public function storeProgram(Request $request)
@@ -50,7 +52,7 @@ class ProspectusController extends Controller
         AdminActivityLogger::staff(
             AdminActivity::TYPE_PROSPECTUS,
             'Program created',
-            "{$program->program_code} — {$program->program_name}",
+            "{$program->program_code} â€” {$program->program_name}",
             route('library.prospectus.index'),
             'book',
             $program,
@@ -59,9 +61,9 @@ class ProspectusController extends Controller
         return redirect()->route('library.prospectus.index')->with('success', 'Program created successfully.');
     }
 
-    public function getProgramYears($programId)
+    public function getProgramYears(LibraryProgram $program)
     {
-        $program = LibraryProgram::with('courses')->findOrFail($programId);
+        $program->load('courses');
 
         $years = $program->courses
             ->groupBy('year_level')
@@ -78,7 +80,7 @@ class ProspectusController extends Controller
         return response()->json(['years' => $years]);
     }
 
-    public function storeCourse(Request $request, $programId)
+    public function storeCourse(Request $request, LibraryProgram $program)
     {
         $data = $request->validate([
             'year_level' => 'required|integer|min:1|max:6',
@@ -87,7 +89,7 @@ class ProspectusController extends Controller
         ]);
 
         $course = LibraryProgramCourse::create([
-            'program_id' => $programId,
+            'program_id' => $program->id,
             'year_level' => $data['year_level'],
             'course_code' => $data['course_code'],
             'course_name' => $data['course_name'],
@@ -97,7 +99,7 @@ class ProspectusController extends Controller
             AdminActivityLogger::staff(
                 AdminActivity::TYPE_PROSPECTUS,
                 'Course added',
-                "{$course->course_code} — {$course->course_name}",
+                "{$course->course_code} â€” {$course->course_name}",
                 route('library.prospectus.index'),
                 'book',
                 $course,
@@ -109,7 +111,7 @@ class ProspectusController extends Controller
         AdminActivityLogger::staff(
             AdminActivity::TYPE_PROSPECTUS,
             'Course added',
-            "{$course->course_code} — {$course->course_name}",
+            "{$course->course_code} â€” {$course->course_name}",
             route('library.prospectus.index'),
             'book',
             $course,
@@ -133,7 +135,7 @@ class ProspectusController extends Controller
         AdminActivityLogger::staff(
             AdminActivity::TYPE_PROSPECTUS,
             'Course updated',
-            "{$course->course_code} — {$course->course_name}",
+            "{$course->course_code} â€” {$course->course_name}",
             route('library.prospectus.index'),
             'book',
             $course,
@@ -148,7 +150,7 @@ class ProspectusController extends Controller
 
     public function destroyCourse(Request $request, LibraryProgramCourse $course)
     {
-        $label = "{$course->course_code} — {$course->course_name}";
+        $label = "{$course->course_code} â€” {$course->course_name}";
         $course->delete();
 
         AdminActivityLogger::staff(
@@ -181,7 +183,7 @@ class ProspectusController extends Controller
         AdminActivityLogger::staff(
             AdminActivity::TYPE_PROSPECTUS,
             'Program updated',
-            "{$program->program_code} — {$program->program_name}",
+            "{$program->program_code} â€” {$program->program_name}",
             route('library.prospectus.index'),
             'book',
             $program,
@@ -196,7 +198,7 @@ class ProspectusController extends Controller
 
     public function destroyProgram(LibraryProgram $program)
     {
-        $label = "{$program->program_code} — {$program->program_name}";
+        $label = "{$program->program_code} â€” {$program->program_name}";
         $program->delete();
 
         AdminActivityLogger::staff(

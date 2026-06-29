@@ -5,7 +5,6 @@ namespace App\Domain\Library\Support;
 use App\Domain\Library\Models\AdminActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 class AdminShell
 {
@@ -20,12 +19,12 @@ class AdminShell
 
         return [
             'id' => $user->id,
-            'name' => $user->fullName(),
+            'name' => $user->full_name,
             'email' => $user->email,
             'role' => $user->getRoleNames()->first(),
-            'isAdmin' => $user->getRoleNames()->first() === 'library_admin',
-            'initials' => $user->initials(),
-            'avatarUrl' => $user->profilePictureUrl(),
+            'isAdmin' => $user->hasAnyRole(['library_admin', 'attendance_admin', 'super_admin']),
+            'initials' => strtoupper(substr((string) $user->fname, 0, 1).substr((string) $user->lname, 0, 1)) ?: 'U',
+            'avatarUrl' => $user->profile_picture ? asset($user->profile_picture) : null,
         ];
     }
 
@@ -34,7 +33,7 @@ class AdminShell
      */
     public static function adminActivity(?User $user): ?array
     {
-        if (! $user || ! $user->hasAnyRole(['library_admin', 'library_staff'])) {
+        if (! $user || ! $user->hasAnyRole(['library_admin', 'library_staff', 'super_admin'])) {
             return null;
         }
 
@@ -65,8 +64,8 @@ class AdminShell
             'unreadCount' => $unreadCount,
             'activities' => $activities,
             'urls' => [
-                'markSeen' => route(Route::has('admin.activities.mark_seen') ? 'admin.activities.mark_seen' : 'library.admin.activities.mark_seen'),
-                'recent' => route(Route::has('admin.activities.recent') ? 'admin.activities.recent' : 'library.admin.activities.recent'),
+                'markSeen' => route('library.admin.activities.mark_seen'),
+                'recent' => route('library.admin.activities.recent'),
             ],
         ];
     }

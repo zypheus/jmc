@@ -60,7 +60,7 @@ class RoomReservationController extends Controller
      */
     public function store(Request $request)
     {
-        // 🧩 Validate form inputs
+        // ðŸ§© Validate form inputs
         $validated = $request->validate([
             'room_id' => 'required|exists:library_rooms,id',
             'date' => 'required|date|after_or_equal:today',
@@ -74,11 +74,11 @@ class RoomReservationController extends Controller
             'student_names.*' => 'required|string|max:255',
         ]);
 
-        // 🕒 Convert 12-hour time to 24-hour format for MySQL TIME type
+        // ðŸ•’ Convert 12-hour time to 24-hour format for MySQL TIME type
         $startTime = Carbon::createFromFormat('g:i A', $request->start_time.' '.$request->start_ampm)->format('H:i:s');
         $endTime = Carbon::createFromFormat('g:i A', $request->end_time.' '.$request->end_ampm)->format('H:i:s');
 
-        // 🧭 Prevent double booking (same room/date/timeslot)
+        // ðŸ§­ Prevent double booking (same room/date/timeslot)
         $exists = LibraryRoomReservation::where('room_id', $request->room_id)
             ->where('date', $request->date)
             ->where(function ($q) use ($startTime, $endTime) {
@@ -92,7 +92,7 @@ class RoomReservationController extends Controller
             return back()->with('error', 'That room and time slot is already booked.');
         }
 
-        // ✅ Insert data safely
+        // âœ… Insert data safely
         $reservation = null;
         \DB::transaction(function () use ($request, $startTime, $endTime, &$reservation) {
             $reservation = LibraryRoomReservation::create([
@@ -194,7 +194,7 @@ class RoomReservationController extends Controller
         $reservations = LibraryRoomReservation::with('room')->orderBy('date')->get();
         $rooms = LibraryRoom::all();
 
-        return view('rooms.schedule', compact('reservations', 'rooms'));
+        return Inertia::render('Public/Rooms/Schedule', compact('reservations', 'rooms'));
     }
 
     /**
@@ -204,7 +204,7 @@ class RoomReservationController extends Controller
     {
         $reservation = LibraryRoomReservation::with(['room', 'students', 'logs'])->findOrFail($id);
 
-        return view('rooms.show', compact('reservation'));
+        return Inertia::render('Public/Rooms/Show', compact('reservation'));
     }
 
     public function checkAvailability(Request $request)

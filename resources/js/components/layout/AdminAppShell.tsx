@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import {
+    ArrowLeftRight,
     Bell,
     BookOpen,
     ChevronDown,
@@ -65,8 +66,10 @@ export default function AdminAppShell({
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+    const [moduleMenuOpen, setModuleMenuOpen] = useState(false);
     const userMenuRef = useRef<HTMLDivElement | null>(null);
     const notificationsRef = useRef<HTMLDivElement | null>(null);
+    const moduleMenuRef = useRef<HTMLDivElement | null>(null);
 
     const [unreadCount, setUnreadCount] = useState(adminActivity?.unreadCount ?? 0);
     const [activities, setActivities] = useState(adminActivity?.activities ?? []);
@@ -133,6 +136,9 @@ export default function AdminAppShell({
             if (notificationsRef.current && !notificationsRef.current.contains(target)) {
                 setNotificationsOpen(false);
             }
+            if (moduleMenuRef.current && !moduleMenuRef.current.contains(target)) {
+                setModuleMenuOpen(false);
+            }
         };
 
         document.addEventListener('mousedown', onPointerDown);
@@ -191,6 +197,11 @@ export default function AdminAppShell({
         router.post('/logout');
     };
 
+    const switchModule = (module: 'attendance' | 'library') => {
+        setModuleMenuOpen(false);
+        router.post('/select-module', { module });
+    };
+
     const markNotificationsSeen = async () => {
         if (!notificationsUrls.markSeen) {
             return;
@@ -227,7 +238,7 @@ export default function AdminAppShell({
         <div className="flex h-full flex-col">
             <div className={cn('border-b border-[#E5E7EB] px-2 py-3', isCollapsed ? 'items-center' : '')}>
                 <Link
-                    href="/book"
+                    href="/dashboard"
                     onClick={closeMobileIfNeeded}
                     className={cn(
                         'flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-[#F8FAFC]',
@@ -238,14 +249,14 @@ export default function AdminAppShell({
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-sm ring-1 ring-[#23408E]/30">
                         <img
                             src="/img/usm_logo_1954.png"
-                            alt="University of Southern Mindanao"
+                            alt="JOSE MARIA COLLEGE Foundation Inc."
                             className="size-full rounded-full object-contain"
                         />
                     </div>
                     {!isCollapsed ? (
                         <div className="min-w-0 leading-tight">
-                            <p className="truncate text-sm font-semibold text-foreground">PANTAS</p>
-                            <p className="truncate text-[11px] text-muted-foreground">USM Library</p>
+                            <p className="truncate text-sm font-semibold text-foreground">JMC</p>
+                            <p className="truncate text-[11px] text-muted-foreground">JOSE MARIA COLLEGE Foundation Inc.</p>
                             <p className="truncate text-[10px] font-medium uppercase tracking-[0.12em] text-[#23408E]">
                                 Staff Portal
                             </p>
@@ -370,7 +381,7 @@ export default function AdminAppShell({
                 </Link>
                 {!isCollapsed ? (
                     <p className="mt-2 text-center text-[10px] text-muted-foreground">
-                        Pantas © {currentYear} · University of Southern Mindanao
+                        JMC Â© {currentYear} Â· JOSE MARIA COLLEGE Foundation Inc.
                     </p>
                 ) : null}
             </div>
@@ -471,6 +482,44 @@ export default function AdminAppShell({
                     </nav>
 
                     <div className="ml-auto flex items-center gap-2">
+                        {auth.availableModules.length > 1 ? (
+                            <div className="relative" ref={moduleMenuRef}>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-2"
+                                    onClick={() => setModuleMenuOpen((previous) => !previous)}
+                                >
+                                    <ArrowLeftRight className="size-4" />
+                                    <span className="hidden capitalize md:inline">
+                                        {auth.activeModule === 'super-admin' || !auth.activeModule
+                                            ? 'Switch module'
+                                            : auth.activeModule}
+                                    </span>
+                                    <ChevronDown className="size-3.5" />
+                                </Button>
+
+                                {moduleMenuOpen ? (
+                                    <div className="absolute right-0 z-40 mt-2 w-48 rounded-lg border bg-white p-1.5 shadow-lg">
+                                        {auth.availableModules.map((module) => (
+                                            <button
+                                                key={module}
+                                                type="button"
+                                                className={cn(
+                                                    'w-full rounded-md px-3 py-2 text-left text-sm capitalize transition-colors hover:bg-[#F8FAFC]',
+                                                    auth.activeModule === module && 'bg-[#eaf1ff] font-medium text-[#1f4ea7]',
+                                                )}
+                                                onClick={() => switchModule(module)}
+                                            >
+                                                {module}
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : null}
+
                         <div className="relative" ref={notificationsRef}>
                             <Button
                                 type="button"
@@ -571,7 +620,7 @@ export default function AdminAppShell({
                 </main>
 
                 <footer className="border-t border-[#E5E7EB] bg-white py-3 text-center text-xs text-muted-foreground">
-                    JOSE MARIA COLLEGE Foundation Inc. — Library System
+                    JOSE MARIA COLLEGE Foundation Inc. — Integrated Staff System
                 </footer>
             </div>
 
@@ -580,7 +629,7 @@ export default function AdminAppShell({
                     <DialogHeader>
                         <DialogTitle>Log out?</DialogTitle>
                         <DialogDescription>
-                            You will be signed out of the library admin portal. You can sign back in at any time.
+                            You will be signed out of the JMC staff portal. You can sign back in at any time.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

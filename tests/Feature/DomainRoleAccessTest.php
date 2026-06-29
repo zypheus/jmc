@@ -70,4 +70,20 @@ class DomainRoleAccessTest extends TestCase
         $this->actingAs($user)->get('/attendance/logs')->assertForbidden();
         $this->actingAs($user)->get('/attendance/students/create')->assertForbidden();
     }
+
+    public function test_super_admin_can_access_both_modules(): void
+    {
+        $user = $this->userWithRole('super_admin');
+
+        $this->actingAs($user)->get('/attendance/logs')->assertOk();
+        $this->actingAs($user)->get('/logs')->assertOk();
+        $this->actingAs($user)->get('/dashboard/attendance-admin')->assertOk();
+        $this->actingAs($user)->get('/dashboard/library-admin')->assertOk();
+    }
+
+    public function test_guests_are_redirected_from_staff_routes(): void
+    {
+        $this->get('/attendance/logs')->assertRedirect(route('login'));
+        $this->get('/logs')->assertRedirect(route('login'));
+    }
 }

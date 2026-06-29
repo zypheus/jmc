@@ -7,19 +7,21 @@ use App\Domain\Library\Models\LibraryRoom;
 use App\Domain\Library\Services\AdminActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RoomController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
         $rooms = LibraryRoom::all();
 
-        return view('rooms.index', compact('rooms'));
+        return Inertia::render('Library/Rooms/Index', compact('rooms'));
     }
 
-    public function create()
+    public function create(): Response
     {
-        return view('rooms.create');
+        return Inertia::render('Library/Rooms/Create');
     }
 
     public function store(Request $request)
@@ -44,11 +46,11 @@ class RoomController extends Controller
         return redirect()->route('library.rooms.index')->with('success', 'Room added successfully!');
     }
 
-    public function edit($id)
+    public function edit($id): Response
     {
         $room = LibraryRoom::findOrFail($id);
 
-        return view('rooms.edit', compact('room'));
+        return Inertia::render('Library/Rooms/Edit', compact('room'));
     }
 
     public function update(Request $request, $id)

@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} — JMC` : 'JMC'),
+    title: (title) => (title ? `${title} — JMC (JOSE MARIA COLLEGE Foundation Inc.)` : 'JMC (JOSE MARIA COLLEGE Foundation Inc.)'),
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,

@@ -6,12 +6,14 @@ use App\Domain\Library\Models\LibraryBook;
 use App\Domain\Library\Models\LibraryBookLog;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RFIDScanController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        return view('rfid.scanner');
+        return Inertia::render('Library/Rfid/Scanner');
     }
 
     public function scan(Request $request)

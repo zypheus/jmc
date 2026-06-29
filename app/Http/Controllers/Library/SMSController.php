@@ -8,26 +8,23 @@ use App\Domain\Library\Models\LibrarySetting;
 use App\Domain\Library\Models\LibraryStudent;
 use App\Domain\Library\Services\AdminActivityLogger;
 use App\Http\Controllers\Controller;
+use App\Services\Shared\SmsModemService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class SMSController extends Controller
 {
+    public function __construct(private readonly SmsModemService $smsModem) {}
+
     private function normalizePhilippineMobile(string $number): string
     {
-        $number = trim($number);
-        if ($number === '') {
-            return '';
-        }
-        if (str_starts_with($number, '0')) {
-            return '+63'.substr($number, 1);
-        }
-
-        return $number;
+        return $this->smsModem->normalizePhilippineMobile($number);
     }
 
     /**
@@ -35,20 +32,10 @@ class SMSController extends Controller
      */
     private function postToSmsModem(array $payload): ?Response
     {
-        $url = config('services.sms_modem.url');
-        $apiKey = config('services.sms_modem.api_key');
-
-        if (empty($url) || empty($apiKey)) {
-            return null;
-        }
-
-        return Http::withHeaders([
-            'X-API-KEY' => $apiKey,
-            'Accept' => 'application/json',
-        ])->asJson()->timeout(30)->post($url, $payload);
+        return $this->smsModem->send($payload);
     }
 
-    public function index()
+    public function index(): InertiaResponse
     {
         $courses = LibraryStudent::query()
             ->select('course')
@@ -66,13 +53,13 @@ class SMSController extends Controller
             ->orderBy('year')
             ->pluck('year');
 
-        return view('sms.blast', [
+        return Inertia::render('Library/Sms/Blast', [
             'courses' => $courses,
             'years' => $years,
         ]);
     }
 
-    public function scanMessage()
+    public function scanMessage(): InertiaResponse
     {
         $setting = LibrarySetting::where('key', 'scan_sms')->first();
 
@@ -87,7 +74,7 @@ class SMSController extends Controller
             })
             ->count();
 
-        return view('sms.scan_message', [
+        return Inertia::render('Library/Sms/ScanMessage', [
             'message' => $setting?->value ?? 'Hello {name}, you scanned {status} at the library.',
             'overduePatronsWithMobile' => $overduePatronsWithMobile,
         ]);
@@ -117,20 +104,8 @@ class SMSController extends Controller
 
     public function count(Request $request)
     {
-        $query = LibraryStudent::query()
-            ->whereNotNull('mobile_number')
-            ->where('mobile_number', '!=', '');
-
-        if ($request->filled('year')) {
-            $query->where('year', $request->year);
-        }
-
-        if ($request->filled('course')) {
-            $query->where('course', $request->course);
-        }
-
         return response()->json([
-            'count' => $query->count(),
+            'count' => $this->recipientQuery($request)->count(),
         ]);
     }
 
@@ -161,7 +136,6 @@ class SMSController extends Controller
             if (! $modemResponse->successful()) {
                 \Log::warning('SMS modem single send failed', [
                     'status' => $modemResponse->status(),
-                    'body' => $modemResponse->body(),
                 ]);
 
                 return back()->with('error', 'SMS modem rejected the request. Check logs and that sms_server.py is running.');
@@ -182,19 +156,7 @@ class SMSController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        $query = LibraryStudent::query()
-            ->whereNotNull('mobile_number')
-            ->where('mobile_number', '!=', '');
-
-        if ($request->filled('year')) {
-            $query->where('year', $request->year);
-        }
-
-        if ($request->filled('course')) {
-            $query->where('course', $request->course);
-        }
-
-        $students = $query->get();
+        $students = $this->recipientQuery($request)->get();
 
         if ($students->isEmpty()) {
             return back()->with('error', 'No students with mobile numbers match the selected filters.');
@@ -233,7 +195,6 @@ class SMSController extends Controller
         if (! $modemResponse->successful()) {
             \Log::warning('SMS modem blast failed', [
                 'status' => $modemResponse->status(),
-                'body' => $modemResponse->body(),
             ]);
 
             return back()->with('error', 'SMS modem rejected the blast. Check logs and that sms_server.py is running.');
@@ -295,7 +256,6 @@ class SMSController extends Controller
         if (! $modemResponse->successful()) {
             \Log::warning('SMS modem request failed', [
                 'status' => $modemResponse->status(),
-                'body' => $modemResponse->body(),
             ]);
 
             return back()->with('error', 'SMS modem rejected the request. Check logs and that sms_server.py is running.');
@@ -410,5 +370,22 @@ class SMSController extends Controller
         ]);
 
         return $modemResponse && $modemResponse->successful();
+    }
+
+    private function recipientQuery(Request $request): Builder
+    {
+        $query = LibraryStudent::query()
+            ->whereNotNull('mobile_number')
+            ->where('mobile_number', '!=', '');
+
+        if ($request->filled('year')) {
+            $query->where('year', $request->string('year')->toString());
+        }
+
+        if ($request->filled('course')) {
+            $query->where('course', $request->string('course')->toString());
+        }
+
+        return $query;
     }
 }

@@ -38,7 +38,7 @@ export default function CopiesStaff({ copies, title, author, year }: CopiesStaff
         if (!window.confirm('Delete this copy?')) {
             return;
         }
-        router.delete(`/books/${copyId}`);
+        router.delete(`/book/${copyId}`);
     };
 
     return (

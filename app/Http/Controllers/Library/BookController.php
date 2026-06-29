@@ -387,7 +387,7 @@ class BookController extends Controller
         }
 
         if ($programId) {
-            $filteredQuery->whereHas('library_programs', function ($q) use ($programId) {
+            $filteredQuery->whereHas('programs', function ($q) use ($programId) {
                 $q->where('programs.id', $programId);
             });
         }
@@ -563,8 +563,8 @@ class BookController extends Controller
                 ->get();
 
         $rep = $fullBooks->firstWhere('id', $book->id) ?? $fullBooks->first() ?? $book;
-        $rep->loadMissing('library_programs');
-        $fullBooks->loadMissing('library_programs');
+        $rep->loadMissing('programs');
+        $fullBooks->loadMissing('programs');
 
         $marcViewRows = $this->opacMarcViewRowsForGroupedTitle($rep, $fullBooks);
 
@@ -948,7 +948,7 @@ class BookController extends Controller
         AdminActivityLogger::catalog('deleted', $book);
         $book->delete();
 
-        return redirect()->route('library.book.index')->with('success', 'Book deleted successfully!');
+        return redirect()->route('library.books.index')->with('success', 'Book deleted successfully!');
     }
 
     public function archivedIndex(Request $request)
@@ -1009,7 +1009,7 @@ class BookController extends Controller
 
     public function forceDeleteTrashed(int $id)
     {
-        $book = LibraryBook::onlyTrashed()->with(['library_programs', 'marcFields', 'logs'])->findOrFail($id);
+        $book = LibraryBook::onlyTrashed()->with(['programs', 'marcFields', 'logs'])->findOrFail($id);
         $title = $book->title_statement;
 
         DB::transaction(function () use ($book) {
@@ -1037,7 +1037,11 @@ class BookController extends Controller
         $framework = $this->booksFramework();
         $frameworkFields = $framework?->fields ?? collect();
 
-        return view('books.create', compact('library_programs', 'frameworkFields'));
+        return Inertia::render('Library/Books/Create', [
+            'programs' => $programs,
+            'frameworkFields' => $frameworkFields,
+            'curriculumOptions' => config('catalog.curriculum_options', []),
+        ]);
     }
 
     /**
@@ -1056,9 +1060,7 @@ class BookController extends Controller
         }
 
         $names = LibraryProgramCourse::query()
-            ->whereHas('year', static function ($q) use ($ids) {
-                $q->whereIn('program_id', $ids);
-            })
+            ->whereIn('program_id', $ids)
             ->orderBy('course_name')
             ->pluck('course_name')
             ->map(fn ($n) => trim((string) $n))
@@ -1081,7 +1083,7 @@ class BookController extends Controller
             'copies.*.accession_no' => 'nullable|string|max:255',
             'copies.*.rfid' => 'nullable|string|max:255',
             'program_ids' => 'nullable|array',
-            'program_ids.*' => 'integer|exists:programs,id',
+            'program_ids.*' => 'integer|exists:library_programs,id',
             'year' => 'nullable|string|max:255',
             'course' => 'nullable|string|max:255',
             'curriculum' => 'nullable|string|in:'.implode(',', array_keys(config('catalog.curriculum_options', []))),
@@ -1199,7 +1201,7 @@ class BookController extends Controller
             $copyCount > 1 ? "{$copyCount} copies" : null,
         );
 
-        return redirect()->route('library.book.index')->with('success', $msg);
+        return redirect()->route('library.books.index')->with('success', $msg);
     }
 
     protected function resolveCoverPathOnStore(Request $request): ?string
@@ -1236,30 +1238,40 @@ class BookController extends Controller
         return null;
     }
 
-    public function show($id)
+    public function show(LibraryBook $book)
     {
-        $book = LibraryBook::with(['library_programs', 'marcFields'])->findOrFail($id);
+        $book->load(['programs', 'marcFields']);
         $marcDetailSections = $this->marcDisplay->detailSectionsForBook($book);
 
-        return view('books.show', compact('book', 'marcDetailSections'));
+        return Inertia::render('Library/Books/Show', [
+            'book' => $book,
+            'marcDetailSections' => $marcDetailSections,
+            'copyIdentifier' => $book->copyIdentifierForCirculation(),
+            'copyIdentifierLabel' => $book->copyIdentifierTypeLabel(),
+            'coverUrl' => filled($book->cover_image) ? asset('storage/'.$book->cover_image) : asset('images/defaultBook.png'),
+        ]);
     }
 
-    public function edit($id)
+    public function edit(LibraryBook $book)
     {
-        $book = LibraryBook::with(['library_programs', 'marcFields'])->findOrFail($id);
+        $book->load(['programs', 'marcFields']);
         $programs = LibraryProgram::orderBy('program_name')->get();
 
         $framework = $this->booksFramework();
         $frameworkFields = $framework?->fields ?? collect();
         $marcValues = $this->marcValuesForBook($book, $frameworkFields);
 
-        return view('books.edit', compact('book', 'library_programs', 'frameworkFields', 'marcValues'));
+        return Inertia::render('Library/Books/Edit', [
+            'book' => $book,
+            'programs' => $programs,
+            'frameworkFields' => $frameworkFields,
+            'marcValues' => $marcValues,
+            'curriculumOptions' => config('catalog.curriculum_options', []),
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, LibraryBook $book)
     {
-        $book = LibraryBook::findOrFail($id);
-
         $this->normalizeProgramIdsOnRequest($request);
 
         $addCopies = $request->boolean('add_copies');
@@ -1274,7 +1286,7 @@ class BookController extends Controller
             'curriculum' => 'nullable|string|in:'.implode(',', array_keys(config('catalog.curriculum_options', []))),
             'reserved' => 'nullable|boolean',
             'program_ids' => 'nullable|array',
-            'program_ids.*' => 'integer|exists:programs,id',
+            'program_ids.*' => 'integer|exists:library_programs,id',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
@@ -1325,7 +1337,7 @@ class BookController extends Controller
             $addedCopyCount > 0 ? "{$addedCopyCount} copies added" : null,
         );
 
-        return redirect()->route('library.book.index')->with('success', $message);
+        return redirect()->route('library.books.index')->with('success', $message);
     }
 
     public function getYears(Request $request)

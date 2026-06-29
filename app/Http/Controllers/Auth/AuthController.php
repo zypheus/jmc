@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Auth\ModuleAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly ModuleAccessService $moduleAccess) {}
+
     public function showLogin(): Response
     {
         return Inertia::render('Auth/Login');
@@ -31,9 +34,22 @@ class AuthController extends Controller
             ]);
         }
 
-        $request->session()->regenerate();
+        $user = $request->user();
 
-        return $this->redirectForRole($request->user());
+        if (! $user->is_active) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'email' => 'Your staff account is inactive.',
+            ]);
+        }
+
+        $request->session()->regenerate();
+        $request->session()->forget('active_module');
+
+        return $this->redirectForRole($user);
     }
 
     public function logout(Request $request): RedirectResponse
@@ -48,28 +64,12 @@ class AuthController extends Controller
 
     protected function redirectForRole(User $user): RedirectResponse
     {
-        if ($user->hasRole('super_admin')) {
-            return redirect()->route('dashboard.super-admin');
+        try {
+            return redirect()->route($this->moduleAccess->defaultDashboardRoute($user));
+        } catch (\InvalidArgumentException) {
+            Auth::guard('web')->logout();
+
+            return redirect()->route('login')->with('error', 'Your account has no assigned role.');
         }
-
-        if ($user->hasRole('library_admin')) {
-            return redirect()->route('dashboard.library-admin');
-        }
-
-        if ($user->hasRole('library_staff')) {
-            return redirect()->route('dashboard.library-staff');
-        }
-
-        if ($user->hasRole('attendance_admin')) {
-            return redirect()->route('dashboard.attendance-admin');
-        }
-
-        if ($user->hasRole('attendance_staff')) {
-            return redirect()->route('dashboard.attendance-staff');
-        }
-
-        Auth::logout();
-
-        return redirect()->route('login')->with('error', 'Your account has no assigned role.');
     }
 }

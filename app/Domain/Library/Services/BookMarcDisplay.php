@@ -119,8 +119,8 @@ class BookMarcDisplay
             ];
         }
 
-        if ($book->relationLoaded('library_programs') ? $book->programs->isNotEmpty() : $book->programs()->exists()) {
-            $book->loadMissing('library_programs');
+        if ($book->relationLoaded('programs') ? $book->programs->isNotEmpty() : $book->programs()->exists()) {
+            $book->loadMissing('programs');
             $programNames = $book->programs->sortBy('program_name')->pluck('program_name')->filter()->implode(', ');
             if ($programNames !== '') {
                 $rowsByGroup['9'][] = [
@@ -216,7 +216,7 @@ class BookMarcDisplay
             ];
         }
 
-        $rep->loadMissing('library_programs');
+        $rep->loadMissing('programs');
         if ($this->opacProgramsShareSame($fullBooks) && $rep->programs->isNotEmpty()) {
             $value = $rep->programs->sortBy('program_name')->pluck('program_name')->filter()->implode(', ');
             if ($value !== '') {
@@ -405,7 +405,7 @@ class BookMarcDisplay
      */
     protected function opacProgramsShareSame(Collection $books): bool
     {
-        $books->loadMissing('library_programs');
+        $books->loadMissing('programs');
 
         $normalize = static function (LibraryBook $b): string {
             return $b->programs->pluck('id')->sort()->values()->implode(',');

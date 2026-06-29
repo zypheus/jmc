@@ -6,13 +6,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AccountController extends Controller
 {
-    public function edit(Request $request)
+    public function edit(Request $request): Response
     {
-        return view('account.edit', [
-            'user' => $request->user(),
+        $user = $request->user();
+
+        return Inertia::render('Library/Account/Edit', [
+            'account' => [
+                'fname' => $user->fname,
+                'lname' => $user->lname,
+                'email' => $user->email,
+                'avatarUrl' => $user->profile_picture ? asset($user->profile_picture) : null,
+            ],
         ]);
     }
 

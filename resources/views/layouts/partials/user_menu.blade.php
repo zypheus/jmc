@@ -19,7 +19,7 @@
             <span class="user-menu-dropdown__name">{{ $authUser->fullName() }}</span>
             <span class="user-menu-dropdown__meta">{{ $authUser->email }}</span>
         </div>
-        <a href="{{ route('library.account.edit') }}" class="user-menu-dropdown__item">My account</a>
+        <a href="{{ route('account.edit') }}" class="user-menu-dropdown__item">My account</a>
         <hr class="user-menu-dropdown__divider">
         <form action="{{ route('logout') }}" method="POST" class="mb-0">
             @csrf

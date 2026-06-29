@@ -12,6 +12,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OpenLibraryCopyCatalogController extends Controller
 {
@@ -83,11 +85,11 @@ class OpenLibraryCopyCatalogController extends Controller
         return $out;
     }
 
-    public function searchForm(Request $request)
+    public function searchForm(Request $request): Response
     {
         $prefillIsbn = (string) $request->query('isbn', '');
 
-        return view('catalog.copy.openlibrary-search', compact('prefillIsbn'));
+        return Inertia::render('Library/Catalog/OpenLibrary/Search', compact('prefillIsbn'));
     }
 
     public function search(Request $request)
@@ -131,14 +133,15 @@ class OpenLibraryCopyCatalogController extends Controller
         $marcValues = $this->marcValuesFromOpenLibraryRecord($record, $frameworkFields);
         $isbnQuery = $request->input('isbn');
 
-        return view('catalog.copy.openlibrary-review', compact(
-            'record',
-            'library_programs',
-            'frameworkFields',
-            'marcValues',
-            'isbnQuery',
-            'catalogSource'
-        ));
+        return Inertia::render('Library/Catalog/OpenLibrary/Review', [
+            'record' => $record,
+            'programs' => $programs,
+            'frameworkFields' => $frameworkFields,
+            'marcValues' => $marcValues,
+            'isbnQuery' => $isbnQuery,
+            'catalogSource' => $catalogSource,
+            'curriculumOptions' => config('catalog.curriculum_options', []),
+        ]);
     }
 
     public function store(Request $request)
