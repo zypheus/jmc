@@ -17,6 +17,9 @@ export default function GuestLayout({ children }: PropsWithChildren) {
                             <Link href="/opac" className="transition hover:text-[#ffd700]">
                                 OPAC
                             </Link>
+                            <Link href="/kiosk/scan" className="transition hover:text-[#ffd700]">
+                                Patron lookup
+                            </Link>
                             <Link href="/attendance" className="transition hover:text-[#ffd700]">
                                 Attendance
                             </Link>

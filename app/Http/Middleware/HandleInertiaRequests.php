@@ -62,6 +62,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'lookup_status' => fn () => $request->session()->get('lookup_status'),
             ],
             'branding' => [
                 'blue' => '#1f4ea7',

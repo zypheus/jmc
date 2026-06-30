@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Library;
 
 use App\Domain\Library\Models\AdminActivity;
 use App\Domain\Library\Models\LibraryEmployee;
+use App\Domain\Library\Models\LibraryEmployeeEditRequest;
 use App\Domain\Library\Models\LibraryPendingEmployee;
 use App\Domain\Library\Models\LibraryProgram;
 use App\Domain\Library\Services\AdminActivityLogger;
@@ -278,5 +279,143 @@ class EmployeeController extends Controller
         );
 
         return back()->with('success', 'Record deleted successfully.');
+    }
+
+    public function submitEditRequest(Request $request)
+    {
+        $employee = LibraryEmployee::findOrFail($request->employee_id);
+
+        if ($employee->editRequests()->where('status', 'pending')->exists()) {
+            return back()->with('error', 'You already have a pending request.');
+        }
+
+        MiddleInitial::mergeIntoRequest($request);
+
+        $request->validate([
+            'lastname' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'middle_initial' => MiddleInitial::validationRule(),
+            'employee_id_value' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:255',
+            'program' => 'nullable|string|max:255',
+            'year_start_work' => 'nullable|string|max:10',
+            'birth_date' => 'nullable|date',
+            'mobile_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_relationship' => 'nullable|string|max:255',
+            'emergency_contact_number' => 'nullable|string|max:20',
+            'emergency_address' => 'nullable|string',
+            'formal_picture' => 'nullable|image|max:2048',
+        ]);
+
+        $photoPath = null;
+
+        if ($request->hasFile('formal_picture')) {
+            $image = $request->file('formal_picture');
+            $filename = time().'_'.preg_replace('/\s+/', '_', $image->getClientOriginalName());
+            if (! file_exists(base_path('images/edits'))) {
+                mkdir(base_path('images/edits'), 0755, true);
+            }
+            $image->move(base_path('images/edits'), $filename);
+            $photoPath = 'images/edits/'.$filename;
+        }
+
+        $editRequest = LibraryEmployeeEditRequest::create([
+            'employee_id' => $employee->id,
+            'lastname' => $request->lastname,
+            'firstname' => $request->firstname,
+            'middle_initial' => MiddleInitial::normalize($request->middle_initial),
+            'employee_id_value' => $request->employee_id_value,
+            'designation' => $request->designation,
+            'program' => $request->program,
+            'year_start_work' => $request->year_start_work,
+            'birth_date' => $request->birth_date,
+            'mobile_number' => $request->mobile_number,
+            'address' => $request->address,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_relationship' => $request->emergency_contact_relationship,
+            'emergency_contact_number' => $request->emergency_contact_number,
+            'emergency_address' => $request->emergency_address,
+            'formal_picture' => $photoPath,
+            'status' => 'pending',
+        ]);
+
+        AdminActivityLogger::patronEditRequest(
+            $editRequest,
+            "{$employee->lastname}, {$employee->firstname}",
+        );
+
+        return back()->with('success', 'Edit request submitted for approval.');
+    }
+
+    public function approveEditRequest(int $id)
+    {
+        $req = LibraryEmployeeEditRequest::findOrFail($id);
+        $employee = $req->employee;
+
+        $newPhotoPath = $employee->formal_picture;
+
+        if ($req->formal_picture) {
+            if ($employee->formal_picture && file_exists(base_path($employee->formal_picture))) {
+                unlink(base_path($employee->formal_picture));
+            }
+            $newPhotoPath = $req->formal_picture;
+        }
+
+        $employee->update([
+            'lastname' => $req->lastname,
+            'firstname' => $req->firstname,
+            'middle_initial' => MiddleInitial::normalize($req->middle_initial),
+            'employee_id' => $req->employee_id_value ?: $employee->employee_id,
+            'designation' => $req->designation,
+            'program' => $req->program,
+            'year_start_work' => $req->year_start_work,
+            'birth_date' => $req->birth_date,
+            'mobile_number' => $req->mobile_number,
+            'address' => $req->address,
+            'emergency_contact_name' => $req->emergency_contact_name,
+            'emergency_contact_relationship' => $req->emergency_contact_relationship,
+            'emergency_contact_number' => $req->emergency_contact_number,
+            'emergency_address' => $req->emergency_address,
+            'formal_picture' => $newPhotoPath,
+        ]);
+
+        $req->status = 'approved';
+        $req->reviewed_at = now();
+        $req->reviewed_by = auth()->id();
+        $req->save();
+
+        AdminActivityLogger::staff(
+            AdminActivity::TYPE_PATRON,
+            'Employee edit request approved',
+            "{$employee->lastname}, {$employee->firstname}",
+            route('library.students.pending.requests'),
+            'patron',
+            $employee,
+        );
+
+        return back()->with('success', 'Request approved and changes applied.');
+    }
+
+    public function rejectEditRequest(int $id)
+    {
+        $req = LibraryEmployeeEditRequest::findOrFail($id);
+
+        $req->status = 'rejected';
+        $req->reviewed_at = now();
+        $req->reviewed_by = auth()->id();
+        $req->save();
+
+        AdminActivityLogger::staff(
+            AdminActivity::TYPE_PATRON,
+            'Employee edit request rejected',
+            "Request #{$req->id}",
+            route('library.students.pending.requests'),
+            'patron',
+            $req,
+        );
+
+        return back()->with('success', 'Request rejected.');
     }
 }

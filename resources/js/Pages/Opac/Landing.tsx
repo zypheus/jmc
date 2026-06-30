@@ -103,15 +103,22 @@ export default function Landing({ carouselBooks, carouselMeta, libraryBooks, lib
                             />
                             <Button type="submit">Search</Button>
                         </form>
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                             <p className="text-xs text-muted-foreground">
                                 Staff access is available from the login page.
                             </p>
-                            <Link href="/login">
-                                <Button size="sm" variant="outline">
-                                    Staff Login
-                                </Button>
-                            </Link>
+                            <div className="flex flex-wrap gap-2">
+                                <Link href="/kiosk/scan">
+                                    <Button size="sm" variant="secondary">
+                                        Patron lookup
+                                    </Button>
+                                </Link>
+                                <Link href="/login">
+                                    <Button size="sm" variant="outline">
+                                        Staff Login
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

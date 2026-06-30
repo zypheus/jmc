@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Library;
 
 use App\Domain\Library\Imports\LibraryStudentsImport;
 use App\Domain\Library\Models\AdminActivity;
-use App\Domain\Library\Models\LibraryBookLog;
-use App\Domain\Library\Models\LibraryBookReservation;
+use App\Domain\Library\Models\LibraryEmployeeEditRequest;
 use App\Domain\Library\Models\LibraryPendingStudent;
 use App\Domain\Library\Models\LibraryProgram;
 use App\Domain\Library\Models\LibraryStudent;
@@ -406,117 +405,6 @@ class StudentController extends Controller
         return back()->with('success', 'Registration rejected.');
     }
 
-    public function profile(string $qrcode)
-    {
-        $token = trim($qrcode);
-
-        $student = LibraryStudent::query()
-            ->where(function ($q) use ($token) {
-                $q->where('qrcode', $token)
-                    ->orWhere('id_number', $token)
-                    ->orWhereRaw('LOWER(TRIM(id_number)) = ?', [strtolower($token)]);
-            })
-            ->firstOrFail();
-        session(['student_id' => $student->id]);
-
-        $program = LibraryProgram::where('program_code', $student->course)->first();
-        $programs = LibraryProgram::orderBy('program_name')->get();
-
-        LibraryBookReservation::expireStale();
-
-        $bookReservations = LibraryBookReservation::query()
-            ->with('book')
-            ->where('student_id', $student->id)
-            ->whereIn('status', [LibraryBookReservation::STATUS_PENDING, LibraryBookReservation::STATUS_READY])
-            ->orderByDesc('reserved_at')
-            ->get();
-
-        $readyReservations = $bookReservations->where('status', LibraryBookReservation::STATUS_READY)->values();
-        $pendingReservations = $bookReservations->where('status', LibraryBookReservation::STATUS_PENDING)->values();
-
-        $legacyComma = "{$student->lastname}, {$student->firstname}";
-        $legacySpace = trim("{$student->firstname} {$student->lastname}");
-
-        $borrowedBooks = LibraryBookLog::with('book')
-            ->where(function ($q) use ($student, $legacyComma, $legacySpace) {
-                $q->where('student_id', $student->id)
-                    ->orWhere(function ($q2) use ($legacyComma, $legacySpace) {
-                        $q2->whereNull('student_id')
-                            ->where(function ($q3) use ($legacyComma, $legacySpace) {
-                                $q3->where('patron_name', $legacyComma)
-                                    ->orWhere('patron_name', $legacySpace);
-                            });
-                    });
-            })
-            ->where('status', 'Checked Out')
-            ->whereNull('returned_date')
-            ->get();
-
-        $booksOutCount = $borrowedBooks->count();
-        $overdueBooksCount = $borrowedBooks->filter(fn (LibraryBookLog $log) => (int) $log->days_overdue > 0)->count();
-        $totalOutstandingFine = round(
-            $borrowedBooks->sum(fn (LibraryBookLog $log) => (float) $log->total_fine),
-            2
-        );
-
-        $returnedFinesBase = LibraryBookLog::query()
-            ->where(function ($q) use ($student, $legacyComma, $legacySpace) {
-                $q->where('student_id', $student->id)
-                    ->orWhere(function ($q2) use ($legacyComma, $legacySpace) {
-                        $q2->whereNull('student_id')
-                            ->where(function ($q3) use ($legacyComma, $legacySpace) {
-                                $q3->where('patron_name', $legacyComma)
-                                    ->orWhere('patron_name', $legacySpace);
-                            });
-                    });
-            })
-            ->where('status', 'Checked In')
-            ->where('fine_incurred', '>', 0);
-
-        $totalReturnedFinesOutstanding = round(
-            (float) (clone $returnedFinesBase)->whereNull('fine_cleared_at')->sum('fine_incurred'),
-            2
-        );
-
-        $returnedFineHistory = (clone $returnedFinesBase)
-            ->with(['book', 'clearedBy'])
-            ->orderByDesc('returned_date')
-            ->limit(25)
-            ->get();
-
-        $bookTransactionHistory = LibraryBookLog::query()
-            ->with('book')
-            ->where(function ($q) use ($student, $legacyComma, $legacySpace) {
-                $q->where('student_id', $student->id)
-                    ->orWhere(function ($q2) use ($legacyComma, $legacySpace) {
-                        $q2->whereNull('student_id')
-                            ->where(function ($q3) use ($legacyComma, $legacySpace) {
-                                $q3->where('patron_name', $legacyComma)
-                                    ->orWhere('patron_name', $legacySpace);
-                            });
-                    });
-            })
-            ->orderByDesc('timestamp')
-            ->orderByDesc('id')
-            ->limit(75)
-            ->get();
-
-        return view('students.profile', compact(
-            'student',
-            'program',
-            'library_programs',
-            'readyReservations',
-            'pendingReservations',
-            'borrowedBooks',
-            'booksOutCount',
-            'overdueBooksCount',
-            'totalOutstandingFine',
-            'returnedFineHistory',
-            'totalReturnedFinesOutstanding',
-            'bookTransactionHistory'
-        ));
-    }
-
     public function submitEditRequest(Request $request)
     {
         $student = LibraryStudent::findOrFail($request->student_id);
@@ -532,7 +420,7 @@ class StudentController extends Controller
             'firstname' => 'required|string|max:255',
             'middle_initial' => MiddleInitial::validationRule(),
             'birthday' => 'nullable|date',
-            'program_id' => 'nullable|exists:programs,id',
+            'program_id' => 'nullable|exists:library_programs,id',
             'year' => 'nullable|string|max:10',
             'mobile_number' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
@@ -571,7 +459,7 @@ class StudentController extends Controller
             'emergency_number' => $request->emergency_number,
             'emergency_address' => $request->emergency_address,
             'profile_picture' => $photoPath,
-            'email' => $request->email,
+            'status' => 'pending',
         ]);
 
         $editRequest = $student->editRequests()->latest()->first();
@@ -619,7 +507,7 @@ class StudentController extends Controller
             'emergency_number' => $req->emergency_number,
             'emergency_address' => $req->emergency_address,
             'profile_picture' => $newProfilePath,
-            'email' => $req->email ?? $student->email,
+            'email' => $student->email,
         ]);
 
         $req->status = 'approved';
@@ -690,9 +578,35 @@ class StudentController extends Controller
             ->paginate($perPage, ['*'], 'logs_page')
             ->withQueryString();
 
+        $employeePending = LibraryEmployeeEditRequest::with('employee')
+            ->where('status', 'pending')
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('employee', function ($q) use ($search) {
+                    $q->where('lastname', 'like', "%{$search}%")
+                        ->orWhere('firstname', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate($perPage, ['*'], 'employee_pending_page')
+            ->withQueryString();
+
+        $employeeLogs = LibraryEmployeeEditRequest::with('employee')
+            ->whereIn('status', ['approved', 'rejected'])
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('employee', function ($q) use ($search) {
+                    $q->where('lastname', 'like', "%{$search}%")
+                        ->orWhere('firstname', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate($perPage, ['*'], 'employee_logs_page')
+            ->withQueryString();
+
         return Inertia::render('Library/Students/PendingRequests', [
             'pending' => $pending,
             'logs' => $logs,
+            'employeePending' => $employeePending,
+            'employeeLogs' => $employeeLogs,
             'filters' => [
                 'search' => $search ?? '',
             ],

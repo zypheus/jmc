@@ -33,7 +33,7 @@ class LibraryStudent extends Model
 
     public function editRequests()
     {
-        return $this->hasMany(LibraryStudentEditRequest::class);
+        return $this->hasMany(LibraryStudentEditRequest::class, 'student_id');
     }
 
     public function bookLogs()

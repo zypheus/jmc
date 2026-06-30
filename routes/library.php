@@ -20,6 +20,7 @@ use App\Http\Controllers\Library\FineClearanceController;
 use App\Http\Controllers\Library\HolidayController;
 use App\Http\Controllers\Library\IdCardController;
 use App\Http\Controllers\Library\LibraryHoldingsReportController;
+use App\Http\Controllers\Library\LibraryKioskController;
 use App\Http\Controllers\Library\OpenLibraryCopyCatalogController;
 use App\Http\Controllers\Library\PendingEmployeeController;
 use App\Http\Controllers\Library\PendingStudentController;
@@ -53,9 +54,12 @@ Route::get('/filter/courses', [BookController::class, 'getCourses'])->name('libr
 Route::get('/books/copies', [BookController::class, 'viewCopies'])->name('library.books.copies');
 Route::get('/feedback', [FeedbackController::class, 'create'])->name('library.feedback.create');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('library.feedback.store');
-Route::get('/student/qr/{qrcode}', [StudentController::class, 'profile'])->name('library.student.qr.profile');
+Route::get('/student/qr/{qrcode}', [LibraryKioskController::class, 'studentProfile'])->name('library.student.qr.profile');
+Route::get('/employee/qr/{qrcode}', [LibraryKioskController::class, 'employeeProfile'])->name('library.employee.qr.profile');
 Route::post('/students/profile/request', [StudentController::class, 'submitEditRequest'])->name('library.students.profile.request');
-Route::get('/kiosk/scan', fn () => view('kiosk.scan'))->name('library.kiosk.scan');
+Route::post('/employees/profile/request', [EmployeeController::class, 'submitEditRequest'])->name('library.employees.profile.request');
+Route::get('/kiosk/scan', [LibraryKioskController::class, 'scan'])->name('library.kiosk.scan');
+Route::post('/kiosk/lookup', [LibraryKioskController::class, 'lookup'])->name('library.kiosk.lookup');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('library.checkout.process');
 Route::post('/checkout/bulk', [CheckoutController::class, 'bulk'])->name('library.checkout.bulk');
 Route::get('/opac', [BookController::class, 'landingPage'])->name('library.landing');
@@ -137,6 +141,8 @@ Route::middleware(['auth', 'library.admin'])
         Route::get('/student/pending-requests', [StudentController::class, 'pendingRequests'])->name('students.pending.requests');
         Route::post('/admin/requests/{id}/approve', [StudentController::class, 'approveRequest'])->name('admin.requests.approve');
         Route::post('/admin/requests/{id}/reject', [StudentController::class, 'rejectRequest'])->name('admin.requests.reject');
+        Route::post('/admin/employee-requests/{id}/approve', [EmployeeController::class, 'approveEditRequest'])->name('admin.employee.requests.approve');
+        Route::post('/admin/employee-requests/{id}/reject', [EmployeeController::class, 'rejectEditRequest'])->name('admin.employee.requests.reject');
 
         Route::get('/idcard/{id}', [IdCardController::class, 'generate'])->name('idcard.generate');
         Route::get('/idcard/front/{id}', [IdCardController::class, 'front'])->name('idcard.front');
