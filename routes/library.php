@@ -19,11 +19,12 @@ use App\Http\Controllers\Library\FileController;
 use App\Http\Controllers\Library\FineClearanceController;
 use App\Http\Controllers\Library\HolidayController;
 use App\Http\Controllers\Library\IdCardController;
-use App\Http\Controllers\Library\LibraryHoldingsReportController;
 use App\Http\Controllers\Library\LibraryAttendanceController;
 use App\Http\Controllers\Library\LibraryAttendanceFeedbackController;
 use App\Http\Controllers\Library\LibraryAttendanceVideoController;
+use App\Http\Controllers\Library\LibraryHoldingsReportController;
 use App\Http\Controllers\Library\LibraryKioskController;
+use App\Http\Controllers\Library\LibraryNavigationStatusController;
 use App\Http\Controllers\Library\OpenLibraryCopyCatalogController;
 use App\Http\Controllers\Library\PendingEmployeeController;
 use App\Http\Controllers\Library\PendingStudentController;
@@ -79,6 +80,7 @@ Route::middleware(['auth', 'library.access'])
         Route::get('/admin/activities', [AdminActivityController::class, 'index'])->name('admin.activities.index');
         Route::get('/admin/activities/recent', [AdminActivityController::class, 'recent'])->name('admin.activities.recent');
         Route::post('/admin/activities/mark-seen', [AdminActivityController::class, 'markSeen'])->name('admin.activities.mark_seen');
+        Route::get('/library/navigation-status', LibraryNavigationStatusController::class)->name('navigation.status');
 
         Route::get('/book/catalog/courses-for-programs', [BookController::class, 'coursesForPrograms'])->name('books.coursesForPrograms');
         Route::resource('book', BookController::class)->except('index');

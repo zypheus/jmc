@@ -7,7 +7,7 @@ import type { PageProps } from '@/types';
 
 export default function LibraryLayout({ children }: PropsWithChildren) {
     const { props } = usePage<PageProps>();
-    const { auth, flash, routeName, adminActivity } = props;
+    const { auth, flash, routeName, adminActivity, libraryNavigationStatus } = props;
     const navigation = useMemo(() => libraryNavigation(auth), [auth]);
 
     return (
@@ -16,6 +16,7 @@ export default function LibraryLayout({ children }: PropsWithChildren) {
             routeName={routeName}
             auth={auth}
             adminActivity={adminActivity ?? null}
+            navigationStatus={libraryNavigationStatus ?? null}
             flash={flash}
         >
             {children}

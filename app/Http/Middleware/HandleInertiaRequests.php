@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Domain\Library\Services\LibraryNavigationStatusService;
 use App\Domain\Library\Support\AdminShell;
 use App\Services\Auth\ModuleAccessService;
 use Illuminate\Http\Request;
@@ -35,6 +36,7 @@ class HandleInertiaRequests extends Middleware
         $initials = $user
             ? strtoupper(substr((string) $user->fname, 0, 1).substr((string) $user->lname, 0, 1))
             : '';
+        $libraryNavigationStatus = app(LibraryNavigationStatusService::class);
 
         return [
             ...parent::share($request),
@@ -59,6 +61,12 @@ class HandleInertiaRequests extends Middleware
             ],
             'routeName' => fn () => $request->route()?->getName(),
             'adminActivity' => fn () => AdminShell::adminActivity($user),
+            'libraryNavigationStatus' => fn () => $libraryNavigationStatus->canView($user)
+                ? [
+                    'counts' => $libraryNavigationStatus->counts(),
+                    'refreshUrl' => route('library.navigation.status'),
+                ]
+                : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

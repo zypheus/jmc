@@ -1,11 +1,11 @@
 import { Link } from '@inertiajs/react';
 
-import FlatNavMenu from '@/components/shells/FlatNavMenu';
 import { UserAvatar } from '@/components/app/UserMenu';
+import LibraryNavigationMenu from '@/components/shells/library/LibraryNavigationMenu';
 import { dashboardRouteFor } from '@/config/modules';
 import { activeModuleRole } from '@/lib/authorization';
 import { cn } from '@/lib/utils';
-import type { PageProps } from '@/types';
+import type { LibraryNavigationCounts, PageProps } from '@/types';
 import type { NavigationGroup } from '@/types/navigation';
 
 interface LibrarySidebarProps {
@@ -13,11 +13,11 @@ interface LibrarySidebarProps {
     routeName?: string | null;
     auth: PageProps['auth'];
     collapsed: boolean;
+    counts?: LibraryNavigationCounts | null;
     onNavigate?: () => void;
 }
 
-export default function LibrarySidebar({ navigation, routeName, auth, collapsed, onNavigate }: LibrarySidebarProps) {
-    const items = navigation[0]?.items ?? [];
+export default function LibrarySidebar({ navigation, routeName, auth, collapsed, counts, onNavigate }: LibrarySidebarProps) {
     const dashboardHref = route(dashboardRouteFor('library', auth));
     const activeRole = activeModuleRole(auth, 'library');
     const currentYear = new Date().getFullYear();
@@ -46,11 +46,11 @@ export default function LibrarySidebar({ navigation, routeName, auth, collapsed,
             </div>
 
             <nav className="library-sidebar-nav flex-1 overflow-x-hidden overflow-y-auto" aria-label="Library navigation">
-                <FlatNavMenu
-                    items={items}
+                <LibraryNavigationMenu
+                    groups={navigation}
                     routeName={routeName}
-                    variant="library"
                     collapsed={collapsed}
+                    counts={counts}
                     onNavigate={onNavigate}
                 />
             </nav>

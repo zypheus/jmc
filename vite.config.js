@@ -20,4 +20,10 @@ export default defineConfig({
             '@': path.resolve(__dirname, 'resources/js'),
         },
     },
+    test: {
+        environment: 'jsdom',
+        globals: true,
+        setupFiles: ['./resources/js/test/setup.tsx'],
+        css: true,
+    },
 });

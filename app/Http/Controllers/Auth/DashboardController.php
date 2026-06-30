@@ -10,9 +10,8 @@ use App\Domain\Attendance\Models\AttendanceStudent;
 use App\Domain\Library\Models\LibraryBook;
 use App\Domain\Library\Models\LibraryBookLog;
 use App\Domain\Library\Models\LibraryEmployee;
-use App\Domain\Library\Models\LibraryPendingEmployee;
-use App\Domain\Library\Models\LibraryPendingStudent;
 use App\Domain\Library\Models\LibraryStudent;
+use App\Domain\Library\Services\LibraryNavigationStatusService;
 use App\Http\Controllers\Controller;
 use App\Services\Auth\ModuleAccessService;
 use Carbon\Carbon;
@@ -24,7 +23,10 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __construct(private readonly ModuleAccessService $moduleAccess) {}
+    public function __construct(
+        private readonly ModuleAccessService $moduleAccess,
+        private readonly LibraryNavigationStatusService $libraryNavigationStatus,
+    ) {}
 
     public function index(Request $request): RedirectResponse
     {
@@ -50,24 +52,15 @@ class DashboardController extends Controller
             ->selectRaw('MAX(id) as id')
             ->groupBy('book_id');
 
-        $outstandingFinesCount = LibraryBookLog::query()
-            ->where('status', 'Checked In')
-            ->where(function ($query) {
-                $query->where('fine_balance', '>', 0)
-                    ->orWhere(function ($innerQuery) {
-                        $innerQuery->whereNull('fine_balance')->where('fine_incurred', '>', 0);
-                    });
-            })
-            ->whereNull('fine_cleared_at')
-            ->count();
+        $navigationCounts = $this->libraryNavigationStatus->counts();
 
         return Inertia::render('Dashboard/LibraryAdmin', [
             'stats' => [
                 'studentsCount' => LibraryStudent::count(),
                 'employeesCount' => LibraryEmployee::count(),
                 'booksCount' => LibraryBook::count(),
-                'pendingCount' => LibraryPendingStudent::count() + LibraryPendingEmployee::count(),
-                'outstandingFinesCount' => $outstandingFinesCount,
+                'pendingCount' => $navigationCounts['pendingPatrons'],
+                'outstandingFinesCount' => $navigationCounts['outstandingFines'],
                 'activeLoansCount' => LibraryBookLog::query()
                     ->whereIn('id', $latestLoanIds)
                     ->where('status', 'Checked Out')

@@ -306,6 +306,8 @@
 
     .library-sidebar-nav {
         padding: 0.5rem;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklch, var(--sidebar-foreground) 35%, transparent) transparent;
     }
 
     .library-sidebar-footer {
@@ -344,8 +346,10 @@
     }
 
     .library-nav-link {
+        position: relative;
         display: flex;
         width: 100%;
+        min-height: 2.75rem;
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
@@ -355,7 +359,7 @@
         font-size: 0.875rem;
         color: var(--sidebar-foreground);
         text-decoration: none;
-        transition: background-color 0.15s ease, border-color 0.15s ease;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     }
 
     .library-nav-link:hover {
@@ -371,9 +375,10 @@
     }
 
     .library-nav-sublink {
+        width: calc(100% - 0.75rem);
         margin-left: 0.75rem;
         font-size: 0.8125rem;
-        padding-left: 1.5rem;
+        padding-left: 1.25rem;
     }
 
     .flat-nav-children {
@@ -383,29 +388,74 @@
         padding-bottom: 0.25rem;
     }
 
-    .flat-nav-section button.library-nav-link,
+    .library-sidebar .flat-nav-children {
+        border-left: 1px solid color-mix(in oklch, var(--sidebar-foreground) 18%, transparent);
+        margin-left: 1.1rem;
+    }
+
+    .flat-nav-section > button.library-nav-link,
     .flat-nav-section button.attendance-nav-link {
         cursor: pointer;
-        border: none;
-        background: transparent;
         text-align: left;
     }
 
-    .library-sidebar .flat-nav-section[data-nav-id='attendance'] > .library-nav-link {
-        border-left-color: #60a5fa;
-        background: #1d4ed8;
-        color: #ffffff;
-        font-weight: 600;
+    .library-nav-link.is-collapsed {
+        min-height: 2.75rem;
+        justify-content: center;
+        border-left-width: 0;
+        padding: 0;
     }
 
-    .library-sidebar .flat-nav-section[data-nav-id='attendance'] > .library-nav-link:hover,
-    .library-sidebar .flat-nav-section[data-nav-id='attendance'].is-branch-active > .library-nav-link {
-        background: #1e40af;
+    .library-nav-link.is-collapsed.is-active {
+        box-shadow: inset 3px 0 0 var(--sidebar-primary);
+    }
+
+    .library-nav-badge {
+        display: inline-flex;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        padding: 0 0.35rem;
+        background: color-mix(in oklch, var(--sidebar-foreground) 18%, transparent);
+        color: var(--sidebar-foreground);
+        font-size: 0.65rem;
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .library-nav-badge.is-warning {
+        background: var(--jmc-gold);
+        color: var(--jmc-navy);
+    }
+
+    .library-nav-badge.is-danger {
+        background: #b91c1c;
         color: #ffffff;
     }
 
-    .library-sidebar .flat-nav-section[data-nav-id='attendance'] > .library-nav-link svg {
-        color: #bfdbfe;
+    .library-nav-badge.is-compact {
+        position: absolute;
+        right: -0.75rem;
+        top: -0.65rem;
+        min-width: 1rem;
+        height: 1rem;
+        padding: 0 0.2rem;
+        border: 1px solid var(--sidebar);
+        font-size: 0.55rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .library-shell-aside,
+        .library-nav-link,
+        .library-sidebar [data-slot='dropdown-menu-content'],
+        .library-shell [data-slot='sheet-content'],
+        .library-shell [data-slot='sheet-overlay'] {
+            animation: none !important;
+            transition: none !important;
+        }
     }
 
     /* BCCI-style attendance shell */

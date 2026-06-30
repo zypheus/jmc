@@ -1,5 +1,5 @@
 import type { PageProps } from '@/types';
-import type { AppModule, BreadcrumbItem, NavigationGroup, NavigationItem } from '@/types/navigation';
+import type { AppModule, BreadcrumbItem, NavigationGroup, NavigationItem, NavigationMode } from '@/types/navigation';
 import { dashboardRouteFor, moduleDefinitions } from '@/config/modules';
 
 export function navigationHref(item: NavigationItem): string {
@@ -10,8 +10,24 @@ export function navigationHref(item: NavigationItem): string {
     return item.href ?? '#';
 }
 
+export function navigationMode(item: NavigationItem): NavigationMode {
+    if (item.navigationMode) {
+        return item.navigationMode;
+    }
+
+    return item.external ? 'new-tab' : 'inertia';
+}
+
+export function hasNavigationDestination(item: NavigationItem): boolean {
+    return Boolean((item.routeName && route().has(item.routeName)) || item.href);
+}
+
 export function isNavigationItemActive(item: NavigationItem, routeName?: string | null): boolean {
     if (!routeName) {
+        return false;
+    }
+
+    if (item.routeExclusions?.some((excluded) => routeName.startsWith(excluded))) {
         return false;
     }
 
@@ -53,7 +69,10 @@ export function resolveBreadcrumbs(
         for (const item of group.items) {
             const activeChild = item.children?.find((child) => isNavigationItemActive(child, routeName));
             if (activeChild) {
-                crumbs.push({ label: item.label, href: navigationHref(item) });
+                crumbs.push({
+                    label: item.label,
+                    href: hasNavigationDestination(item) ? navigationHref(item) : undefined,
+                });
                 crumbs.push({ label: activeChild.label, current: true });
                 const action = actionLabel(routeName);
                 if (action && !activeChild.label.toLowerCase().includes(action.toLowerCase())) {

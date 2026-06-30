@@ -31,6 +31,17 @@ export interface AdminActivityPayload {
     };
 }
 
+export interface LibraryNavigationCounts {
+    pendingPatrons: number;
+    pendingRooms: number;
+    outstandingFines: number;
+}
+
+export interface LibraryNavigationStatus {
+    counts: LibraryNavigationCounts;
+    refreshUrl: string;
+}
+
 export interface PageProps {
     auth: {
         user: AuthUser | null;
@@ -40,6 +51,7 @@ export interface PageProps {
     };
     routeName?: string | null;
     adminActivity?: AdminActivityPayload | null;
+    libraryNavigationStatus?: LibraryNavigationStatus | null;
     flash: {
         success?: string | null;
         error?: string | null;
