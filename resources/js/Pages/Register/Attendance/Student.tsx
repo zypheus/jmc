@@ -1,14 +1,17 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
+import FlashAlerts from '@/components/FlashAlerts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import GuestLayout from '@/Layouts/GuestLayout';
+import type { PageProps } from '@/types';
 
 export default function AttendanceStudent() {
-    const { data, setData, post, processing, errors } = useForm({
+    const { flash } = usePage<PageProps>().props;
+    const { data, setData, post, processing, errors, reset } = useForm({
         firstname: '',
         lastname: '',
         middle_initial: '',
@@ -29,7 +32,10 @@ export default function AttendanceStudent() {
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        post('/register/attendance', { forceFormData: true });
+        post('/register/attendance', {
+            forceFormData: true,
+            onSuccess: () => reset(),
+        });
     }
 
     return (
@@ -43,6 +49,8 @@ export default function AttendanceStudent() {
                     </Link>
                     <h1 className="mt-2 text-2xl font-semibold">Attendance Student Registration</h1>
                 </div>
+
+                <FlashAlerts flash={flash} />
 
                 <Card>
                     <CardHeader>

@@ -185,24 +185,60 @@
 
                                                 <div class="lm-section-title att">Student Information</div>
                                                 <div class="lm-grid2">
-                                                    <input class="lm-input" name="firstname" placeholder="First Name" value="{{ old('firstname') }}" />
-                                                    <input class="lm-input" name="middle_initial" placeholder="Middle Initial" value="{{ old('middle_initial') }}" />
-                                                    <input class="lm-input" name="lastname" placeholder="Last Name" value="{{ old('lastname') }}" />
-                                                    <input class="lm-input" name="student_id" placeholder="Student ID" value="{{ old('student_id') }}" />
-                                                    <input class="lm-input" name="birth_date" type="date" value="{{ old('birth_date') }}" />
-                                                    <input class="lm-input" name="mobile_number" placeholder="Mobile Number" value="{{ old('mobile_number') }}" />
-                                                    <select class="lm-input" name="course">
-                                                        <option value="">Course</option>
-                                                        <option @selected(old('course')=='BSCS')>BSCS</option>
-                                                        <option @selected(old('course')=='BSIT')>BSIT</option>
-                                                        <option @selected(old('course')=='BSED')>BSED</option>
-                                                        <option @selected(old('course')=='BSA')>BSA</option>
-                                                    </select>
-                                                    <input class="lm-input" name="year" placeholder="Year / Section" value="{{ old('year') }}" />
-                                                    <input class="lm-input" name="emergency_person" placeholder="Emergency Contact Name" value="{{ old('emergency_person') }}" />
-                                                    <input class="lm-input" name="emergency_relationship" placeholder="Relationship" value="{{ old('emergency_relationship') }}" />
-                                                    <input class="lm-input" name="emergency_number" placeholder="Contact Number" value="{{ old('emergency_number') }}" />
-                                                    <input class="lm-input" name="address" placeholder="Address" value="{{ old('address') }}" />
+                                                    <div>
+                                                        <label>First name</label>
+                                                        <input class="lm-input" name="firstname" placeholder="First Name" value="{{ old('firstname') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Middle initial</label>
+                                                        <input class="lm-input" name="middle_initial" placeholder="Middle Initial" value="{{ old('middle_initial') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Last name</label>
+                                                        <input class="lm-input" name="lastname" placeholder="Last Name" value="{{ old('lastname') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Student ID</label>
+                                                        <input class="lm-input" name="student_id" placeholder="Student ID" value="{{ old('student_id') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Birth date</label>
+                                                        <input class="lm-input" name="birth_date" type="date" value="{{ old('birth_date') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Mobile number</label>
+                                                        <input class="lm-input" name="mobile_number" placeholder="Mobile Number" value="{{ old('mobile_number') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Course</label>
+                                                        <select class="lm-input" name="course">
+                                                            <option value="">Course</option>
+                                                            <option @selected(old('course')=='BSCS')>BSCS</option>
+                                                            <option @selected(old('course')=='BSIT')>BSIT</option>
+                                                            <option @selected(old('course')=='BSED')>BSED</option>
+                                                            <option @selected(old('course')=='BSA')>BSA</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label>Year / Section</label>
+                                                        <input class="lm-input" name="year" placeholder="Year / Section" value="{{ old('year') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Emergency contact name</label>
+                                                        <input class="lm-input" name="emergency_person" placeholder="Emergency Contact Name" value="{{ old('emergency_person') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Emergency relationship</label>
+                                                        <input class="lm-input" name="emergency_relationship" placeholder="Relationship" value="{{ old('emergency_relationship') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Emergency contact number</label>
+                                                        <input class="lm-input" name="emergency_number" placeholder="Contact Number" value="{{ old('emergency_number') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Address</label>
+                                                        <input class="lm-input" name="address" placeholder="Address" value="{{ old('address') }}" />
+                                                    </div>
                                                 </div>
                                                 <div style="margin-top:14px">
                                                     <label>Profile Picture</label>
@@ -229,26 +265,74 @@
 
                                                 <div class="lm-section-title att">Employee Information</div>
                                                 <div class="lm-grid2">
-                                                    <input class="lm-input" name="firstname" placeholder="First Name" value="{{ old('firstname') }}" />
-                                                    <input class="lm-input" name="lastname" placeholder="Last Name" value="{{ old('lastname') }}" />
-                                                    <input class="lm-input" name="department" placeholder="Department" value="{{ old('department') }}" />
-                                                    <input class="lm-input" name="position" placeholder="Position" value="{{ old('position') }}" />
-                                                    <input class="lm-input" name="employee_id" placeholder="Employee ID" value="{{ old('employee_id') }}" />
-                                                    <input class="lm-input" name="birth_date" type="date" value="{{ old('birth_date') }}" />
-                                                    <select class="lm-input" name="sex">
-                                                        <option value="">Select Sex</option>
-                                                        <option @selected(old('sex')=='Male')>Male</option>
-                                                        <option @selected(old('sex')=='Female')>Female</option>
-                                                    </select>
-                                                    <input class="lm-input" name="tin_id_number" placeholder="TIN ID Number" value="{{ old('tin_id_number') }}" />
-                                                    <input class="lm-input" name="philhealth_number" placeholder="PhilHealth Number" value="{{ old('philhealth_number') }}" />
-                                                    <input class="lm-input" name="sss_number" placeholder="SSS Number" value="{{ old('sss_number') }}" />
-                                                    <input class="lm-input" name="hdmf_number" placeholder="HDMF Number" value="{{ old('hdmf_number') }}" />
-                                                    <input class="lm-input" name="blood_type" placeholder="Blood Type" value="{{ old('blood_type') }}" />
-                                                    <input class="lm-input" name="civil_status" placeholder="Civil Status" value="{{ old('civil_status') }}" />
-                                                    <input class="lm-input" name="emergency_contact_name" placeholder="Emergency Contact Name" value="{{ old('emergency_contact_name') }}" />
-                                                    <input class="lm-input" name="emergency_contact_relationship" placeholder="Relationship" value="{{ old('emergency_contact_relationship') }}" />
-                                                    <input class="lm-input" name="emergency_contact_number" placeholder="Contact Number" value="{{ old('emergency_contact_number') }}" />
+                                                    <div>
+                                                        <label>First name</label>
+                                                        <input class="lm-input" name="firstname" placeholder="First Name" value="{{ old('firstname') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Last name</label>
+                                                        <input class="lm-input" name="lastname" placeholder="Last Name" value="{{ old('lastname') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Department</label>
+                                                        <input class="lm-input" name="department" placeholder="Department" value="{{ old('department') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Position</label>
+                                                        <input class="lm-input" name="position" placeholder="Position" value="{{ old('position') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Employee ID</label>
+                                                        <input class="lm-input" name="employee_id" placeholder="Employee ID" value="{{ old('employee_id') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Birth date</label>
+                                                        <input class="lm-input" name="birth_date" type="date" value="{{ old('birth_date') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Sex</label>
+                                                        <select class="lm-input" name="sex">
+                                                            <option value="">Select Sex</option>
+                                                            <option @selected(old('sex')=='Male')>Male</option>
+                                                            <option @selected(old('sex')=='Female')>Female</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label>TIN ID number</label>
+                                                        <input class="lm-input" name="tin_id_number" placeholder="TIN ID Number" value="{{ old('tin_id_number') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>PhilHealth number</label>
+                                                        <input class="lm-input" name="philhealth_number" placeholder="PhilHealth Number" value="{{ old('philhealth_number') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>SSS number</label>
+                                                        <input class="lm-input" name="sss_number" placeholder="SSS Number" value="{{ old('sss_number') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>HDMF number</label>
+                                                        <input class="lm-input" name="hdmf_number" placeholder="HDMF Number" value="{{ old('hdmf_number') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Blood type</label>
+                                                        <input class="lm-input" name="blood_type" placeholder="Blood Type" value="{{ old('blood_type') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Civil status</label>
+                                                        <input class="lm-input" name="civil_status" placeholder="Civil Status" value="{{ old('civil_status') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Emergency contact name</label>
+                                                        <input class="lm-input" name="emergency_contact_name" placeholder="Emergency Contact Name" value="{{ old('emergency_contact_name') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Emergency relationship</label>
+                                                        <input class="lm-input" name="emergency_contact_relationship" placeholder="Relationship" value="{{ old('emergency_contact_relationship') }}" />
+                                                    </div>
+                                                    <div>
+                                                        <label>Emergency contact number</label>
+                                                        <input class="lm-input" name="emergency_contact_number" placeholder="Contact Number" value="{{ old('emergency_contact_number') }}" />
+                                                    </div>
                                                 </div>
                                                 <div style="margin-top:14px">
                                                     <label>Formal Picture</label>

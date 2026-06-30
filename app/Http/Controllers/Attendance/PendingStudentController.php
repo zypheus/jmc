@@ -80,8 +80,6 @@ class PendingStudentController extends Controller
 
         AttendancePendingStudent::create($validated);
 
-        return redirect()
-            ->route('register.success')
-            ->with('success', 'Student registration submitted. Await admin approval.');
+        return back()->with('success', 'Student registration submitted. Await admin approval.');
     }
 }
