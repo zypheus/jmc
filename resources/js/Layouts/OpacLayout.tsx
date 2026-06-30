@@ -19,9 +19,9 @@ export default function OpacLayout({ children }: PropsWithChildren) {
                     </Link>
 
                     <nav className="flex flex-wrap items-center gap-1 text-sm font-medium" aria-label="OPAC navigation">
-                        <Link href="/" className="rounded-lg px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-[var(--jmc-blue)]">
+                        <a href="/" className="rounded-lg px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-[var(--jmc-blue)]">
                             Home
-                        </Link>
+                        </a>
                         <Link href="/kiosk/scan" className="rounded-lg px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-[var(--jmc-blue)]">
                             Patron lookup
                         </Link>

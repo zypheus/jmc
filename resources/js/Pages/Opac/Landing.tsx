@@ -271,9 +271,9 @@ export default function Landing({ carouselBooks, carouselMeta, libraryBooks, lib
                         <a href="https://zendy.io" target="_blank" rel="noreferrer" className="group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-[var(--jmc-blue)]/40 hover:shadow-md">
                             <div className="flex items-center gap-4"><img src="/images/zendy.png" alt="Zendy" className="size-14 rounded-xl object-contain" /><div><p className="font-display font-semibold">Explore Zendy</p><p className="text-sm text-muted-foreground">Open journals and research resources.</p></div><ExternalLink className="ml-auto size-5 text-muted-foreground group-hover:text-primary" /></div>
                         </a>
-                        <Link href="/" className="group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-[var(--jmc-green)]/40 hover:shadow-md">
+                        <a href="/" className="group rounded-2xl border bg-white p-5 shadow-sm transition hover:border-[var(--jmc-green)]/40 hover:shadow-md">
                             <div className="flex items-center gap-4"><div className="grid size-14 place-items-center rounded-xl bg-[var(--jmc-blue)] text-white"><Library className="size-7" /></div><div><p className="font-display font-semibold">JMC home</p><p className="text-sm text-muted-foreground">Return to the main attendance and library portal.</p></div><ArrowRight className="ml-auto size-5 text-muted-foreground group-hover:text-primary" /></div>
-                        </Link>
+                        </a>
                     </section>
                 </div>
             ) : (
