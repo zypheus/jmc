@@ -157,13 +157,16 @@ export default function Index({ logs, courses, sections, filters }: IndexProps) 
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <a href={buildExportUrl('/attendance/logs/export/pdf', activeFilters)}>
-                            <Button variant="outline">Export PDF</Button>
+                            <Button variant="outline">📄 Export PDF</Button>
                         </a>
                         <a href={buildExportUrl('/attendance/logs/export/excel', activeFilters)}>
-                            <Button variant="outline">Export Excel</Button>
+                            <Button variant="outline">📊 Export Excel</Button>
                         </a>
                         <Link href="/attendance/logs/reports">
-                            <Button variant="outline">Reports</Button>
+                            <Button variant="outline">📈 Reports</Button>
+                        </Link>
+                        <Link href="/dashboard/attendance-admin">
+                            <Button variant="outline">← Go Back</Button>
                         </Link>
                     </div>
                 </div>
