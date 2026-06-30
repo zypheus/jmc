@@ -14,6 +14,8 @@ class AttendanceSetting extends Model
 
     public const KEY_SCAN_SMS = 'scan_sms';
 
+    public const KEY_ATTENDANCE_VIDEO = 'attendance_video_path';
+
     public const DEFAULT_ATTENDANCE_SECTIONS = [
         'Circulation Section',
         'Reference Section',
@@ -114,6 +116,20 @@ class AttendanceSetting extends Model
         static::updateOrCreate(
             ['key' => self::KEY_SCAN_SMS],
             ['value' => $message]
+        );
+    }
+
+    public static function attendanceVideoUrl(): string
+    {
+        return static::query()->where('key', self::KEY_ATTENDANCE_VIDEO)->value('value')
+            ?? '/videos/area51_product_slideshow.mp4';
+    }
+
+    public static function setAttendanceVideoPath(string $path): void
+    {
+        static::updateOrCreate(
+            ['key' => self::KEY_ATTENDANCE_VIDEO],
+            ['value' => $path]
         );
     }
 }

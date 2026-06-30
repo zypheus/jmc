@@ -70,6 +70,7 @@ function FlatNavLink({
                 target="_blank"
                 rel="noreferrer"
                 className={classes}
+                data-nav-id={item.id}
                 aria-current={active ? 'page' : undefined}
                 title={collapsed ? item.label : undefined}
                 onClick={onNavigate}
@@ -83,6 +84,7 @@ function FlatNavLink({
         <Link
             href={href}
             className={classes}
+            data-nav-id={item.id}
             aria-current={active ? 'page' : undefined}
             title={collapsed ? item.label : undefined}
             onClick={onNavigate}
@@ -124,13 +126,14 @@ function FlatNavSection({
     }
 
     return (
-        <div className={cn('flat-nav-section', branchActive && 'is-branch-active')}>
+        <div className={cn('flat-nav-section', branchActive && 'is-branch-active')} data-nav-id={item.id}>
             <button
                 type="button"
                 className={cn(
                     variant === 'library' ? 'library-nav-link' : 'attendance-nav-link',
                     branchActive && 'is-active',
                 )}
+                data-nav-id={item.id}
                 aria-expanded={open}
                 onClick={() => setOpen((value) => !value)}
             >

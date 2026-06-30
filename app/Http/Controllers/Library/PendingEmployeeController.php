@@ -106,9 +106,7 @@ class PendingEmployeeController extends Controller
             $validated['employee_id'],
         );
 
-        return redirect()
-            ->route('register.success')
-            ->with('success', 'Faculty & staff registration submitted. Please wait for library approval.');
+        return back()->with('success', 'Faculty & staff registration submitted. Please wait for library approval.');
     }
 
     public function approve($id)

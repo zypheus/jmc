@@ -19,7 +19,7 @@ class LandingRegistrationSubmissionTest extends TestCase
             'course' => 'BSIT',
             'year' => '1st',
         ])
-            ->assertRedirect(route('register.success'))
+            ->assertRedirect('/')
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('attendance_pending_students', [
@@ -46,7 +46,7 @@ class LandingRegistrationSubmissionTest extends TestCase
             'emergency_contact_relationship' => 'Spouse',
             'emergency_contact_number' => '09171234567',
         ])
-            ->assertRedirect(route('register.success'))
+            ->assertRedirect('/')
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('attendance_pending_employees', [
@@ -68,7 +68,7 @@ class LandingRegistrationSubmissionTest extends TestCase
             'year' => '2nd',
             'email' => 'carla@example.test',
         ])
-            ->assertRedirect(route('register.success'))
+            ->assertRedirect('/')
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('library_pending_students', [
@@ -97,7 +97,7 @@ class LandingRegistrationSubmissionTest extends TestCase
             'emergency_contact_relationship' => 'Mother',
             'emergency_contact_number' => '09179876543',
         ])
-            ->assertRedirect(route('register.success'))
+            ->assertRedirect('/')
             ->assertSessionHasNoErrors();
 
         $this->assertDatabaseHas('library_pending_employees', [

@@ -47,10 +47,6 @@ Route::middleware(['auth', 'attendance.access'])
         Route::get('/students', [StudentController::class, 'index'])->name('students.index');
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 
-        Route::get('/change-video', [SettingsController::class, 'showChangeVideo'])->name('changeVideo');
-        Route::post('/upload-video', [SettingsController::class, 'uploadVideo'])->name('uploadVideo');
-        Route::get('/logout-feedback', [SettingsController::class, 'feedbackSettings'])->name('feedback.settings');
-        Route::post('/logout-feedback', [SettingsController::class, 'updateFeedbackSettings'])->name('feedback.settings.update');
         Route::get('/section-picker', [SettingsController::class, 'sectionSettings'])->name('section.settings');
         Route::post('/section-picker', [SettingsController::class, 'updateSectionSettings'])->name('section.settings.update');
 
@@ -77,18 +73,22 @@ Route::middleware(['auth', 'attendance.admin'])
         Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('employees.update');
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
-        Route::get('/feedbacks', [FeedController::class, 'index'])->name('feedback.index');
         Route::get('/logs', [AttendanceLogController::class, 'index'])->name('logs.index');
         Route::get('/logs/reports', [AttendanceLogController::class, 'reportsHub'])->name('logs.reports.hub');
         Route::get('/logs/reports/dashboard', [AttendanceLogController::class, 'reportsDashboard'])->name('logs.reports.dashboard');
         Route::get('/logs/reports/export', [AttendanceLogController::class, 'reportsExportCsv'])->name('logs.reports.export');
         Route::get('/logs/export/excel', [AttendanceLogController::class, 'exportExcel'])->name('logs.export.excel');
         Route::get('/logs/export/pdf', [AttendanceLogController::class, 'exportPdf'])->name('logs.export.pdf');
+
+        Route::get('/feedbacks', [FeedController::class, 'index'])->name('feedbacks');
+        Route::get('/change-video', [SettingsController::class, 'changeVideo'])->name('changeVideo');
+        Route::post('/upload-video', [SettingsController::class, 'uploadVideo'])->name('uploadVideo');
+        Route::get('/logout-feedback', [SettingsController::class, 'feedbackSettings'])->name('feedback.settings');
+        Route::post('/logout-feedback', [SettingsController::class, 'updateFeedbackSettings'])->name('feedback.settings.update');
     });
 
 Route::middleware(['auth', 'attendance.admin'])->group(function (): void {
     Route::get('/attendance-logs', fn () => redirect('/attendance/logs'));
     Route::get('/attendance-logs/reports', fn () => redirect('/attendance/logs/reports'));
     Route::get('/attendance-logs/reports/dashboard', fn () => redirect('/attendance/logs/reports/dashboard'));
-    Route::get('/admin/attendance-feedbacks', fn () => redirect('/attendance/feedbacks'));
 });

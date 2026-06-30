@@ -5,6 +5,11 @@ interface ScanProps {
     logoutFeedbackEnabled: boolean;
     sectionPickerEnabled: boolean;
     attendanceSections: string[];
+    attendanceVideoUrl: string;
+    scanEndpoint?: string;
+    sectionEndpoint?: string;
+    feedbackEndpoint?: string | null;
+    scannerTheme?: 'attendance' | 'library';
 }
 
 interface PatronInfo {
@@ -15,7 +20,7 @@ interface PatronInfo {
 }
 
 interface DisplayState {
-    kind: 'idle' | 'patron' | 'error';
+    kind: 'idle' | 'patron' | 'book' | 'error';
     firstname?: string;
     lastname?: string;
     status?: string;
@@ -23,6 +28,9 @@ interface DisplayState {
     section?: string;
     message?: string;
     profilePicture?: string | null;
+    bookTitle?: string;
+    bookStatus?: string;
+    copyIdentifier?: string;
 }
 
 function csrfToken(): string {
@@ -37,6 +45,11 @@ export default function Scan({
     logoutFeedbackEnabled,
     sectionPickerEnabled,
     attendanceSections,
+    attendanceVideoUrl,
+    scanEndpoint = '/attendance',
+    sectionEndpoint = '/attendance/section',
+    feedbackEndpoint = null,
+    scannerTheme = 'attendance',
 }: ScanProps) {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const [display, setDisplay] = useState<DisplayState>({ kind: 'idle' });
@@ -51,6 +64,47 @@ export default function Scan({
     const cooldownRef = useRef(false);
 
     const hasSections = attendanceSections.length > 0;
+    const theme = scannerTheme === 'library'
+        ? {
+            page: 'bg-[#f5f7fa] text-[#1f2937]',
+            header: 'border-b border-[#173b7a] bg-[#1f4ea7] px-6 py-4 text-white shadow-sm',
+            eyebrow: 'text-sm uppercase tracking-widest text-[#ffd700]',
+            sidebar: 'flex w-full flex-col items-center gap-4 bg-[#15366f] p-6 text-white lg:w-80',
+            date: 'text-sm text-blue-100',
+            time: 'text-3xl font-bold tabular-nums text-[#ffd700]',
+            photo: 'h-40 w-40 rounded-lg border-2 border-[#ffd700] bg-white object-cover shadow-lg',
+            resultCard: 'w-full space-y-2 rounded-lg bg-white p-4 text-center text-[#1f2937] shadow-lg',
+            resultMeta: 'text-xs uppercase text-[#1f4ea7]',
+            resultNote: 'text-xs text-slate-500',
+            main: 'relative flex flex-1 items-center justify-center bg-[#eef3fb] p-4',
+            video: 'max-h-[70vh] w-full max-w-3xl rounded-lg border-4 border-white shadow-2xl ring-2 ring-[#ffd700]',
+            footer: 'overflow-hidden border-t border-[#ffd700] bg-[#2e7d32] py-3 text-white',
+            modalTitle: 'mb-4 text-lg font-semibold text-[#15366f]',
+            modalButton: 'rounded-lg border border-[#1f4ea7]/30 px-4 py-3 text-sm font-medium text-[#15366f] hover:bg-[#eef3fb]',
+            feedbackTitle: 'mb-4 text-center text-lg font-semibold text-[#15366f]',
+            feedbackButton: 'flex flex-col items-center gap-1 rounded-lg border border-[#1f4ea7]/30 p-3 text-[#15366f] hover:bg-[#eef3fb]',
+            skipButton: 'mt-4 w-full rounded-lg border border-[#2e7d32]/40 py-2 text-sm text-[#2e7d32] hover:bg-green-50',
+        }
+        : {
+            page: 'flex min-h-screen flex-col bg-neutral-900 text-white',
+            header: 'border-b border-neutral-700 px-6 py-4',
+            eyebrow: 'text-sm uppercase tracking-widest text-neutral-400',
+            sidebar: 'flex w-full flex-col items-center gap-4 bg-neutral-800 p-6 lg:w-80',
+            date: 'text-sm text-neutral-400',
+            time: 'text-3xl font-bold tabular-nums',
+            photo: 'h-40 w-40 rounded-lg border-2 border-neutral-600 object-cover',
+            resultCard: 'w-full space-y-2 rounded-lg bg-neutral-700 p-4 text-center',
+            resultMeta: 'text-xs uppercase text-neutral-400',
+            resultNote: 'text-xs text-neutral-400',
+            main: 'relative flex flex-1 items-center justify-center p-4',
+            video: 'max-h-[70vh] w-full max-w-3xl rounded-lg',
+            footer: 'overflow-hidden border-t border-neutral-700 bg-neutral-950 py-3',
+            modalTitle: 'mb-4 text-lg font-semibold',
+            modalButton: 'rounded-lg border border-neutral-300 px-4 py-3 text-sm font-medium hover:bg-neutral-100',
+            feedbackTitle: 'mb-4 text-center text-lg font-semibold',
+            feedbackButton: 'flex flex-col items-center gap-1 rounded-lg border border-neutral-300 p-3 hover:bg-neutral-100',
+            skipButton: 'mt-4 w-full rounded-lg border border-neutral-300 py-2 text-sm text-neutral-600 hover:bg-neutral-100',
+        };
 
     useEffect(() => {
         const tick = setInterval(() => setNow(new Date()), 1000);
@@ -111,7 +165,7 @@ export default function Scan({
             patron: PatronInfo,
             studentId: number | null,
         ) => {
-            const response = await fetch('/attendance/section', {
+            const response = await fetch(sectionEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,7 +203,7 @@ export default function Scan({
                 scheduleClear(data.status?.toUpperCase() === 'OUT' ? 3000 : 2000);
             }
         },
-        [logoutFeedbackEnabled, scheduleClear, showPatron],
+        [logoutFeedbackEnabled, scheduleClear, sectionEndpoint, showPatron],
     );
 
     const handleScanResult = useCallback(
@@ -162,6 +216,24 @@ export default function Scan({
             if (data.type === 'error') {
                 setDisplay({ kind: 'error', message: String(data.message ?? 'Unknown error') });
                 scheduleClear(2000);
+                return;
+            }
+
+            if (data.type === 'book') {
+                const book = data.book as {
+                    title_statement?: string | null;
+                    copy_identifier_summary?: string | null;
+                };
+
+                setProfileSrc('/images/2x2_undifined_gender.jpg');
+                setDisplay({
+                    kind: 'book',
+                    bookTitle: book.title_statement ?? 'Untitled book',
+                    bookStatus: String(data.book_status ?? 'Unknown'),
+                    copyIdentifier: book.copy_identifier_summary ?? undefined,
+                    message: String(data.message ?? ''),
+                });
+                scheduleClear(3000);
                 return;
             }
 
@@ -228,7 +300,7 @@ export default function Scan({
             formData.append('_token', csrfToken());
 
             try {
-                const response = await fetch('/attendance', { method: 'POST', body: formData });
+                const response = await fetch(scanEndpoint, { method: 'POST', body: formData });
                 const data = await response.json();
                 await handleScanResult(data);
             } catch {
@@ -240,7 +312,7 @@ export default function Scan({
                 inputRef.current.value = '';
             }
         },
-        [handleScanResult, scheduleClear],
+        [handleScanResult, scanEndpoint, scheduleClear],
     );
 
     const selectSection = useCallback(
@@ -262,7 +334,7 @@ export default function Scan({
 
     const sendFeedback = useCallback(
         async (rating: string | null, declined: boolean) => {
-            if (!currentStudentId) {
+            if (!currentStudentId || !feedbackEndpoint) {
                 setFeedbackModalOpen(false);
                 clearDisplay();
                 inputRef.current?.focus();
@@ -270,7 +342,7 @@ export default function Scan({
             }
 
             try {
-                await fetch('/attendance-feedback', {
+                await fetch(feedbackEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -291,23 +363,23 @@ export default function Scan({
                 inputRef.current?.focus();
             }
         },
-        [clearDisplay, currentStudentId],
+        [clearDisplay, currentStudentId, feedbackEndpoint],
     );
 
     return (
         <>
             <Head title="Attendance Scanner" />
 
-            <div className="flex min-h-screen flex-col bg-neutral-900 text-white">
-                <header className="border-b border-neutral-700 px-6 py-4">
-                    <p className="text-sm uppercase tracking-widest text-neutral-400">Powered by JMC</p>
+            <div className={`flex min-h-screen flex-col ${theme.page}`}>
+                <header className={theme.header}>
+                    <p className={theme.eyebrow}>Powered by JMC</p>
                     <h1 className="text-xl font-semibold">Attendance Scanner</h1>
                 </header>
 
                 <div className="flex flex-1 flex-col lg:flex-row">
-                    <aside className="flex w-full flex-col items-center gap-4 bg-neutral-800 p-6 lg:w-80">
+                    <aside className={theme.sidebar}>
                         <div className="text-center">
-                            <p className="text-sm text-neutral-400">
+                            <p className={theme.date}>
                                 {now.toLocaleDateString('en-GB', {
                                     weekday: 'long',
                                     year: 'numeric',
@@ -315,7 +387,7 @@ export default function Scan({
                                     day: 'numeric',
                                 })}
                             </p>
-                            <p className="text-3xl font-bold tabular-nums">
+                            <p className={theme.time}>
                                 {now.toLocaleTimeString('en-US')}
                             </p>
                         </div>
@@ -323,41 +395,62 @@ export default function Scan({
                         <img
                             src={profileSrc}
                             alt="Profile"
-                            className="h-40 w-40 rounded-lg border-2 border-neutral-600 object-cover"
+                            className={theme.photo}
                         />
 
                         {display.kind === 'patron' && (
-                            <div className="w-full space-y-2 rounded-lg bg-neutral-700 p-4 text-center">
+                            <div className={theme.resultCard}>
                                 <p className="text-lg font-semibold">
                                     {display.firstname} {display.lastname}
                                 </p>
-                                <p className="text-xs uppercase text-neutral-400">
+                                <p className={theme.resultMeta}>
                                     {display.section ?? 'Name'}
                                 </p>
                                 <p
                                     className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
                                         display.status?.toUpperCase() === 'OUT'
-                                            ? 'bg-red-600'
-                                            : 'bg-green-600'
+                                            ? 'bg-[#dc2626] text-white'
+                                            : 'bg-[#2e7d32] text-white'
                                     }`}
                                 >
                                     {display.status}
                                 </p>
                                 {display.timestamp && (
-                                    <p className="text-xs text-neutral-400">{display.timestamp}</p>
+                                    <p className={theme.resultNote}>{display.timestamp}</p>
+                                )}
+                            </div>
+                        )}
+
+                        {display.kind === 'book' && (
+                            <div className={theme.resultCard}>
+                                <p className="text-lg font-semibold">{display.bookTitle}</p>
+                                <p className={theme.resultMeta}>
+                                    {display.copyIdentifier ?? 'Book Title'}
+                                </p>
+                                <p
+                                    className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
+                                        display.bookStatus?.toLowerCase() === 'not checked out'
+                                            ? 'bg-[#dc2626] text-white'
+                                            : 'bg-[#2e7d32] text-white'
+                                    }`}
+                                >
+                                    {display.bookStatus}
+                                </p>
+                                {display.message && (
+                                    <p className={theme.resultNote}>{display.message}</p>
                                 )}
                             </div>
                         )}
 
                         {display.kind === 'error' && (
-                            <div className="w-full rounded-lg bg-red-900/50 p-4 text-center">
+                            <div className="w-full rounded-lg bg-red-50 p-4 text-center text-red-900 shadow-lg ring-1 ring-red-200">
                                 <p className="font-semibold">{display.message}</p>
-                                <p className="text-xs uppercase text-red-300">Error</p>
+                                <p className="text-xs uppercase text-red-600">Error</p>
                             </div>
                         )}
                     </aside>
 
-                    <main className="relative flex flex-1 items-center justify-center p-4">
+                    <main className={theme.main}>
                         <textarea
                             ref={inputRef}
                             name="qrcode"
@@ -368,18 +461,19 @@ export default function Scan({
                             onKeyDown={handleKeyPress}
                         />
                         <video
+                            key={attendanceVideoUrl}
                             autoPlay
                             loop
                             muted
                             controls
-                            className="max-h-[70vh] w-full max-w-3xl rounded-lg"
+                            className={theme.video}
                         >
-                            <source src="/videos/area51_product_slideshow.mp4" type="video/mp4" />
+                            <source src={attendanceVideoUrl} type="video/mp4" />
                         </video>
                     </main>
                 </div>
 
-                <footer className="overflow-hidden border-t border-neutral-700 bg-neutral-950 py-3">
+                <footer className={theme.footer}>
                     <p className="animate-pulse whitespace-nowrap text-center text-sm font-semibold">
                         Welcome to Governor Generoso College of Arts, Sciences and Technology
                     </p>
@@ -388,14 +482,14 @@ export default function Scan({
 
             {sectionModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-                    <div className="w-full max-w-lg rounded-xl bg-white p-6 text-neutral-900 shadow-xl">
-                        <h2 className="mb-4 text-lg font-semibold">Select Section</h2>
+                    <div className="w-full max-w-lg rounded-xl bg-white p-6 text-[#1f2937] shadow-xl">
+                        <h2 className={theme.modalTitle}>Select Section</h2>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {attendanceSections.map((section) => (
                                 <button
                                     key={section}
                                     type="button"
-                                    className="rounded-lg border border-neutral-300 px-4 py-3 text-sm font-medium hover:bg-neutral-100"
+                                    className={theme.modalButton}
                                     onClick={() => selectSection(section)}
                                 >
                                     {section}
@@ -408,8 +502,8 @@ export default function Scan({
 
             {feedbackModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-                    <div className="w-full max-w-md rounded-xl bg-white p-6 text-neutral-900 shadow-xl">
-                        <h2 className="mb-4 text-center text-lg font-semibold">
+                    <div className="w-full max-w-md rounded-xl bg-white p-6 text-[#1f2937] shadow-xl">
+                        <h2 className={theme.feedbackTitle}>
                             How was your library experience?
                         </h2>
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -425,7 +519,7 @@ export default function Scan({
                                 <button
                                     key={rating}
                                     type="button"
-                                    className="flex flex-col items-center gap-1 rounded-lg border border-neutral-300 p-3 hover:bg-neutral-100"
+                                    className={theme.feedbackButton}
                                     onClick={() => sendFeedback(rating, false)}
                                 >
                                     <span className="text-2xl">{emoji}</span>
@@ -435,7 +529,7 @@ export default function Scan({
                         </div>
                         <button
                             type="button"
-                            className="mt-4 w-full rounded-lg border border-neutral-300 py-2 text-sm text-neutral-600 hover:bg-neutral-100"
+                            className={theme.skipButton}
                             onClick={() => sendFeedback(null, true)}
                         >
                             Skip

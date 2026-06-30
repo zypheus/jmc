@@ -12,25 +12,6 @@ use Inertia\Response;
 
 class SettingsController extends Controller
 {
-    public function feedbackSettings(): Response
-    {
-        return Inertia::render('Attendance/Settings/Feedback', [
-            'enabled' => AttendanceSetting::logoutFeedbackEnabled(),
-        ]);
-    }
-
-    public function updateFeedbackSettings(UpdateFeedbackSettingsRequest $request)
-    {
-        AttendanceSetting::setLogoutFeedbackEnabled($request->validated('enabled') === '1');
-
-        return back()->with(
-            'success',
-            $request->validated('enabled') === '1'
-                ? 'Logout feedback is now enabled on the attendance scanner.'
-                : 'Logout feedback is now disabled on the attendance scanner.'
-        );
-    }
-
     public function sectionSettings(): Response
     {
         return Inertia::render('Attendance/Settings/SectionPicker', [
@@ -59,27 +40,48 @@ class SettingsController extends Controller
         );
     }
 
-    public function showChangeVideo(): Response
+    public function feedbackSettings(): Response
+    {
+        return Inertia::render('Attendance/Settings/Feedback', [
+            'enabled' => AttendanceSetting::logoutFeedbackEnabled(),
+        ]);
+    }
+
+    public function updateFeedbackSettings(UpdateFeedbackSettingsRequest $request)
+    {
+        AttendanceSetting::setLogoutFeedbackEnabled($request->validated('enabled') === '1');
+
+        return back()->with(
+            'success',
+            $request->validated('enabled') === '1'
+                ? 'Logout feedback is now enabled on the attendance scanner.'
+                : 'Logout feedback is now disabled on the attendance scanner.'
+        );
+    }
+
+    public function changeVideo(): Response
     {
         return Inertia::render('Attendance/Settings/ChangeVideo');
     }
 
     public function uploadVideo(Request $request)
     {
-        $request->validate([
-            'video' => ['required', 'file', 'mimes:mp4', 'max:512000'],
+        $validated = $request->validate([
+            'video' => ['required', 'file', 'mimetypes:video/mp4', 'max:512000'],
         ]);
 
-        $video = $request->file('video');
-        $filename = 'area51_product_slideshow.mp4';
-        $directory = base_path('videos');
+        $file = $validated['video'];
+        $directory = public_path('videos');
 
         if (! is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
 
-        $video->move($directory, $filename);
+        $filename = 'attendance-scanner-'.time().'.mp4';
+        $file->move($directory, $filename);
 
-        return redirect()->route('attendance.changeVideo')->with('success', 'Video uploaded successfully.');
+        AttendanceSetting::setAttendanceVideoPath('/videos/'.$filename);
+
+        return back()->with('success', 'Attendance scanner video uploaded successfully.');
     }
 }

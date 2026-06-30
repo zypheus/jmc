@@ -147,9 +147,7 @@ class PendingStudentController extends Controller
             $validated['id_number'],
         );
 
-        return redirect()
-            ->route('register.success')
-            ->with('success', 'Registration submitted. Awaiting admin approval.');
+        return back()->with('success', 'Registration submitted. Awaiting admin approval.');
     }
 
     /**

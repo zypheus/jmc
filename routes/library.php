@@ -20,6 +20,9 @@ use App\Http\Controllers\Library\FineClearanceController;
 use App\Http\Controllers\Library\HolidayController;
 use App\Http\Controllers\Library\IdCardController;
 use App\Http\Controllers\Library\LibraryHoldingsReportController;
+use App\Http\Controllers\Library\LibraryAttendanceController;
+use App\Http\Controllers\Library\LibraryAttendanceFeedbackController;
+use App\Http\Controllers\Library\LibraryAttendanceVideoController;
 use App\Http\Controllers\Library\OpenLibraryCopyCatalogController;
 use App\Http\Controllers\Library\PendingEmployeeController;
 use App\Http\Controllers\Library\PendingStudentController;
@@ -180,6 +183,18 @@ Route::middleware(['auth', 'library.admin'])
         Route::post('/admin/circulation-policy', [CirculationPolicyController::class, 'update'])->name('circulation.policy.update');
         Route::get('/admin/fines/outstanding', [FineClearanceController::class, 'index'])->name('fines.outstanding');
         Route::post('/admin/fines/logs/{bookLog}/clear', [FineClearanceController::class, 'clear'])->name('fines.logs.clear');
+
+        Route::prefix('library/attendance')->name('attendance.')->group(function (): void {
+            Route::get('/scanner', [LibraryAttendanceController::class, 'showScanner'])->name('scanner');
+            Route::post('/scanner', [LibraryAttendanceController::class, 'scan'])->name('scanner.process');
+            Route::post('/scanner/section', [LibraryAttendanceController::class, 'processSection'])->name('scanner.section');
+            Route::post('/feedback', [LibraryAttendanceFeedbackController::class, 'store'])->name('feedback.store');
+            Route::get('/logout-feedback', [LibraryAttendanceFeedbackController::class, 'settings'])->name('feedback.settings');
+            Route::post('/logout-feedback', [LibraryAttendanceFeedbackController::class, 'updateSettings'])->name('feedback.settings.update');
+            Route::get('/feedback-responses', [LibraryAttendanceFeedbackController::class, 'index'])->name('feedbacks');
+            Route::get('/video', [LibraryAttendanceVideoController::class, 'index'])->name('video');
+            Route::post('/video/upload', [LibraryAttendanceVideoController::class, 'upload'])->name('uploadVideo');
+        });
 
         Route::get('/sms-blast', [SMSController::class, 'index'])->name('sms.page');
         Route::get('/sms/scan-message', [SMSController::class, 'scanMessage'])->name('sms.scan-message');

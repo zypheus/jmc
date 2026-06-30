@@ -273,6 +273,23 @@
         text-align: left;
     }
 
+    .library-sidebar .flat-nav-section[data-nav-id='attendance'] > .library-nav-link {
+        border-left-color: #60a5fa;
+        background: #1d4ed8;
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .library-sidebar .flat-nav-section[data-nav-id='attendance'] > .library-nav-link:hover,
+    .library-sidebar .flat-nav-section[data-nav-id='attendance'].is-branch-active > .library-nav-link {
+        background: #1e40af;
+        color: #ffffff;
+    }
+
+    .library-sidebar .flat-nav-section[data-nav-id='attendance'] > .library-nav-link svg {
+        color: #bfdbfe;
+    }
+
     /* BCCI-style attendance shell */
     .attendance-shell {
         --attendance-sidebar-width: 280px;

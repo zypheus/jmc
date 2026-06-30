@@ -9,7 +9,6 @@ const modules = [
     { title: 'Pending approvals', description: 'Review new registrations.', href: '/attendance/pending', label: 'Pending' },
     { title: 'Logs', description: 'Attendance history.', href: '/attendance/logs', label: 'View logs' },
     { title: 'Reports', description: 'Dashboard and exports.', href: '/attendance/logs/reports', label: 'Reports' },
-    { title: 'Feedback', description: 'Logout satisfaction responses.', href: '/attendance/feedbacks', label: 'Feedback' },
 ];
 
 export default function AttendanceStaff() {

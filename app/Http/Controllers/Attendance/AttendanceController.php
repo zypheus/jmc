@@ -22,6 +22,11 @@ class AttendanceController extends Controller
             'logoutFeedbackEnabled' => AttendanceSetting::logoutFeedbackEnabled(),
             'sectionPickerEnabled' => AttendanceSetting::sectionPickerEnabled(),
             'attendanceSections' => AttendanceSetting::attendanceSections(),
+            'attendanceVideoUrl' => AttendanceSetting::attendanceVideoUrl(),
+            'scanEndpoint' => route('attendance.process'),
+            'sectionEndpoint' => route('attendance.section'),
+            'feedbackEndpoint' => route('attendance.feedback.store'),
+            'scannerTheme' => 'attendance',
         ]);
     }
 
@@ -30,7 +35,8 @@ class AttendanceController extends Controller
         AttendancePatronResolver $resolver,
         AttendanceSessionService $sessions,
     ) {
-        $resolved = $resolver->resolve($request->validated('qrcode'));
+        $code = $request->validated('qrcode');
+        $resolved = $resolver->resolve($code);
 
         if (! $resolved) {
             return response()->json([
