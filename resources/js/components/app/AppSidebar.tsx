@@ -52,7 +52,7 @@ export default function AppSidebar({ module, navigation, routeName, auth, collap
                 )}
             </div>
 
-            <nav className="flex-1 space-y-2 overflow-y-auto px-2 py-3" aria-label={`${details.label} navigation`}>
+            <nav className="flex-1 space-y-2 overflow-x-hidden overflow-y-auto px-2 py-3" aria-label={`${details.label} navigation`}>
                 {collapsed
                     ? navigation.flatMap((group) => group.items).map((item) => <NavItem key={item.id} item={item} routeName={routeName} collapsed onNavigate={onNavigate} />)
                     : navigation.map((group) => {

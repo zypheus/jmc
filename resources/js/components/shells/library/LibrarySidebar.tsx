@@ -45,7 +45,7 @@ export default function LibrarySidebar({ navigation, routeName, auth, collapsed,
                 </Link>
             </div>
 
-            <nav className="library-sidebar-nav flex-1 overflow-y-auto" aria-label="Library navigation">
+            <nav className="library-sidebar-nav flex-1 overflow-x-hidden overflow-y-auto" aria-label="Library navigation">
                 <FlatNavMenu
                     items={items}
                     routeName={routeName}
