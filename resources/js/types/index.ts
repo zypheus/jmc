@@ -43,6 +43,7 @@ export interface PageProps {
     flash: {
         success?: string | null;
         error?: string | null;
+        lookup_status?: string | null;
     };
     branding: {
         blue: string;

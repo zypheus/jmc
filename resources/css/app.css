@@ -140,6 +140,124 @@
         --module-tint: #fff9d6;
     }
 
+    /* Library kiosk — JMC brand: blue, green, gold, navy */
+    .kiosk-theme {
+        --kiosk-surface: color-mix(in srgb, var(--jmc-navy) 78%, black);
+        background: linear-gradient(
+            168deg,
+            var(--jmc-navy) 0%,
+            color-mix(in srgb, var(--jmc-blue) 55%, var(--jmc-navy)) 50%,
+            var(--jmc-navy) 100%
+        );
+        color: #fff;
+    }
+
+    .kiosk-surface {
+        overflow: hidden;
+        border-radius: 1rem;
+        border: 1px solid color-mix(in srgb, white 12%, transparent);
+        background: var(--kiosk-surface, color-mix(in srgb, var(--jmc-navy) 78%, black));
+        box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.45);
+        backdrop-filter: blur(12px);
+    }
+
+    .kiosk-alert-warning {
+        border: 1px solid color-mix(in srgb, var(--jmc-gold) 45%, transparent);
+        background: color-mix(in srgb, var(--jmc-gold) 12%, transparent);
+    }
+
+    .kiosk-alert-success {
+        border: 1px solid color-mix(in srgb, var(--jmc-green) 35%, transparent);
+        background: color-mix(in srgb, var(--jmc-green) 12%, transparent);
+    }
+
+    .kiosk-stat-warning {
+        border-color: color-mix(in srgb, var(--jmc-gold) 45%, transparent);
+        background: color-mix(in srgb, var(--jmc-gold) 10%, transparent);
+    }
+
+    .kiosk-stat-success {
+        border-color: color-mix(in srgb, var(--jmc-green) 35%, transparent);
+        background: color-mix(in srgb, var(--jmc-green) 10%, transparent);
+    }
+
+    .kiosk-pill-warning {
+        border: 1px solid color-mix(in srgb, var(--jmc-gold) 45%, transparent);
+        background: color-mix(in srgb, var(--jmc-gold) 15%, transparent);
+        color: var(--jmc-gold);
+    }
+
+    .kiosk-pill-success {
+        border: 1px solid color-mix(in srgb, var(--jmc-green) 35%, transparent);
+        background: color-mix(in srgb, var(--jmc-green) 15%, transparent);
+        color: color-mix(in srgb, var(--jmc-green) 70%, white);
+    }
+
+    .kiosk-btn-gradient {
+        background: linear-gradient(to right, var(--jmc-blue), var(--jmc-green));
+        box-shadow: 0 10px 25px color-mix(in srgb, var(--jmc-blue) 30%, transparent);
+    }
+
+    .kiosk-btn-gradient:hover:not(:disabled) {
+        background: linear-gradient(
+            to right,
+            color-mix(in srgb, var(--jmc-blue) 88%, black),
+            color-mix(in srgb, var(--jmc-green) 88%, black)
+        );
+    }
+
+    .kiosk-avatar-ring {
+        background: linear-gradient(to bottom right, var(--jmc-blue), var(--jmc-green), var(--jmc-gold));
+    }
+
+    .kiosk-logo-glow {
+        background: conic-gradient(
+            from 210deg,
+            color-mix(in srgb, var(--jmc-gold) 55%, transparent),
+            color-mix(in srgb, var(--jmc-green) 45%, transparent),
+            color-mix(in srgb, var(--jmc-blue) 55%, transparent),
+            color-mix(in srgb, var(--jmc-gold) 50%, transparent)
+        );
+    }
+
+    .kiosk-card-header-gradient {
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--jmc-blue) 10%, white),
+            color-mix(in srgb, var(--jmc-green) 8%, white),
+            color-mix(in srgb, var(--jmc-gold) 10%, white)
+        );
+    }
+
+    .kiosk-identity-card {
+        background: linear-gradient(
+            to bottom right,
+            color-mix(in srgb, var(--jmc-blue) 22%, transparent),
+            var(--kiosk-surface, color-mix(in srgb, var(--jmc-navy) 78%, black)),
+            color-mix(in srgb, var(--jmc-green) 14%, transparent)
+        );
+    }
+
+    .kiosk-fine-balance-warning {
+        border-color: color-mix(in srgb, var(--jmc-gold) 45%, transparent);
+        background: linear-gradient(
+            to right,
+            color-mix(in srgb, var(--jmc-gold) 10%, transparent),
+            var(--kiosk-surface, color-mix(in srgb, var(--jmc-navy) 78%, black)),
+            color-mix(in srgb, var(--jmc-blue) 12%, transparent)
+        );
+    }
+
+    .kiosk-fine-balance-clear {
+        border-color: color-mix(in srgb, var(--jmc-green) 30%, transparent);
+        background: linear-gradient(
+            to right,
+            color-mix(in srgb, var(--jmc-green) 10%, transparent),
+            var(--kiosk-surface, color-mix(in srgb, var(--jmc-navy) 78%, black)),
+            color-mix(in srgb, var(--jmc-blue) 10%, transparent)
+        );
+    }
+
     /* USM-style library shell */
     .library-shell-aside {
         background: var(--sidebar);

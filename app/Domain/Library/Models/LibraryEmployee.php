@@ -57,4 +57,9 @@ class LibraryEmployee extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function editRequests()
+    {
+        return $this->hasMany(LibraryEmployeeEditRequest::class, 'employee_id');
+    }
 }

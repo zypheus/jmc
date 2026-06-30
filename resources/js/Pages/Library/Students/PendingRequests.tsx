@@ -26,7 +26,15 @@ interface StudentSummary {
     year: string | null;
 }
 
-interface EditRequestRow {
+interface EmployeeSummary {
+    id: number;
+    firstname: string;
+    lastname: string;
+    designation: string | null;
+    program: string | null;
+}
+
+interface StudentEditRequestRow {
     id: number;
     status: 'pending' | 'approved' | 'rejected';
     created_at: string;
@@ -34,13 +42,26 @@ interface EditRequestRow {
     student: StudentSummary | null;
 }
 
+interface EmployeeEditRequestRow {
+    id: number;
+    status: 'pending' | 'approved' | 'rejected';
+    created_at: string;
+    reviewed_at: string | null;
+    employee: EmployeeSummary | null;
+}
+
 interface PendingRequestsProps extends PageProps {
-    pending: Paginated<EditRequestRow>;
-    logs: Paginated<EditRequestRow>;
+    pending: Paginated<StudentEditRequestRow>;
+    logs: Paginated<StudentEditRequestRow>;
+    employeePending: Paginated<EmployeeEditRequestRow>;
+    employeeLogs: Paginated<EmployeeEditRequestRow>;
     filters: {
         search: string;
     };
 }
+
+type QueueTab = 'pending' | 'history';
+type PatronTab = 'students' | 'employees';
 
 function formatDate(value: string | null): string {
     if (!value) {
@@ -50,7 +71,7 @@ function formatDate(value: string | null): string {
     return new Date(value).toLocaleString();
 }
 
-function statusVariant(status: EditRequestRow['status']): 'default' | 'secondary' | 'destructive' {
+function statusVariant(status: 'pending' | 'approved' | 'rejected'): 'default' | 'secondary' | 'destructive' {
     if (status === 'approved') {
         return 'secondary';
     }
@@ -64,18 +85,20 @@ function statusVariant(status: EditRequestRow['status']): 'default' | 'secondary
 
 function RequestsPagination({
     links,
-    activeTab,
+    patronTab,
+    queueTab,
 }: {
     links: Paginated<unknown>['links'];
-    activeTab: 'pending' | 'history';
+    patronTab: PatronTab;
+    queueTab: QueueTab;
 }) {
     return (
         <div className="mt-4 flex flex-wrap gap-1">
             {links.map((link, index) =>
                 link.url ? (
                     <Link
-                        key={`${activeTab}-${index}`}
-                        href={`${link.url}${link.url.includes('?') ? '&' : '?'}tab=${activeTab}`}
+                        key={`${patronTab}-${queueTab}-${index}`}
+                        href={`${link.url}${link.url.includes('?') ? '&' : '?'}patron=${patronTab}&tab=${queueTab}`}
                         className={`rounded border px-3 py-1 text-sm ${
                             link.active ? 'border-primary bg-primary text-primary-foreground' : ''
                         }`}
@@ -83,7 +106,7 @@ function RequestsPagination({
                     />
                 ) : (
                     <span
-                        key={`${activeTab}-${index}`}
+                        key={`${patronTab}-${queueTab}-${index}`}
                         className="px-3 py-1 text-sm text-muted-foreground"
                         dangerouslySetInnerHTML={{ __html: link.label }}
                     />
@@ -93,12 +116,12 @@ function RequestsPagination({
     );
 }
 
-function RequestsTable({
+function StudentRequestsTable({
     requests,
     showActions,
     showReviewedAt,
 }: {
-    requests: EditRequestRow[];
+    requests: StudentEditRequestRow[];
     showActions: boolean;
     showReviewedAt: boolean;
 }) {
@@ -171,39 +194,140 @@ function RequestsTable({
     );
 }
 
-export default function PendingRequests({ pending, logs, filters }: PendingRequestsProps) {
+function EmployeeRequestsTable({
+    requests,
+    showActions,
+    showReviewedAt,
+}: {
+    requests: EmployeeEditRequestRow[];
+    showActions: boolean;
+    showReviewedAt: boolean;
+}) {
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Designation</TableHead>
+                    <TableHead>Program</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Requested At</TableHead>
+                    {showReviewedAt && <TableHead>Reviewed At</TableHead>}
+                    {showActions && <TableHead className="text-right">Actions</TableHead>}
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {requests.length === 0 ? (
+                    <TableRow>
+                        <TableCell
+                            colSpan={showActions ? (showReviewedAt ? 7 : 6) : showReviewedAt ? 6 : 5}
+                            className="text-center text-muted-foreground"
+                        >
+                            No requests found.
+                        </TableCell>
+                    </TableRow>
+                ) : (
+                    requests.map((request) => (
+                        <TableRow key={request.id}>
+                            <TableCell>
+                                {request.employee
+                                    ? `${request.employee.lastname}, ${request.employee.firstname}`
+                                    : 'Unknown employee'}
+                            </TableCell>
+                            <TableCell>{request.employee?.designation ?? '-'}</TableCell>
+                            <TableCell>{request.employee?.program ?? '-'}</TableCell>
+                            <TableCell>
+                                <Badge variant={statusVariant(request.status)}>
+                                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>{formatDate(request.created_at)}</TableCell>
+                            {showReviewedAt && <TableCell>{formatDate(request.reviewed_at)}</TableCell>}
+                            {showActions && (
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            onClick={() =>
+                                                router.post(`/admin/employee-requests/${request.id}/approve`)
+                                            }
+                                        >
+                                            Approve
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() =>
+                                                router.post(`/admin/employee-requests/${request.id}/reject`)
+                                            }
+                                        >
+                                            Reject
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            )}
+                        </TableRow>
+                    ))
+                )}
+            </TableBody>
+        </Table>
+    );
+}
+
+export default function PendingRequests({
+    pending,
+    logs,
+    employeePending,
+    employeeLogs,
+    filters,
+}: PendingRequestsProps) {
     const page = usePage();
-    const initialTab = useMemo<'pending' | 'history'>(() => {
+    const { patronTab, queueTab } = useMemo(() => {
         const query = page.url.split('?')[1] ?? '';
         const params = new URLSearchParams(query);
-        return params.get('tab') === 'history' ? 'history' : 'pending';
+
+        return {
+            patronTab: params.get('patron') === 'employees' ? ('employees' as PatronTab) : ('students' as PatronTab),
+            queueTab: params.get('tab') === 'history' ? ('history' as QueueTab) : ('pending' as QueueTab),
+        };
     }, [page.url]);
 
     const [search, setSearch] = useState(filters.search ?? '');
-    const [activeTab, setActiveTab] = useState<'pending' | 'history'>(initialTab);
+    const [activePatronTab, setActivePatronTab] = useState<PatronTab>(patronTab);
+    const [activeQueueTab, setActiveQueueTab] = useState<QueueTab>(queueTab);
 
-    function submitSearch(event: FormEvent) {
-        event.preventDefault();
+    function navigate(nextPatron: PatronTab, nextQueue: QueueTab) {
         router.get(
             '/student/pending-requests',
             {
                 search: search || undefined,
-                tab: activeTab,
+                patron: nextPatron,
+                tab: nextQueue,
             },
             { preserveState: true },
         );
     }
 
+    function submitSearch(event: FormEvent) {
+        event.preventDefault();
+        navigate(activePatronTab, activeQueueTab);
+    }
+
+    const pendingData = activePatronTab === 'students' ? pending : employeePending;
+    const historyData = activePatronTab === 'students' ? logs : employeeLogs;
+
     return (
         <LibraryLayout>
-            <Head title="Pending Student Edit Requests" />
+            <Head title="Patron Edit Requests" />
 
             <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-semibold">Student Edit Requests</h1>
+                        <h1 className="text-2xl font-semibold">Patron Edit Requests</h1>
                         <p className="text-sm text-muted-foreground">
-                            Review pending profile change requests and request history.
+                            Review pending profile change requests from library kiosk patrons.
                         </p>
                     </div>
                     <Link href="/students">
@@ -212,9 +336,9 @@ export default function PendingRequests({ pending, logs, filters }: PendingReque
                 </div>
 
                 <Alert>
-                    <AlertTitle>Review Queue</AlertTitle>
+                    <AlertTitle>Review queue</AlertTitle>
                     <AlertDescription>
-                        Approving applies the requested profile changes to the student record immediately.
+                        Approving applies the requested profile changes to the patron record immediately.
                     </AlertDescription>
                 </Alert>
 
@@ -227,7 +351,7 @@ export default function PendingRequests({ pending, logs, filters }: PendingReque
                             <Input
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Search by student name"
+                                placeholder="Search by patron name"
                                 className="sm:max-w-sm"
                             />
                             <Button type="submit">Apply</Button>
@@ -236,11 +360,10 @@ export default function PendingRequests({ pending, logs, filters }: PendingReque
                                 variant="outline"
                                 onClick={() => {
                                     setSearch('');
-                                    router.get(
-                                        '/student/pending-requests',
-                                        { tab: activeTab },
-                                        { preserveState: true },
-                                    );
+                                    router.get('/student/pending-requests', {
+                                        patron: activePatronTab,
+                                        tab: activeQueueTab,
+                                    });
                                 }}
                             >
                                 Clear
@@ -250,42 +373,82 @@ export default function PendingRequests({ pending, logs, filters }: PendingReque
                 </Card>
 
                 <Tabs
-                    value={activeTab}
+                    value={activePatronTab}
                     onValueChange={(value) => {
-                        const tab = value === 'history' ? 'history' : 'pending';
-                        setActiveTab(tab);
-                        router.get(
-                            '/student/pending-requests',
-                            {
-                                search: search || undefined,
-                                tab,
-                            },
-                            { preserveState: true },
-                        );
+                        const nextPatron = value === 'employees' ? 'employees' : 'students';
+                        setActivePatronTab(nextPatron);
+                        navigate(nextPatron, activeQueueTab);
                     }}
                 >
                     <TabsList>
-                        <TabsTrigger value="pending">Pending ({pending.total})</TabsTrigger>
-                        <TabsTrigger value="history">History ({logs.total})</TabsTrigger>
+                        <TabsTrigger value="students">Students</TabsTrigger>
+                        <TabsTrigger value="employees">Employees</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="pending">
-                        <Card>
-                            <CardContent className="pt-6">
-                                <RequestsTable requests={pending.data} showActions showReviewedAt={false} />
-                                <RequestsPagination links={pending.links} activeTab="pending" />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                    <Tabs
+                        className="mt-4"
+                        value={activeQueueTab}
+                        onValueChange={(value) => {
+                            const nextQueue = value === 'history' ? 'history' : 'pending';
+                            setActiveQueueTab(nextQueue);
+                            navigate(activePatronTab, nextQueue);
+                        }}
+                    >
+                        <TabsList>
+                            <TabsTrigger value="pending">Pending ({pendingData.total})</TabsTrigger>
+                            <TabsTrigger value="history">History ({historyData.total})</TabsTrigger>
+                        </TabsList>
 
-                    <TabsContent value="history">
-                        <Card>
-                            <CardContent className="pt-6">
-                                <RequestsTable requests={logs.data} showActions={false} showReviewedAt />
-                                <RequestsPagination links={logs.links} activeTab="history" />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                        <TabsContent value="pending">
+                            <Card>
+                                <CardContent className="pt-6">
+                                    {activePatronTab === 'students' ? (
+                                        <StudentRequestsTable
+                                            requests={pending.data}
+                                            showActions
+                                            showReviewedAt={false}
+                                        />
+                                    ) : (
+                                        <EmployeeRequestsTable
+                                            requests={employeePending.data}
+                                            showActions
+                                            showReviewedAt={false}
+                                        />
+                                    )}
+                                    <RequestsPagination
+                                        links={pendingData.links}
+                                        patronTab={activePatronTab}
+                                        queueTab="pending"
+                                    />
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="history">
+                            <Card>
+                                <CardContent className="pt-6">
+                                    {activePatronTab === 'students' ? (
+                                        <StudentRequestsTable
+                                            requests={logs.data}
+                                            showActions={false}
+                                            showReviewedAt
+                                        />
+                                    ) : (
+                                        <EmployeeRequestsTable
+                                            requests={employeeLogs.data}
+                                            showActions={false}
+                                            showReviewedAt
+                                        />
+                                    )}
+                                    <RequestsPagination
+                                        links={historyData.links}
+                                        patronTab={activePatronTab}
+                                        queueTab="history"
+                                    />
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
                 </Tabs>
             </div>
         </LibraryLayout>
