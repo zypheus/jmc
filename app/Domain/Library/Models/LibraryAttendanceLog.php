@@ -33,4 +33,22 @@ class LibraryAttendanceLog extends Model
     {
         return $this->belongsTo(LibraryEmployee::class, 'employee_id');
     }
+
+    public function patron(): LibraryStudent|LibraryEmployee|null
+    {
+        return $this->student ?? $this->employee;
+    }
+
+    public function patronType(): ?string
+    {
+        if ($this->student_id) {
+            return 'student';
+        }
+
+        if ($this->employee_id) {
+            return 'employee';
+        }
+
+        return null;
+    }
 }

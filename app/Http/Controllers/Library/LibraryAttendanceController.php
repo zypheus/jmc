@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Library;
 
+use App\Domain\Library\Exports\LibraryAttendanceLogsExport;
 use App\Domain\Library\Models\LibraryAttendanceLog;
 use App\Domain\Library\Models\LibraryAttendanceSetting;
 use App\Domain\Library\Models\LibraryAttendanceVideo;
@@ -10,17 +11,103 @@ use App\Domain\Library\Models\LibraryBookLog;
 use App\Domain\Library\Models\LibraryEmployee;
 use App\Domain\Library\Models\LibrarySetting;
 use App\Domain\Library\Models\LibraryStudent;
+use App\Domain\Library\Services\LibraryAttendanceReportService;
 use App\Domain\Library\Services\LibraryAttendanceSessionService;
 use App\Domain\Library\Support\LibraryAttendancePatronResolver;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Attendance\ScanAttendanceRequest;
 use App\Http\Requests\Library\ProcessLibraryAttendanceRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LibraryAttendanceController extends Controller
 {
+    public function index(Request $request): Response
+    {
+        $logs = $this->filteredLogs($request)
+            ->paginate(15)
+            ->withQueryString();
+
+        return Inertia::render('Library/Attendance/Logs', [
+            'logs' => $logs,
+            'filters' => $request->only(['from', 'to', 'status', 'search', 'patron_type']),
+        ]);
+    }
+
+    private function filteredLogs(Request $request)
+    {
+        return LibraryAttendanceLog::query()
+            ->with(['student', 'employee'])
+            ->when($request->from, fn ($query) => $query->whereDate('scanned_at', '>=', $request->from))
+            ->when($request->to, fn ($query) => $query->whereDate('scanned_at', '<=', $request->to))
+            ->when($request->status, fn ($query) => $query->where('status', strtoupper((string) $request->status)))
+            ->when($request->patron_type === 'student', fn ($query) => $query->whereNotNull('student_id'))
+            ->when($request->patron_type === 'employee', fn ($query) => $query->whereNotNull('employee_id'))
+            ->when($request->search, function ($query) use ($request) {
+                $search = $request->search;
+
+                $query->where(function ($query) use ($search) {
+                    $query->where('section', 'like', "%{$search}%")
+                        ->orWhereHas('student', function ($studentQuery) use ($search) {
+                            $studentQuery->where('firstname', 'like', "%{$search}%")
+                                ->orWhere('lastname', 'like', "%{$search}%")
+                                ->orWhere('id_number', 'like', "%{$search}%")
+                                ->orWhere('course', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('employee', function ($employeeQuery) use ($search) {
+                            $employeeQuery->where('firstname', 'like', "%{$search}%")
+                                ->orWhere('lastname', 'like', "%{$search}%")
+                                ->orWhere('employee_id', 'like', "%{$search}%")
+                                ->orWhere('department', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->orderByDesc('scanned_at');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $logs = $this->filteredLogs($request)->get();
+        $pdf = Pdf::loadView('library.attendance.logs-pdf', compact('logs'));
+
+        return $pdf->download('library_attendance_logs.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $logs = $this->filteredLogs($request)->get();
+
+        return Excel::download(new LibraryAttendanceLogsExport($logs), 'library_attendance_logs.xlsx');
+    }
+
+    public function reportsHub(): Response
+    {
+        return Inertia::render('Library/Attendance/Reports/Hub');
+    }
+
+    public function reportsDashboard(Request $request, LibraryAttendanceReportService $reports): Response
+    {
+        $from = $request->query('from');
+        $to = $request->query('to');
+
+        return Inertia::render('Library/Attendance/Reports/Dashboard', array_merge(
+            compact('from', 'to'),
+            $reports->build($from, $to)
+        ));
+    }
+
+    public function reportsExportCsv(Request $request, LibraryAttendanceReportService $reports)
+    {
+        return $reports->streamCsvResponse(
+            $request->query('from'),
+            $request->query('to')
+        );
+    }
+
     public function showScanner(): Response
     {
         return Inertia::render('Attendance/Scan', [

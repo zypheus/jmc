@@ -191,6 +191,12 @@ Route::middleware(['auth', 'library.admin'])
         Route::post('/admin/fines/logs/{bookLog}/clear', [FineClearanceController::class, 'clear'])->name('fines.logs.clear');
 
         Route::prefix('library/attendance')->name('attendance.')->group(function (): void {
+            Route::get('/logs', [LibraryAttendanceController::class, 'index'])->name('logs');
+            Route::get('/logs/export/pdf', [LibraryAttendanceController::class, 'exportPdf'])->name('logs.export.pdf');
+            Route::get('/logs/export/excel', [LibraryAttendanceController::class, 'exportExcel'])->name('logs.export.excel');
+            Route::get('/logs/reports', [LibraryAttendanceController::class, 'reportsHub'])->name('logs.reports.hub');
+            Route::get('/logs/reports/dashboard', [LibraryAttendanceController::class, 'reportsDashboard'])->name('logs.reports.dashboard');
+            Route::get('/logs/reports/export', [LibraryAttendanceController::class, 'reportsExportCsv'])->name('logs.reports.export');
             Route::get('/scanner', [LibraryAttendanceController::class, 'showScanner'])->name('scanner');
             Route::post('/scanner', [LibraryAttendanceController::class, 'scan'])->name('scanner.process');
             Route::post('/scanner/section', [LibraryAttendanceController::class, 'processSection'])->name('scanner.section');
