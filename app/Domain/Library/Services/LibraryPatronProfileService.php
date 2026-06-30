@@ -60,6 +60,15 @@ class LibraryPatronProfileService
      */
     public function forEmployee(LibraryEmployee $employee): array
     {
+        LibraryBookReservation::expireStale();
+
+        $bookReservations = LibraryBookReservation::query()
+            ->with('book')
+            ->where('employee_id', $employee->id)
+            ->whereIn('status', [LibraryBookReservation::STATUS_PENDING, LibraryBookReservation::STATUS_READY])
+            ->latest('reserved_at')
+            ->get();
+
         [$legacyComma, $legacySpace] = $this->legacyNames($employee->firstname, $employee->lastname);
         $circulation = $this->circulationPayload(
             fn (Builder $q) => $this->applyEmployeeLogScope($q, $employee->id, $legacyComma, $legacySpace)
@@ -74,6 +83,16 @@ class LibraryPatronProfileService
                 'program_code' => $p->program_code,
             ])->values()->all(),
             'workStartYears' => range((int) date('Y'), 1980),
+            'readyReservations' => $bookReservations
+                ->where('status', LibraryBookReservation::STATUS_READY)
+                ->map(fn (LibraryBookReservation $r) => $this->serializeReservation($r))
+                ->values()
+                ->all(),
+            'pendingReservations' => $bookReservations
+                ->where('status', LibraryBookReservation::STATUS_PENDING)
+                ->map(fn (LibraryBookReservation $r) => $this->serializeReservation($r))
+                ->values()
+                ->all(),
             'hasPendingEditRequest' => $employee->editRequests()->where('status', 'pending')->exists(),
             'maxRenewalsPerLoan' => LibrarySetting::maxRenewalsPerLoan(),
             ...$circulation,

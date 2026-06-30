@@ -63,6 +63,10 @@ interface BookSuggestion {
     last_patron: string | null;
     reservation_student_id: number | null;
     reservation_student_name: string | null;
+    reservation_employee_id?: number | null;
+    reservation_patron_type?: 'student' | 'employee' | null;
+    reservation_patron_id?: number | null;
+    reservation_patron_name?: string | null;
 }
 
 interface Prefill {
@@ -233,6 +237,18 @@ export default function Index({ logs, prefill, loanDefaults, filters }: IndexPro
             if (book.last_patron) {
                 setPatronQuery(book.last_patron);
             }
+        } else if (book.reservation_patron_id && book.reservation_patron_name) {
+            setData('status', 'checked_out');
+            if (book.reservation_patron_type === 'employee') {
+                setData('employee_id', book.reservation_patron_id);
+                setData('student_id', '');
+                setData('loan_duration_days', loanDefaults.employeeDays);
+            } else {
+                setData('student_id', book.reservation_patron_id);
+                setData('employee_id', '');
+                setData('loan_duration_days', loanDefaults.studentDays);
+            }
+            setPatronQuery(book.reservation_patron_name);
         } else if (book.reservation_student_id && book.reservation_student_name) {
             setData('status', 'checked_out');
             setData('student_id', book.reservation_student_id);

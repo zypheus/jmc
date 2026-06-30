@@ -12,7 +12,7 @@ class BookReservationReadyMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public BookReservation $reservation;
+    public LibraryBookReservation $reservation;
 
     public int $holdDays;
 

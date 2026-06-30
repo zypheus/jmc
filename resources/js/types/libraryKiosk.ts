@@ -118,6 +118,8 @@ export interface KioskEmployeeProfileProps extends KioskCirculationPayload {
     employee: KioskEmployeePatron;
     programs: LibraryProgramOption[];
     workStartYears: number[];
+    readyReservations: KioskReservation[];
+    pendingReservations: KioskReservation[];
 }
 
 export const YEAR_LEVELS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year'] as const;

@@ -62,4 +62,9 @@ class LibraryEmployee extends Model
     {
         return $this->hasMany(LibraryEmployeeEditRequest::class, 'employee_id');
     }
+
+    public function bookReservations()
+    {
+        return $this->hasMany(LibraryBookReservation::class, 'employee_id');
+    }
 }

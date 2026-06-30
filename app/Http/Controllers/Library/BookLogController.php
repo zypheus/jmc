@@ -204,15 +204,18 @@ class BookLogController extends Controller
 
         $prefillCopyReserved = false;
         $prefillReservationStudentId = null;
+        $prefillReservationEmployeeId = null;
         if ($prefillCopyIdentifier !== '') {
             $prefillBook = LibraryBook::findByCopyIdentifier($prefillCopyIdentifier);
             if ($prefillBook) {
                 $prefillCopyReserved = $prefillBook->isReserved();
                 $activeHold = LibraryBookReservation::activeForBook((int) $prefillBook->id);
-                if ($activeHold && $activeHold->student && $prefillBook->availability !== 'Borrowed') {
+                $holdPatron = $activeHold?->patron();
+                if ($activeHold && $holdPatron && $prefillBook->availability !== 'Borrowed') {
                     if (! $request->filled('student_id') && ! $request->filled('employee_id') && $prefillPatronLabel === '') {
-                        $prefillPatronLabel = $this->patronDisplayLabel($activeHold->student);
+                        $prefillPatronLabel = $activeHold->patronLabel();
                         $prefillReservationStudentId = $activeHold->student_id;
+                        $prefillReservationEmployeeId = $activeHold->employee_id;
                     }
                 }
             }
@@ -229,7 +232,9 @@ class BookLogController extends Controller
                 'studentId' => $request->filled('student_id')
                     ? (int) $request->student_id
                     : ($prefillReservationStudentId ?? null),
-                'employeeId' => $request->filled('employee_id') ? (int) $request->employee_id : null,
+                'employeeId' => $request->filled('employee_id')
+                    ? (int) $request->employee_id
+                    : ($prefillReservationEmployeeId ?? null),
                 'copyIdentifier' => $prefillCopyIdentifier,
                 'copyReserved' => $prefillCopyReserved,
                 'status' => ($prefillCopyReserved ?? false)
@@ -360,7 +365,7 @@ class BookLogController extends Controller
         }
 
         if ($isOutbound && $action === 'checked_out') {
-            $holdError = LibraryBookReservation::copyBlockedForStudent($book, $studentId);
+            $holdError = LibraryBookReservation::copyBlockedForPatron($book, $student ?? $employee);
             if ($holdError) {
                 return back()->withInput()->with('error', $holdError);
             }
@@ -449,8 +454,8 @@ class BookLogController extends Controller
             'fine_incurred' => $fineIncurred,
         ]);
 
-        if ($isOutbound && $action === 'checked_out' && $studentId) {
-            LibraryBookReservation::fulfillForBookAndStudent((int) $book->id, $studentId);
+        if ($isOutbound && $action === 'checked_out') {
+            LibraryBookReservation::fulfillForBookAndPatron((int) $book->id, $student ?? $employee);
         }
 
         $book->save();
@@ -660,7 +665,7 @@ class BookLogController extends Controller
         $patronHolds = LibraryBookReservation::query()
             ->whereIn('book_id', $books->pluck('id'))
             ->active()
-            ->with('student')
+            ->with(['student', 'employee'])
             ->get()
             ->keyBy('book_id');
 
@@ -673,7 +678,7 @@ class BookLogController extends Controller
                     ->first();
 
                 $hold = $patronHolds->get($b->id);
-                $holdStudent = $hold?->student;
+                $holdPatron = $hold?->patron();
 
                 return [
                     'id' => $b->id,
@@ -688,10 +693,12 @@ class BookLogController extends Controller
                     'reserved' => (bool) $b->reserved,
                     'patron_hold' => (bool) $hold,
                     'patron_hold_status' => $hold?->status,
-                    'reservation_student_id' => $holdStudent?->id,
-                    'reservation_student_name' => $holdStudent
-                        ? $this->patronDisplayLabel($holdStudent)
-                        : null,
+                    'reservation_patron_type' => $hold?->patronType(),
+                    'reservation_patron_id' => $holdPatron?->id,
+                    'reservation_patron_name' => $hold?->patronLabel(),
+                    'reservation_student_id' => $hold?->student_id,
+                    'reservation_student_name' => $hold?->student_id ? $hold->patronLabel() : null,
+                    'reservation_employee_id' => $hold?->employee_id,
                     'last_student_id' => $lastCheckout?->student_id,
                     'last_employee_id' => $lastCheckout?->employee_id,
                     'last_patron' => $lastCheckout ? $lastCheckout->patronLabel() : null,

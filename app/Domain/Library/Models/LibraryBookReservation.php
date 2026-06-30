@@ -23,9 +23,20 @@ class LibraryBookReservation extends Model
 
     private static bool $staleExpiredThisRequest = false;
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $reservation): void {
+            $owners = (int) filled($reservation->student_id) + (int) filled($reservation->employee_id);
+            if ($owners !== 1) {
+                throw new RuntimeException('A book reservation must belong to exactly one patron.');
+            }
+        });
+    }
+
     protected $fillable = [
         'book_id',
         'student_id',
+        'employee_id',
         'status',
         'reserved_at',
         'ready_at',
@@ -50,6 +61,60 @@ class LibraryBookReservation extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(LibraryStudent::class);
+    }
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(LibraryEmployee::class);
+    }
+
+    public function patron(): LibraryStudent|LibraryEmployee|null
+    {
+        if ($this->student_id) {
+            return $this->student;
+        }
+
+        if ($this->employee_id) {
+            return $this->employee;
+        }
+
+        return null;
+    }
+
+    public function patronType(): ?string
+    {
+        return $this->student_id ? 'student' : ($this->employee_id ? 'employee' : null);
+    }
+
+    public function patronIdentifier(): ?string
+    {
+        $patron = $this->patron();
+
+        return $patron instanceof LibraryStudent ? $patron->id_number : $patron?->employee_id;
+    }
+
+    public function patronLabel(): string
+    {
+        $patron = $this->patron();
+
+        if (! $patron) {
+            return 'Unknown patron';
+        }
+
+        return trim("{$patron->lastname}, {$patron->firstname}");
+    }
+
+    public function belongsToPatron(LibraryStudent|LibraryEmployee|null $patron): bool
+    {
+        if ($patron instanceof LibraryStudent) {
+            return (int) $this->student_id === (int) $patron->id;
+        }
+
+        if ($patron instanceof LibraryEmployee) {
+            return (int) $this->employee_id === (int) $patron->id;
+        }
+
+        return false;
     }
 
     public function scopeActive($query)
@@ -178,7 +243,7 @@ class LibraryBookReservation extends Model
             ->exists();
     }
 
-    public static function reserveForStudent(LibraryStudent $student, LibraryBook $book): self
+    public static function reserveForPatron(LibraryStudent|LibraryEmployee $patron, LibraryBook $book): self
     {
         static::expireStale();
 
@@ -190,7 +255,7 @@ class LibraryBookReservation extends Model
             throw new RuntimeException('This copy is for room use only and cannot be reserved for checkout.');
         }
 
-        return DB::transaction(function () use ($student, $book) {
+        return DB::transaction(function () use ($patron, $book) {
             $book = LibraryBook::query()->lockForUpdate()->findOrFail($book->id);
 
             if (static::activeForBookWithoutExpiry((int) $book->id)) {
@@ -199,7 +264,7 @@ class LibraryBookReservation extends Model
 
             $duplicate = static::query()
                 ->where('book_id', $book->id)
-                ->where('student_id', $student->id)
+                ->where($patron instanceof LibraryStudent ? 'student_id' : 'employee_id', $patron->id)
                 ->active()
                 ->exists();
 
@@ -213,7 +278,8 @@ class LibraryBookReservation extends Model
 
             $reservation = static::create([
                 'book_id' => $book->id,
-                'student_id' => $student->id,
+                'student_id' => $patron instanceof LibraryStudent ? $patron->id : null,
+                'employee_id' => $patron instanceof LibraryEmployee ? $patron->id : null,
                 'status' => $status,
                 'reserved_at' => $now,
                 'ready_at' => $status === self::STATUS_READY ? $now : null,
@@ -227,6 +293,11 @@ class LibraryBookReservation extends Model
 
             return $reservation;
         });
+    }
+
+    public static function reserveForStudent(LibraryStudent $student, LibraryBook $book): self
+    {
+        return static::reserveForPatron($student, $book);
     }
 
     public function markReady(): void
@@ -271,11 +342,11 @@ class LibraryBookReservation extends Model
         $book->availability = 'On Hold';
     }
 
-    public static function fulfillForBookAndStudent(int $bookId, int $studentId): void
+    public static function fulfillForBookAndPatron(int $bookId, LibraryStudent|LibraryEmployee $patron): void
     {
         static::query()
             ->where('book_id', $bookId)
-            ->where('student_id', $studentId)
+            ->where($patron instanceof LibraryStudent ? 'student_id' : 'employee_id', $patron->id)
             ->where('status', self::STATUS_READY)
             ->update([
                 'status' => self::STATUS_FULFILLED,
@@ -283,8 +354,18 @@ class LibraryBookReservation extends Model
             ]);
     }
 
-    public static function copyBlockedForStudent(LibraryBook $book, ?int $studentId): ?string
+    public static function fulfillForBookAndStudent(int $bookId, int $studentId): void
     {
+        $student = LibraryStudent::find($studentId);
+        if ($student) {
+            static::fulfillForBookAndPatron($bookId, $student);
+        }
+    }
+
+    public static function copyBlockedForPatron(
+        LibraryBook $book,
+        LibraryStudent|LibraryEmployee|null $patron,
+    ): ?string {
         static::expireStale();
 
         $hold = static::activeForBookWithoutExpiry((int) $book->id);
@@ -292,10 +373,18 @@ class LibraryBookReservation extends Model
             return null;
         }
 
-        if ($studentId && (int) $hold->student_id === (int) $studentId) {
+        if ($hold->belongsToPatron($patron)) {
             return null;
         }
 
         return 'This copy is reserved for another patron.';
+    }
+
+    public static function copyBlockedForStudent(LibraryBook $book, ?int $studentId): ?string
+    {
+        return static::copyBlockedForPatron(
+            $book,
+            $studentId ? LibraryStudent::find($studentId) : null,
+        );
     }
 }

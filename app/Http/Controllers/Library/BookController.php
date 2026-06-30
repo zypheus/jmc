@@ -91,9 +91,9 @@ class BookController extends Controller
                     ->orWhere('source_date', 'like', $like);
 
                 // Allow searching by program name/code via pivot
-                $q->orWhereHas('library_programs', function ($p) use ($token) {
-                    $p->where('programs.program_name', 'like', "%{$token}%")
-                        ->orWhere('programs.program_code', 'like', "%{$token}%");
+                $q->orWhereHas('programs', function ($p) use ($token) {
+                    $p->where('library_programs.program_name', 'like', "%{$token}%")
+                        ->orWhere('library_programs.program_code', 'like', "%{$token}%");
                 });
             });
         }
@@ -501,7 +501,40 @@ class BookController extends Controller
             ->paginate(PerPage::resolve($request, 10))
             ->withQueryString(); // Keep URL parameters when switching pages
 
-        return view('books.copies', compact('copies', 'title', 'author', 'year'));
+        $copies->through(function (LibraryBook $copy) {
+            $hold = LibraryBookReservation::activeForBook((int) $copy->id);
+
+            return [
+                'id' => $copy->id,
+                'accession_no' => $copy->accession_no,
+                'call_number' => $copy->call_number,
+                'volume' => $copy->volume,
+                'copy_no' => null,
+                'collection' => $copy->course,
+                'shelving_location' => trim(implode(' — ', array_filter([$copy->library_name, $copy->section]))),
+                'circulation_type' => $copy->isReserved() ? 'Reserved (room use only)' : 'Regular circulation',
+                'circulation_status' => match ($copy->availability) {
+                    'Available' => 'On-Shelf',
+                    'Borrowed' => 'Checked out',
+                    'On Hold' => 'On hold',
+                    default => $copy->availability ?? '—',
+                },
+                'availability' => $copy->availability,
+                'reserved' => $copy->isReserved(),
+                'patron_hold' => (bool) $hold,
+                'patron_hold_status' => $hold?->status,
+                'barcode' => $copy->barcode,
+                'rfid' => $copy->rfid,
+                'created_at' => $copy->created_at?->toIso8601String(),
+            ];
+        });
+
+        return Inertia::render('Opac/Copies', [
+            'copies' => $copies,
+            'title' => $title,
+            'author' => $author,
+            'year' => $year,
+        ]);
     }
 
     /**
@@ -808,7 +841,7 @@ class BookController extends Controller
             // ----------------------
             $books = DB::table(DB::raw("({$grouped->toSql()}) as grouped"))
                 ->mergeBindings($grouped)
-                ->join('library_books', 'books.id', '=', 'grouped.sample_id')
+                ->join('library_books as books', 'books.id', '=', 'grouped.sample_id')
                 ->select(
                     'grouped.title_statement',
                     'grouped.main_author',
@@ -877,9 +910,9 @@ class BookController extends Controller
         $programs = LibraryProgram::orderBy('program_name')->get();
 
         return Inertia::render('Opac/Landing', [
-            'programs',
-            'carouselBooks',
-            'carouselMeta',
+            'programs' => $programs,
+            'carouselBooks' => $carouselBooks,
+            'carouselMeta' => $carouselMeta,
             'libraryBooks' => $library_books ?? $books,
             'libraryEbooks' => $library_ebooks ?? $ebooks,
             'filters' => [
@@ -891,6 +924,11 @@ class BookController extends Controller
                 'search' => (string) $request->input('search', ''),
                 'viewMode' => $viewMode,
                 'searchActive' => $searchActive,
+                'course' => (string) $request->input('course', 'all'),
+                'subjectTopic' => (string) $request->input('subject_topic', 'All'),
+                'genre' => (string) $request->input('genre', 'All'),
+                'section' => (string) $request->input('section', 'All'),
+                'contentType' => (string) $request->input('content_type', 'All'),
             ],
         ]);
     }

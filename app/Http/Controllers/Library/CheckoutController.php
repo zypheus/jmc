@@ -2,408 +2,88 @@
 
 namespace App\Http\Controllers\Library;
 
-use App\Domain\Library\Models\LibraryBook;
-use App\Domain\Library\Models\LibraryBookLog;
-use App\Domain\Library\Models\LibraryBookReservation;
-use App\Domain\Library\Models\LibraryFineSetting;
-use App\Domain\Library\Models\LibrarySetting;
 use App\Domain\Library\Models\LibraryStudent;
-use App\Domain\Library\Services\AdminActivityLogger;
-use App\Domain\Library\Support\LoanDueDate;
+use App\Domain\Library\Services\OpacCheckoutService;
+use App\Domain\Library\Services\OpacPatronResolver;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class CheckoutController extends Controller
 {
-    public function process(Request $request)
+    public function __construct(
+        private readonly OpacPatronResolver $patrons,
+        private readonly OpacCheckoutService $checkout,
+    ) {}
+
+    public function process(Request $request): JsonResponse
     {
-        Log::info('Checkout request data: ', $request->all());
-
-        try {
-            $request->validate([
-                'student_id' => 'required|string',
-                'book_id' => 'nullable|integer',
-                'library_books' => 'nullable|array',
-                'books.*.id' => 'required_with:books|integer',
-                'due_date' => 'nullable|date|after_or_equal:today',
-                'loan_duration_days' => 'nullable|integer|min:1|max:365',
-            ]);
-
-            $student = LibraryStudent::where('id_number', $request->student_id)->first();
-
-            if (! $student) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Student ID not found.',
-                ]);
-            }
-
-            $patronLegacyName = "{$student->lastname}, {$student->firstname}";
-
-            $hasOverdue = LibraryBookLog::where('status', 'Checked Out')
-                ->whereDate('due_date', '<', now())
-                ->where(function ($q) use ($student, $patronLegacyName) {
-                    $q->where('student_id', $student->id)
-                        ->orWhere('patron_name', $patronLegacyName);
-                })
-                ->exists();
-
-            if ($hasOverdue) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Checkout blocked: student has overdue book(s).',
-                ]);
-            }
-
-            $bookIds = [];
-            if ($request->book_id) {
-                $bookIds[] = (int) $request->book_id;
-            }
-            if ($request->books) {
-                foreach ($request->books as $b) {
-                    $bookIds[] = (int) $b['id'];
-                }
-            }
-
-            if ($bookIds === []) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No books provided.',
-                ]);
-            }
-
-            $availableIds = [];
-            $roomUseBlocked = [];
-            $patronHoldBlocked = [];
-            foreach (array_unique($bookIds) as $bookId) {
-                $b = LibraryBook::find($bookId);
-                if (! $this->copyEligibleForStudentCheckout($b, $student)) {
-                    if ($b && $b->isReserved()) {
-                        $roomUseBlocked[] = (int) $bookId;
-                    } elseif ($b && LibraryBookReservation::copyBlockedForStudent($b, (int) $student->id)) {
-                        $patronHoldBlocked[] = (int) $bookId;
-                    }
-
-                    continue;
-                }
-                $availableIds[] = (int) $bookId;
-            }
-
-            if ($availableIds === [] && $patronHoldBlocked !== []) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'One or more copies are reserved for another patron.',
-                ]);
-            }
-
-            if ($availableIds === [] && $roomUseBlocked !== []) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'One or more copies are reserved for room use only and cannot be checked out.',
-                ]);
-            }
-
-            if ($availableIds === []) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No available copies could be checked out.',
-                ]);
-            }
-
-            $currentLoans = LibraryBookLog::countActiveLoansForStudent((int) $student->id);
-            $studentMax = LibrarySetting::maxLoansForStudents();
-            if (LibrarySetting::wouldExceedStudentLoanLimit($currentLoans, count($availableIds))) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Checkout blocked: patron may have at most '.$studentMax.' books on loan at a time (including room use).',
-                ]);
-            }
-
-            $fineSetting = LibraryFineSetting::orderBy('created_at', 'desc')->first();
-
-            if (! $fineSetting) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Fine settings not configured.',
-                ]);
-            }
-
-            $borrowedAt = Carbon::now('Asia/Manila');
-            $loanTerms = LoanDueDate::resolveFromRequest(
-                $borrowedAt,
-                $fineSetting,
-                $request->input('due_date'),
-                $request->filled('loan_duration_days') ? (int) $request->loan_duration_days : null,
-                false,
-            );
-            $dueDate = $loanTerms['due_date'];
-            $processedBooks = [];
-
-            foreach ($availableIds as $bookId) {
-                $book = LibraryBook::find($bookId);
-
-                if (! $this->copyEligibleForStudentCheckout($book, $student)) {
-                    continue;
-                }
-
-                $latestReturn = LibraryBookLog::query()
-                    ->where('student_id', $student->id)
-                    ->where('book_id', $book->id)
-                    ->where('status', 'Checked In')
-                    ->whereNotNull('returned_date')
-                    ->orderByDesc('returned_date')
-                    ->value('returned_date');
-
-                if ($latestReturn) {
-                    $returnedAt = Carbon::parse($latestReturn)->timezone('Asia/Manila');
-                    $allowedAt = $returnedAt->copy()->addDays(LibrarySetting::reborrowCooldownDays());
-                    $nowManila = Carbon::now('Asia/Manila');
-                    if ($nowManila->lt($allowedAt)) {
-                        continue;
-                    }
-                }
-
-                LibraryBookLog::create([
-                    'book_id' => $book->id,
-                    'student_id' => $student->id,
-                    'patron_name' => $patronLegacyName,
-                    'status' => 'Checked Out',
-                    'circulation_type' => LibraryBookLog::CIRCULATION_CHECKOUT,
-                    'renew_count' => 0,
-                    'timestamp' => $borrowedAt,
-                    'due_date' => $dueDate,
-                    'fine_incurred' => 0,
-                ]);
-
-                $book->update(['availability' => 'Borrowed']);
-                LibraryBookReservation::fulfillForBookAndStudent((int) $book->id, (int) $student->id);
-
-                $processedBooks[] = [
-                    'id' => $book->id,
-                    'title' => $book->title_statement,
-                    'author' => $book->main_author,
-                    'barcode' => $book->barcode,
-                    'due_date' => $dueDate->format('Y-m-d'),
-                ];
-            }
-
-            if ($processedBooks === []) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No available copies could be checked out (some may be blocked by the 1-week re-borrow cooldown).',
-                ]);
-            }
-
-            AdminActivityLogger::selfCheckout($patronLegacyName, count($processedBooks));
-
-            return response()->json([
-                'success' => true,
-                'student' => [
-                    'name' => $patronLegacyName,
-                    'id_number' => $student->id_number,
-                    'course' => $student->course,
-                ],
-                'library_books' => $processedBooks,
-                'book' => count($processedBooks) === 1 ? $processedBooks[0] : null,
-                'due_date' => $processedBooks[count($processedBooks) - 1]['due_date'] ?? null,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Checkout Exception: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An unexpected error occurred: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function bulk(Request $request)
-    {
-        $request->validate([
-            'student_id' => 'required|string',
-            'book_ids' => 'required|array',
+        $validated = $request->validate([
+            'patron_token' => 'nullable|string|max:255|required_without:student_id',
+            'student_id' => 'nullable|string|max:255|required_without:patron_token',
+            'book_id' => 'nullable|integer|exists:library_books,id',
+            'books' => 'nullable|array|max:5',
+            'books.*.id' => 'required_with:books|integer|exists:library_books,id',
             'due_date' => 'nullable|date|after_or_equal:today',
             'loan_duration_days' => 'nullable|integer|min:1|max:365',
         ]);
 
-        $student = LibraryStudent::where('id_number', $request->student_id)->first();
-
-        if (! $student) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Student not found',
-            ]);
+        $bookIds = [];
+        if (! empty($validated['book_id'])) {
+            $bookIds[] = (int) $validated['book_id'];
+        }
+        foreach ($validated['books'] ?? [] as $book) {
+            $bookIds[] = (int) $book['id'];
         }
 
-        $patronLegacyName = "{$student->lastname}, {$student->firstname}";
-
-        $hasOverdue = LibraryBookLog::where('status', 'Checked Out')
-            ->whereDate('due_date', '<', now())
-            ->where(function ($q) use ($student, $patronLegacyName) {
-                $q->where('student_id', $student->id)
-                    ->orWhere('patron_name', $patronLegacyName);
-            })
-            ->exists();
-
-        if ($hasOverdue) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Checkout blocked: student has overdue book(s).',
-            ]);
-        }
-
-        $fineSetting = LibraryFineSetting::latest()->first();
-        if (! $fineSetting) {
-            return response()->json(['success' => false, 'message' => 'Fine settings not configured.']);
-        }
-
-        $availableIds = [];
-        $roomUseBlocked = [];
-        $patronHoldBlocked = [];
-        foreach ($request->book_ids as $bookId) {
-            $book = LibraryBook::find($bookId);
-            if (! $this->copyEligibleForStudentCheckout($book, $student)) {
-                if ($book && $book->isReserved()) {
-                    $roomUseBlocked[] = (int) $book->id;
-                } elseif ($book && LibraryBookReservation::copyBlockedForStudent($book, (int) $student->id)) {
-                    $patronHoldBlocked[] = (int) $book->id;
-                }
-
-                continue;
-            }
-            $availableIds[] = (int) $book->id;
-        }
-
-        if ($availableIds === [] && $patronHoldBlocked !== []) {
-            return response()->json([
-                'success' => false,
-                'message' => 'One or more copies are reserved for another patron.',
-            ]);
-        }
-
-        if ($availableIds === [] && $roomUseBlocked !== []) {
-            return response()->json([
-                'success' => false,
-                'message' => 'One or more copies are reserved for room use only and cannot be checked out.',
-            ]);
-        }
-
-        if ($availableIds === []) {
-            return response()->json(['success' => false, 'message' => 'No available copies could be checked out.']);
-        }
-
-        $currentLoans = LibraryBookLog::countActiveLoansForStudent((int) $student->id);
-        $studentMax = LibrarySetting::maxLoansForStudents();
-        if (LibrarySetting::wouldExceedStudentLoanLimit($currentLoans, count($availableIds))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Checkout blocked: patron may have at most '.$studentMax.' books on loan at a time.',
-            ]);
-        }
-
-        $borrowedAt = Carbon::now('Asia/Manila');
-        $loanTerms = LoanDueDate::resolveFromRequest(
-            $borrowedAt,
-            $fineSetting,
-            $request->input('due_date'),
-            $request->filled('loan_duration_days') ? (int) $request->loan_duration_days : null,
-            false,
-        );
-        $dueDate = $loanTerms['due_date'];
-        $results = [];
-
-        foreach ($availableIds as $bookId) {
-            $book = LibraryBook::find($bookId);
-
-            if (! $this->copyEligibleForStudentCheckout($book, $student)) {
-                continue;
-            }
-
-            $latestReturn = LibraryBookLog::query()
-                ->where('student_id', $student->id)
-                ->where('book_id', $book->id)
-                ->where('status', 'Checked In')
-                ->whereNotNull('returned_date')
-                ->orderByDesc('returned_date')
-                ->value('returned_date');
-
-            if ($latestReturn) {
-                $returnedAt = Carbon::parse($latestReturn)->timezone('Asia/Manila');
-                $allowedAt = $returnedAt->copy()->addDays(LibrarySetting::reborrowCooldownDays());
-                $nowManila = Carbon::now('Asia/Manila');
-                if ($nowManila->lt($allowedAt)) {
-                    continue;
-                }
-            }
-
-            LibraryBookLog::create([
-                'book_id' => $book->id,
-                'student_id' => $student->id,
-                'patron_name' => $patronLegacyName,
-                'status' => 'Checked Out',
-                'circulation_type' => LibraryBookLog::CIRCULATION_CHECKOUT,
-                'renew_count' => 0,
-                'timestamp' => $borrowedAt,
-                'due_date' => $dueDate,
-                'fine_incurred' => 0,
-            ]);
-
-            $book->update(['availability' => 'Borrowed']);
-            LibraryBookReservation::fulfillForBookAndStudent((int) $book->id, (int) $student->id);
-
-            $results[] = [
-                'id' => $book->id,
-                'title' => $book->title_statement,
-                'author' => $book->main_author,
-                'barcode' => $book->barcode,
-                'due_date' => $dueDate->format('Y-m-d'),
-            ];
-        }
-
-        if ($results !== []) {
-            AdminActivityLogger::selfCheckout($patronLegacyName, count($results));
-        }
-
-        return response()->json([
-            'success' => true,
-            'student' => [
-                'name' => $patronLegacyName,
-                'id_number' => $student->id_number,
-            ],
-            'library_books' => $results,
-        ]);
+        return $this->performCheckout($request, $bookIds);
     }
 
-    private function copyEligibleForStudentCheckout(?LibraryBook $book, LibraryStudent $student): bool
+    public function bulk(Request $request): JsonResponse
     {
-        if (! $book || $book->archived_at !== null) {
-            return false;
+        $validated = $request->validate([
+            'patron_token' => 'nullable|string|max:255|required_without:student_id',
+            'student_id' => 'nullable|string|max:255|required_without:patron_token',
+            'book_ids' => 'required|array|min:1|max:5',
+            'book_ids.*' => 'integer|distinct|exists:library_books,id',
+            'due_date' => 'nullable|date|after_or_equal:today',
+            'loan_duration_days' => 'nullable|integer|min:1|max:365',
+        ]);
+
+        return $this->performCheckout($request, array_map('intval', $validated['book_ids']));
+    }
+
+    /**
+     * @param  list<int>  $bookIds
+     */
+    private function performCheckout(Request $request, array $bookIds): JsonResponse
+    {
+        try {
+            $token = trim((string) ($request->input('patron_token') ?: $request->input('student_id')));
+            $patron = $this->patrons->resolve($token);
+            $result = $this->checkout->checkout(
+                $patron,
+                $bookIds,
+                $request->input('due_date'),
+                $request->filled('loan_duration_days') ? (int) $request->input('loan_duration_days') : null,
+            );
+
+            return response()->json([
+                'success' => true,
+                ...$result,
+                'book' => count($result['books']) === 1 ? $result['books'][0] : null,
+                'student' => $patron instanceof LibraryStudent ? [
+                    ...$result['patron'],
+                    'id_number' => $result['patron']['identifier'],
+                ] : null,
+                'library_books' => $result['books'],
+            ]);
+        } catch (RuntimeException $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ], 422);
         }
-
-        if ($book->isReserved()) {
-            return false;
-        }
-
-        if (LibraryBookReservation::copyBlockedForStudent($book, (int) $student->id)) {
-            return false;
-        }
-
-        if ($book->availability === 'On Hold') {
-            $hold = LibraryBookReservation::activeForBook((int) $book->id);
-
-            return $hold
-                && $hold->status === LibraryBookReservation::STATUS_READY
-                && (int) $hold->student_id === (int) $student->id;
-        }
-
-        if ($book->availability === 'Available') {
-            return LibraryBookReservation::activeForBook((int) $book->id) === null;
-        }
-
-        return false;
     }
 }
