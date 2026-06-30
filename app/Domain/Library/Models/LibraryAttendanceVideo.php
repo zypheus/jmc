@@ -27,6 +27,17 @@ class LibraryAttendanceVideo extends Model
             return self::DEFAULT_VIDEO_URL;
         }
 
-        return '/storage/'.ltrim($video->video_path, '/');
+        $path = $video->video_path;
+
+        if (str_starts_with($path, '/videos/')) {
+            return $path;
+        }
+
+        if (str_starts_with($path, 'videos/')) {
+            return '/'.$path;
+        }
+
+        // Legacy uploads saved on the public disk before the path fix.
+        return '/storage/'.ltrim($path, '/');
     }
 }

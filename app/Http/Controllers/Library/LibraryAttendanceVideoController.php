@@ -26,10 +26,17 @@ class LibraryAttendanceVideoController extends Controller
             'video' => ['required', 'file', 'mimetypes:video/mp4,video/x-m4v,application/mp4', 'max:512000'],
         ]);
 
-        $path = $request->file('video')->store('library-attendance/videos', 'public');
+        $directory = public_path('videos');
+
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $filename = 'library-attendance-scanner-'.time().'.mp4';
+        $request->file('video')->move($directory, $filename);
 
         LibraryAttendanceVideo::query()->create([
-            'video_path' => $path,
+            'video_path' => '/videos/'.$filename,
         ]);
 
         return redirect()
