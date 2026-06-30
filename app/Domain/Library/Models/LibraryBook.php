@@ -54,7 +54,7 @@ class LibraryBook extends Model
         return $this->hasMany(LibraryBookReservation::class);
     }
 
-    public function activeBookReservation(): ?BookReservation
+    public function activeBookReservation(): ?LibraryBookReservation
     {
         return LibraryBookReservation::activeForBook((int) $this->id);
     }

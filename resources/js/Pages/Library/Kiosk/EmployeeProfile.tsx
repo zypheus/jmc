@@ -5,6 +5,7 @@ import PatronFineSummary from '@/components/library/kiosk/PatronFineSummary';
 import PatronIdentityCard from '@/components/library/kiosk/PatronIdentityCard';
 import PatronSummaryCards from '@/components/library/kiosk/PatronSummaryCards';
 import RequestEditDialog from '@/components/library/kiosk/RequestEditDialog';
+import ReservationAlerts from '@/components/library/kiosk/ReservationAlerts';
 import ReturnedFinesTable from '@/components/library/kiosk/ReturnedFinesTable';
 import TransactionHistoryTable from '@/components/library/kiosk/TransactionHistoryTable';
 import KioskShell from '@/Layouts/KioskShell';
@@ -15,6 +16,8 @@ export default function EmployeeProfile({
     employee,
     programs,
     workStartYears,
+    readyReservations,
+    pendingReservations,
     borrowedBooks,
     booksOutCount,
     overdueBooksCount,
@@ -65,6 +68,8 @@ export default function EmployeeProfile({
                         hasPendingEditRequest={hasPendingEditRequest}
                     />
                 </PatronIdentityCard>
+
+                <ReservationAlerts ready={readyReservations} pending={pendingReservations} hasEmail={false} />
 
                 <PatronSummaryCards
                     booksOutCount={booksOutCount}

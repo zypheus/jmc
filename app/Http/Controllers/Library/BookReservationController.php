@@ -4,33 +4,31 @@ namespace App\Http\Controllers\Library;
 
 use App\Domain\Library\Models\LibraryBook;
 use App\Domain\Library\Models\LibraryBookReservation;
-use App\Domain\Library\Models\LibraryStudent;
 use App\Domain\Library\Services\AdminActivityLogger;
+use App\Domain\Library\Services\OpacPatronResolver;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use RuntimeException;
 
 class BookReservationController extends Controller
 {
+    public function __construct(private readonly OpacPatronResolver $patrons) {}
+
     public function store(Request $request)
     {
         $request->validate([
-            'student_id' => 'required|string',
+            'patron_token' => 'nullable|string|max:255|required_without:student_id',
+            'student_id' => 'nullable|string|max:255|required_without:patron_token',
             'book_id' => 'required|integer|exists:library_books,id',
         ]);
-
-        $student = LibraryStudent::where('id_number', $request->student_id)->first();
-        if (! $student) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Student ID not found.',
-            ], 422);
-        }
 
         $book = LibraryBook::findOrFail((int) $request->book_id);
 
         try {
-            $reservation = LibraryBookReservation::reserveForStudent($student, $book);
+            $patron = $this->patrons->resolve(
+                trim((string) ($request->input('patron_token') ?: $request->input('student_id'))),
+            );
+            $reservation = LibraryBookReservation::reserveForPatron($patron, $book);
         } catch (RuntimeException $e) {
             return response()->json([
                 'success' => false,
@@ -40,10 +38,10 @@ class BookReservationController extends Controller
 
         $book->refresh();
 
-        $studentLabel = "{$student->lastname}, {$student->firstname}";
+        $patronLabel = trim("{$patron->lastname}, {$patron->firstname}");
         AdminActivityLogger::bookReservation(
             $reservation,
-            $studentLabel,
+            $patronLabel,
             $book->title_statement ?? 'Untitled',
         );
 
@@ -56,6 +54,7 @@ class BookReservationController extends Controller
                 'book_id' => $book->id,
                 'status' => $reservation->status,
                 'availability' => $book->availability,
+                'patron' => $this->patrons->serialize($patron),
             ],
         ]);
     }

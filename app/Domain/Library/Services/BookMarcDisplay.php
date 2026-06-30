@@ -4,12 +4,13 @@ namespace App\Domain\Library\Services;
 
 use App\Domain\Library\Models\LibraryBook;
 use App\Domain\Library\Models\LibraryCatalogFramework;
+use App\Domain\Library\Models\LibraryCatalogFrameworkField;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class BookMarcDisplay
 {
-    public function booksFramework(): ?CatalogFramework
+    public function booksFramework(): ?LibraryCatalogFramework
     {
         return LibraryCatalogFramework::where('name', 'Books')
             ->with(['fields' => function ($q) {
@@ -231,7 +232,7 @@ class BookMarcDisplay
         return $rows;
     }
 
-    public function displayValueForFrameworkField(LibraryBook $book, CatalogFrameworkField $ff, ?array $marcValues = null): ?string
+    public function displayValueForFrameworkField(LibraryBook $book, LibraryCatalogFrameworkField $ff, ?array $marcValues = null): ?string
     {
         $mf = $ff->marcField;
         if (! $mf) {
