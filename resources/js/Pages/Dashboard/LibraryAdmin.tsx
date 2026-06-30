@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import {
     ArrowLeftRight,
     BookOpen,
+    CalendarCheck,
     Clock3,
     DoorOpen,
     Hourglass,
@@ -58,6 +59,7 @@ const metricCards = [
 const quickActions = [
     { label: 'Open catalog', href: '/books', icon: BookOpen, variant: 'default' as const },
     { label: 'Circulation desk', href: '/logs', icon: ArrowLeftRight, variant: 'secondary' as const },
+    { label: 'Attendance logs', href: '/library/attendance/logs', icon: CalendarCheck, variant: 'outline' as const },
     { label: 'Room requests', href: '/rooms/pending', icon: DoorOpen, variant: 'outline' as const },
     { label: 'Holdings report', href: '/reports/library-holdings', icon: BookOpen, variant: 'outline' as const },
 ];
@@ -72,6 +74,7 @@ const modules = [
     { title: 'Outstanding fines', description: 'Clear overdue fines.', href: '/admin/fines/outstanding', label: 'Fines queue' },
     { title: 'Repository', description: 'Shared library documents.', href: '/files', label: 'File repository' },
     { title: 'Reports', description: 'Holdings and activity exports.', href: '/reports/library-holdings', label: 'Reports' },
+    { title: 'Attendance logs', description: 'Library scanner IN and OUT history.', href: '/library/attendance/logs', label: 'View logs' },
 ];
 
 export default function LibraryAdmin({ stats, auth }: LibraryAdminPageProps) {

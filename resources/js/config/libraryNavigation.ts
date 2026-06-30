@@ -165,6 +165,14 @@ export function libraryNavigation(_auth: PageProps['auth']): NavigationGroup[] {
                             routePrefixes: ['library.reports.library_holdings.'],
                         },
                         {
+                            id: 'attendance-logs',
+                            label: 'Attendance Logs',
+                            icon: CalendarCheck,
+                            routeName: 'library.attendance.logs',
+                            routePrefixes: ['library.attendance.logs'],
+                            roles: adminRoles,
+                        },
+                        {
                             id: 'book-report-pdf',
                             label: 'Download Book Report (PDF)',
                             icon: FileDown,
