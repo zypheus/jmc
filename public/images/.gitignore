@@ -1,0 +1,5 @@
+# Ignore all files inside the storage folder
+user_profiles/*
+
+# Exception: do not ignore the placeholder file
+!user_profiles/.gitkeep
