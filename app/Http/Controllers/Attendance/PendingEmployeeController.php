@@ -52,9 +52,7 @@ class PendingEmployeeController extends Controller
 
         AttendancePendingEmployee::create($validated);
 
-        return redirect()
-            ->route('register.success')
-            ->with('success', 'Employee registration submitted. Await admin approval.');
+        return back()->with('success', 'Employee registration submitted. Await admin approval.');
     }
 
     public function approve(int $id)

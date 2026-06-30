@@ -2,6 +2,7 @@ import {
     BookMarked,
     BookOpen,
     Braces,
+    CalendarCheck,
     Database,
     DoorOpen,
     FileBarChart,
@@ -16,6 +17,7 @@ import {
     Send,
     Shield,
     UserCog,
+    Video,
 } from 'lucide-react';
 
 import type { PageProps } from '@/types';
@@ -42,6 +44,34 @@ export function libraryNavigation(_auth: PageProps['auth']): NavigationGroup[] {
                     icon: ScanLine,
                     routeName: 'library.kiosk.scan',
                     external: true,
+                },
+                {
+                    id: 'attendance',
+                    label: 'Attendance',
+                    icon: CalendarCheck,
+                    children: [
+                        {
+                            id: 'attendance-video',
+                            label: 'Attendance Video',
+                            icon: Video,
+                            routeName: 'attendance.scan',
+                            external: true,
+                        },
+                        {
+                            id: 'change-attendance-video',
+                            label: 'Change Video',
+                            icon: Video,
+                            routeName: 'attendance.changeVideo',
+                            routePrefixes: ['attendance.uploadVideo'],
+                        },
+                        {
+                            id: 'attendance-logout-feedback',
+                            label: 'Logout Feedback',
+                            icon: MessagesSquare,
+                            routeName: 'attendance.feedback.settings',
+                            routePrefixes: ['attendance.feedback.settings'],
+                        },
+                    ],
                 },
                 {
                     id: 'data',
