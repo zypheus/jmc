@@ -24,8 +24,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function (): void {
-    Route::get('/select-module', [ModuleSelectionController::class, 'create'])->name('module.select');
-    Route::post('/select-module', [ModuleSelectionController::class, 'store'])->name('module.select.store');
+    Route::post('/switch-module', [ModuleSelectionController::class, 'store'])->name('module.switch');
     Route::get('/account', [AccountController::class, 'edit'])->name('account.edit');
     Route::put('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
     Route::put('/account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');

@@ -1,7 +1,9 @@
 import { Link } from '@inertiajs/react';
 import { ChevronDown, LogOut, Settings, Shuffle } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import ModuleSwitchDialog, { moduleSwitchOptions } from '@/components/app/ModuleSwitchDialog';
 import RoleBadge from '@/components/app/RoleBadge';
 import {
     DropdownMenu,
@@ -12,10 +14,12 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { PageProps } from '@/types';
+import type { AppModule } from '@/types/navigation';
 
 interface UserMenuProps {
     auth: PageProps['auth'];
     onLogout: () => void;
+    currentModule?: AppModule;
 }
 
 export function UserAvatar({ auth, className = 'size-8' }: { auth: PageProps['auth']; className?: string }) {
@@ -26,10 +30,14 @@ export function UserAvatar({ auth, className = 'size-8' }: { auth: PageProps['au
     return <span className={`${className} flex items-center justify-center rounded-full bg-primary text-xs font-semibold text-white`}>{user?.initials ?? 'U'}</span>;
 }
 
-export default function UserMenu({ auth, onLogout }: UserMenuProps) {
+export default function UserMenu({ auth, onLogout, currentModule: currentModuleProp }: UserMenuProps) {
+    const [moduleSwitchOpen, setModuleSwitchOpen] = useState(false);
     const user = auth.user;
+    const currentModule = currentModuleProp ?? auth.activeModule ?? (auth.isSuperAdmin ? 'super-admin' : auth.availableModules[0]);
+    const canSwitchModules = moduleSwitchOptions(auth).length > 1 && currentModule;
 
     return (
+        <>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button type="button" variant="ghost" className="h-10 gap-1 rounded-full px-1.5" aria-label="Open user menu">
@@ -53,11 +61,9 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
                             <Settings className="size-4" aria-hidden="true" /> My Account
                     </Link>
                 </DropdownMenuItem>
-                {auth.availableModules.length > 1 && (
-                    <DropdownMenuItem asChild>
-                        <Link href={route('module.select')}>
-                                <Shuffle className="size-4" aria-hidden="true" /> Switch Module
-                        </Link>
+                {canSwitchModules && (
+                    <DropdownMenuItem onSelect={() => setModuleSwitchOpen(true)}>
+                        <Shuffle className="size-4" aria-hidden="true" /> Switch Module
                     </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -66,5 +72,14 @@ export default function UserMenu({ auth, onLogout }: UserMenuProps) {
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
+        {currentModule && (
+            <ModuleSwitchDialog
+                auth={auth}
+                currentModule={currentModule}
+                open={moduleSwitchOpen}
+                onOpenChange={setModuleSwitchOpen}
+            />
+        )}
+        </>
     );
 }

@@ -13,6 +13,8 @@ final class ModuleAccessService
 
     public const LIBRARY = 'library';
 
+    public const SUPER_ADMIN = 'super-admin';
+
     public function isSuperAdmin(User $user): bool
     {
         return $user->hasRole('super_admin');
@@ -66,29 +68,31 @@ final class ModuleAccessService
         return match ($module) {
             self::ATTENDANCE => $this->hasAttendanceAccess($user),
             self::LIBRARY => $this->hasLibraryAccess($user),
+            self::SUPER_ADMIN => $this->isSuperAdmin($user),
             default => false,
         };
     }
 
-    public function defaultDashboardRoute(User $user): string
+    public function defaultModule(User $user): string
     {
         if ($this->isSuperAdmin($user)) {
-            return 'super-admin.dashboard';
-        }
-
-        if ($this->hasMultipleModules($user)) {
-            return 'module.select';
+            return self::SUPER_ADMIN;
         }
 
         if ($this->hasAttendanceAccess($user)) {
-            return $this->dashboardRouteForModule($user, self::ATTENDANCE);
+            return self::ATTENDANCE;
         }
 
         if ($this->hasLibraryAccess($user)) {
-            return $this->dashboardRouteForModule($user, self::LIBRARY);
+            return self::LIBRARY;
         }
 
         throw new InvalidArgumentException('The user has no assigned staff module.');
+    }
+
+    public function defaultDashboardRoute(User $user): string
+    {
+        return $this->dashboardRouteForModule($user, $this->defaultModule($user));
     }
 
     public function dashboardRouteForModule(User $user, string $module): string
@@ -98,6 +102,7 @@ final class ModuleAccessService
         }
 
         return match ($module) {
+            self::SUPER_ADMIN => 'super-admin.dashboard',
             self::ATTENDANCE => $this->hasAttendanceAdminAccess($user)
                 ? 'attendance.dashboard.admin'
                 : 'attendance.dashboard.staff',

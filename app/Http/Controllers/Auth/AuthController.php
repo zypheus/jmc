@@ -48,6 +48,12 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $request->session()->forget('active_module');
 
+        try {
+            $request->session()->put('active_module', $this->moduleAccess->defaultModule($user));
+        } catch (\InvalidArgumentException) {
+            // redirectForRole handles accounts without an assigned staff module.
+        }
+
         return $this->redirectForRole($user);
     }
 

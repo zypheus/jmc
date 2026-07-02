@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import NotificationMenu from './NotificationMenu';
+import ModuleSwitcher from './ModuleSwitcher';
 import UserMenu from './UserMenu';
 import type { PageProps } from '@/types';
 
@@ -57,5 +58,34 @@ describe('application menus', () => {
 
         await waitFor(() => expect(screen.queryByRole('menuitem', { name: /New registration/i })).not.toBeInTheDocument());
         expect(trigger).toHaveFocus();
+    });
+
+    it('opens module switching as a dialog with role-appropriate options', async () => {
+        const user = userEvent.setup();
+        render(<ModuleSwitcher auth={auth} module="library" />);
+
+        await user.click(screen.getByRole('button', { name: /Library/i }));
+
+        expect(await screen.findByRole('dialog', { name: 'Switch workspace' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Attendance/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Library/i })).toBeDisabled();
+        expect(screen.queryByRole('button', { name: /Super Administrator/i })).not.toBeInTheDocument();
+    });
+
+    it('shows all three workspaces to super administrators', async () => {
+        const user = userEvent.setup();
+        const superAuth: PageProps['auth'] = {
+            ...auth,
+            isSuperAdmin: true,
+            activeModule: 'super-admin',
+            user: auth.user ? { ...auth.user, roles: ['super_admin'] } : null,
+        };
+        render(<ModuleSwitcher auth={superAuth} module="super-admin" />);
+
+        await user.click(screen.getByRole('button', { name: /Super Admin/i }));
+
+        expect(await screen.findByRole('button', { name: /Attendance/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Library/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Super Administrator/i })).toBeDisabled();
     });
 });

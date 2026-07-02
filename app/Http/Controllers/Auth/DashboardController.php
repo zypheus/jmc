@@ -40,7 +40,10 @@ class DashboardController extends Controller
         $request->session()->forget('active_module');
 
         try {
-            return redirect()->route($this->moduleAccess->defaultDashboardRoute($user));
+            $defaultModule = $this->moduleAccess->defaultModule($user);
+            $request->session()->put('active_module', $defaultModule);
+
+            return redirect()->route($this->moduleAccess->dashboardRouteForModule($user, $defaultModule));
         } catch (\InvalidArgumentException) {
             abort(403, 'No dashboard available for your role.');
         }

@@ -80,7 +80,7 @@ class LoginRedirectTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_dual_module_user_is_redirected_to_module_selection(): void
+    public function test_dual_module_user_defaults_to_attendance_without_a_selection_page(): void
     {
         $user = User::factory()->create(['email' => 'dual@example.test']);
         $user->assignRole(['attendance_staff', 'library_staff']);
@@ -88,15 +88,12 @@ class LoginRedirectTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
-        ])->assertRedirect(route('module.select'));
+        ])->assertRedirect(route('attendance.dashboard.staff'))
+            ->assertSessionHas('active_module', 'attendance');
 
         $this->actingAs($user)
-            ->get(route('module.select'))
-            ->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->component('Auth/SelectModule')
-                ->where('availableModules', ['attendance', 'library'])
-            );
+            ->get('/select-module')
+            ->assertNotFound();
     }
 
     public function test_user_cannot_select_a_module_without_access(): void
@@ -105,7 +102,7 @@ class LoginRedirectTest extends TestCase
         $user->assignRole('attendance_staff');
 
         $this->actingAs($user)
-            ->post(route('module.select.store'), ['module' => 'library'])
+            ->post(route('module.switch'), ['module' => 'library'])
             ->assertForbidden();
     }
 
@@ -115,9 +112,27 @@ class LoginRedirectTest extends TestCase
         $user->assignRole(['attendance_staff', 'library_staff']);
 
         $this->actingAs($user)
-            ->post(route('module.select.store'), ['module' => 'library'])
+            ->post(route('module.switch'), ['module' => 'library'])
             ->assertRedirect(route('library.dashboard.staff'))
             ->assertSessionHas('active_module', 'library');
+    }
+
+    public function test_only_super_admin_can_switch_to_the_super_admin_dashboard(): void
+    {
+        $staff = User::factory()->create();
+        $staff->assignRole(['attendance_staff', 'library_staff']);
+
+        $this->actingAs($staff)
+            ->post(route('module.switch'), ['module' => 'super-admin'])
+            ->assertForbidden();
+
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('super_admin');
+
+        $this->actingAs($superAdmin)
+            ->post(route('module.switch'), ['module' => 'super-admin'])
+            ->assertRedirect(route('super-admin.dashboard'))
+            ->assertSessionHas('active_module', 'super-admin');
     }
 
     public function test_inactive_user_cannot_login(): void

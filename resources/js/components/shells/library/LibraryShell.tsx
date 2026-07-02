@@ -175,7 +175,7 @@ export default function LibraryShell({
                         </Button>
                         <ModuleSwitcher auth={auth} module="library" />
                         <NotificationMenu payload={adminActivity} />
-                        <UserMenu auth={auth} onLogout={() => setLogoutOpen(true)} />
+                        <UserMenu auth={auth} currentModule="library" onLogout={() => setLogoutOpen(true)} />
                     </div>
                 </header>
                 <main className="flex-1 p-4 md:p-6 xl:p-8">

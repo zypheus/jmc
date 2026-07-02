@@ -30,7 +30,7 @@ class HandleInertiaRequests extends Middleware
 
         if ($user && $moduleAccess->isSuperAdmin($user) && $request->routeIs('super-admin.*')) {
             $activeModule = 'super-admin';
-        } elseif (! is_string($activeModule) || ! in_array($activeModule, $availableModules, true)) {
+        } elseif (! is_string($activeModule) || ! $user || ! $moduleAccess->canAccessModule($user, $activeModule)) {
             $activeModule = null;
         }
         $initials = $user

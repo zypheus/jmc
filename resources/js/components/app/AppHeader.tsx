@@ -39,7 +39,7 @@ export default function AppHeader({ module, auth, breadcrumbs, adminActivity, on
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
                 <ModuleSwitcher auth={auth} module={module} />
                 <NotificationMenu payload={adminActivity} />
-                <UserMenu auth={auth} onLogout={onLogout} />
+                <UserMenu auth={auth} currentModule={module} onLogout={onLogout} />
             </div>
         </header>
     );
