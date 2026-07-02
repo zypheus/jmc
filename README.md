@@ -1,5 +1,20 @@
 ![JMC — Streamline Attendance and Library Management](public/images/jmc-readme-banner.png)
 
+<p align="center">
+  <a href="https://www.php.net/"><img alt="PHP 8.2+" src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white"></a>
+  <a href="https://laravel.com/docs/12.x"><img alt="Laravel 12" src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white"></a>
+  <a href="https://inertiajs.com/"><img alt="Inertia.js 3" src="https://img.shields.io/badge/Inertia.js-3-9553E9?style=for-the-badge&logo=inertia&logoColor=white"></a>
+  <a href="https://react.dev/"><img alt="React 19" src="https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"></a>
+  <a href="https://www.typescriptlang.org/"><img alt="TypeScript 6" src="https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <a href="https://tailwindcss.com/"><img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-0F172A?style=for-the-badge&logo=tailwindcss&logoColor=38BDF8"></a>
+  <a href="https://ui.shadcn.com/"><img alt="shadcn/ui" src="https://img.shields.io/badge/shadcn%2Fui-components-18181B?style=for-the-badge&logo=shadcnui&logoColor=white"></a>
+  <a href="https://www.mysql.com/"><img alt="MySQL 8" src="https://img.shields.io/badge/MySQL-8-4479A1?style=for-the-badge&logo=mysql&logoColor=white"></a>
+  <a href="https://www.w3.org/WAI/standards-guidelines/wcag/"><img alt="WCAG 2.2 AA" src="https://img.shields.io/badge/WCAG_2.2-AA-14B8A6?style=for-the-badge&logo=w3c&logoColor=white"></a>
+</p>
+
 # JMC — Attendance + Library Management
 
 Combined system for **JOSE MARIA COLLEGE Foundation Inc.**: school attendance (BCCI-PANTAS lineage) and full library management (USM lineage) in one Laravel app.
