@@ -26,6 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureActiveStaff::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'logout',
+        ]);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

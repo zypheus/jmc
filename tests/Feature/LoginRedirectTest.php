@@ -67,6 +67,19 @@ class LoginRedirectTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_logout_does_not_show_page_expired_when_csrf_token_is_stale(): void
+    {
+        $user = User::factory()->create();
+
+        $this->withMiddleware()
+            ->actingAs($user)
+            ->post(route('logout'))
+            ->assertRedirect(route('home'))
+            ->assertSessionHas('status', 'You have been logged out.');
+
+        $this->assertGuest();
+    }
+
     public function test_dual_module_user_is_redirected_to_module_selection(): void
     {
         $user = User::factory()->create(['email' => 'dual@example.test']);
