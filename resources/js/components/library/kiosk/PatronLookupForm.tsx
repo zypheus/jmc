@@ -45,7 +45,7 @@ export default function PatronLookupForm() {
                         id="patron-token"
                         value={data.token}
                         onChange={(event) => setData('token', event.target.value)}
-                        className="h-14 border-slate-200 bg-slate-50 pl-12 text-center text-lg tracking-wide focus-visible:border-[var(--jmc-blue)] focus-visible:ring-[var(--jmc-blue)]/25"
+                        className="h-14 border-slate-200 bg-slate-50 pl-12 text-center text-lg font-semibold tracking-wide text-slate-950 placeholder:text-slate-500 focus-visible:border-[var(--jmc-blue)] focus-visible:ring-[var(--jmc-blue)]/25"
                         placeholder="Type or scan here"
                         autoComplete="off"
                         autoFocus
@@ -54,7 +54,7 @@ export default function PatronLookupForm() {
                 {errors.token && <p className="text-sm text-destructive">{errors.token}</p>}
             </div>
 
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm font-medium text-slate-700">
                 Press{' '}
                 <kbd className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium text-slate-700 shadow-sm">
                     Enter

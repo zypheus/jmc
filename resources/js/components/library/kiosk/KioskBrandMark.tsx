@@ -39,7 +39,7 @@ export default function KioskBrandMark({
                     >
                         {title}
                     </p>
-                    <p className={`mt-2 max-w-sm text-sm leading-relaxed ${onDark ? 'text-white/60' : 'text-muted-foreground'}`}>
+                    <p className={`mt-2 max-w-sm text-sm leading-relaxed ${onDark ? 'kiosk-readable-muted' : 'text-muted-foreground'}`}>
                         {subtitle}
                     </p>
                 </>

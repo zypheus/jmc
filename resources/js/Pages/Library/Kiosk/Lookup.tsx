@@ -42,7 +42,7 @@ export default function Lookup() {
                     </div>
                 </div>
 
-                <p className="text-center text-xs leading-relaxed text-white/40">
+                <p className="kiosk-readable-subtle text-center text-xs leading-relaxed">
                     New patrons must register and wait for library staff approval before lookup works.
                 </p>
             </div>

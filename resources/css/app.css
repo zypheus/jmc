@@ -176,6 +176,16 @@
         color: #fff;
     }
 
+    .kiosk-readable-muted {
+        color: rgb(255 255 255 / 0.88);
+        text-shadow: 0 1px 2px rgb(0 0 0 / 0.32);
+    }
+
+    .kiosk-readable-subtle {
+        color: rgb(255 255 255 / 0.78);
+        text-shadow: 0 1px 2px rgb(0 0 0 / 0.28);
+    }
+
     .kiosk-surface {
         overflow: hidden;
         border-radius: 1rem;
