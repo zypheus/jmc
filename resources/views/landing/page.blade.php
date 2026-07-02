@@ -21,7 +21,20 @@
             </a>
         </div>
 
-        <nav class="nav-links" aria-label="Primary navigation">
+        <button
+            type="button"
+            class="landing-nav-toggle"
+            id="landingNavToggle"
+            aria-controls="landingNav"
+            aria-expanded="false"
+            aria-label="Open navigation"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav class="nav-links" id="landingNav" aria-label="Primary navigation">
             <ul>
                 <li><a href="#about">ABOUT</a></li>
                 <li><a href="/opac">OPAC</a></li>
@@ -651,6 +664,46 @@
                 lmGo(1);
             @endif
         @endif
+    </script>
+    <script>
+        (() => {
+            const toggle = document.getElementById('landingNavToggle');
+            const nav = document.getElementById('landingNav');
+            if (!toggle || !nav) return;
+
+            const desktopQuery = window.matchMedia('(min-width: 981px)');
+
+            function setOpen(open) {
+                nav.classList.toggle('is-open', open);
+                toggle.classList.toggle('is-active', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+            }
+
+            toggle.addEventListener('click', () => {
+                setOpen(!nav.classList.contains('is-open'));
+            });
+
+            nav.querySelectorAll('a, button').forEach((item) => {
+                item.addEventListener('click', () => {
+                    if (!desktopQuery.matches) setOpen(false);
+                });
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') setOpen(false);
+            });
+
+            function closeOnDesktop() {
+                if (desktopQuery.matches) setOpen(false);
+            }
+
+            if (typeof desktopQuery.addEventListener === 'function') {
+                desktopQuery.addEventListener('change', closeOnDesktop);
+            } else {
+                desktopQuery.addListener(closeOnDesktop);
+            }
+        })();
     </script>
 </body>
 </html>

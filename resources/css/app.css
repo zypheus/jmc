@@ -436,6 +436,35 @@
         font-size: 0.55rem;
     }
 
+    .library-mobile-sheet {
+        background: var(--sidebar) !important;
+        color: var(--sidebar-foreground) !important;
+    }
+
+    .library-mobile-sheet .library-sidebar {
+        min-width: 0;
+        color: var(--sidebar-foreground);
+    }
+
+    .library-mobile-sheet .library-nav-link,
+    .library-mobile-sheet .flat-nav-menu-label,
+    .library-mobile-sheet .library-sidebar-brand,
+    .library-mobile-sheet .library-sidebar-user {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    @media (max-width: 1023.98px) {
+        .library-mobile-sheet {
+            width: min(20rem, 92vw) !important;
+        }
+
+        .library-mobile-sheet .library-nav-link {
+            min-height: 3rem;
+            font-size: 0.9375rem;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .library-shell-aside,
         .library-nav-link,

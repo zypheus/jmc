@@ -115,7 +115,7 @@ export default function LibraryShell({
             <SheetContent
                     side="left"
                     showCloseButton={false}
-                    className="library-shell-aside w-[min(288px,88vw)] gap-0 border-r p-0 text-sidebar-foreground sm:max-w-[288px]"
+                    className="library-shell-aside library-mobile-sheet w-[min(288px,88vw)] gap-0 border-r p-0 text-sidebar-foreground sm:max-w-[288px]"
                 >
                     <SheetTitle className="sr-only">Library navigation</SheetTitle>
                     <SheetDescription className="sr-only">Navigate library administration tools and public services.</SheetDescription>

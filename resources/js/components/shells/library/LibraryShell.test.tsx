@@ -50,4 +50,20 @@ describe('LibraryShell mobile navigation', () => {
         await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Library navigation' })).not.toBeInTheDocument());
         expect(openButton).toHaveFocus();
     });
+
+    it('opens mobile navigation with visible text labels instead of collapsed icon-only items', async () => {
+        const user = userEvent.setup();
+        render(
+            <LibraryShell navigation={navigation} routeName="library.dashboard.admin" auth={auth} flash={{}}>
+                <h1>Page content</h1>
+            </LibraryShell>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Open navigation' }));
+
+        const dialog = screen.getByRole('dialog', { name: 'Library navigation' });
+        expect(dialog).toHaveTextContent('PANTAS');
+        expect(dialog).toHaveTextContent('Dashboard');
+        expect(dialog.querySelector('.library-nav-link.is-collapsed')).not.toBeInTheDocument();
+    });
 });

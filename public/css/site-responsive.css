@@ -119,9 +119,36 @@ main .table-responsive {
         text-align: center;
     }
 
+    #routeWrapper > a,
+    #routeWrapper .logs_dropdown-button,
+    #routeWrapper .attendance_dropdown-button,
+    #routeWrapper .logs_dropdown-content a,
+    #routeWrapper .attendance_dropdown-content a,
+    #routeWrapper .btn5 {
+        display: flex !important;
+        min-height: 44px;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        margin-top: 0 !important;
+        padding: 0.7rem 0.85rem !important;
+        color: var(--brand-nav-link, #1f7902) !important;
+        font-size: 0.95rem !important;
+        line-height: 1.25 !important;
+        text-align: left !important;
+        text-decoration: none;
+        white-space: normal;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
     #routeWrapper .btn5 {
         width: 100%;
         margin-top: 0.5rem;
+        justify-content: center;
+        background-color: var(--brand-logout-bg, #1f7902);
+        color: var(--brand-logout-text, #ffffff) !important;
+        text-align: center !important;
     }
 
     /* Dropdowns: static lists (touch-friendly; no hover reliance) */
@@ -137,6 +164,9 @@ main .table-responsive {
         width: 100%;
         text-align: left;
         margin-top: 0;
+        background: transparent;
+        border: 0;
+        font-weight: 600;
     }
 
     #routeWrapper.open .logs_dropdown-content,
