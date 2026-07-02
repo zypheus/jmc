@@ -1,5 +1,5 @@
 @php
-    $pendingCount = \App\Models\RoomReservation::where('status', 'pending')->count();
+    $pendingCount = \App\Domain\Library\Models\LibraryRoomReservation::where('status', 'pending')->count();
 @endphp
 <nav class="rooms-subnav" aria-label="Room reservations">
     <a href="{{ route('library.rooms.index') }}"

@@ -239,7 +239,8 @@ Route::middleware(['auth', 'library.admin'])
     });
 
 Route::middleware(['auth', 'library.access'])->group(function (): void {
-    Route::get('/book', fn () => redirect('/books'));
+    Route::get('/book', fn () => redirect()->route('library.books.index', request()->query()))
+        ->name('library.book.index');
     Route::get('/program/{programId?}/courses', fn (?string $programId = null) => redirect()->route(
         'library.ebooks.courses',
         ['programId' => $programId ?: 'all'],

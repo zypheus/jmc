@@ -12,7 +12,7 @@ class ReservationApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public RoomReservation $reservation;
+    public LibraryRoomReservation $reservation;
 
     public function __construct(LibraryRoomReservation $reservation)
     {
