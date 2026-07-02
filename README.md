@@ -1,3 +1,5 @@
+![JMC — Streamline Attendance and Library Management](public/images/jmc-readme-banner.png)
+
 # JMC — Attendance + Library Management
 
 Combined system for **JOSE MARIA COLLEGE Foundation Inc.**: school attendance (BCCI-PANTAS lineage) and full library management (USM lineage) in one Laravel app.
@@ -5,6 +7,7 @@ Combined system for **JOSE MARIA COLLEGE Foundation Inc.**: school attendance (B
 - **Attendance patrons** and **library patrons** are stored in **separate** tables.
 - Staff use **Spatie roles**: `library_admin`, `library_staff`, `attendance_admin`, `attendance_staff`, `super_admin`.
 - **Frontend:** Inertia.js + React + TypeScript + **shadcn/ui** (Radix + Tailwind 4) for auth, registration, attendance, and library admin.
+- **Accessibility:** the active React interface targets WCAG 2.2 AA with keyboard-safe dialogs and menus, visible focus, reduced-motion support, semantic status feedback, and accessible form errors.
 
 Progress tracker: [`documentation/taskmd.md`](documentation/taskmd.md)
 
@@ -83,10 +86,20 @@ Password for all: `password`
 | `/attendance` | Public attendance kiosk |
 | `/opac` | Public library catalog |
 | `/dashboard/*` | Role-specific Inertia dashboards |
+| `POST /switch-module` | Authenticated module switch action used by the workspace modal |
 | `/files` | Library document repository |
 | `/students`, `/employees`, `/pending`, `/logs` | Library admin (Inertia + shadcn) |
 | `/ebooks`, `/admin/catalog-frameworks`, `/admin/catalog-select-options` | Library catalog admin tools |
 | `/admin/activities`, `/reports/library-holdings` | Library activity + holdings reports |
+
+## Staff workspaces
+
+Module switching is handled through a modal in the authenticated application shell; there is no standalone module-selection page.
+
+- Staff with one assigned module go directly to its dashboard.
+- Staff with both Attendance and Library roles default to Attendance after login and can switch between their authorized modules.
+- Super administrators can switch between Attendance, Library, and the Super Admin Dashboard.
+- The server validates every switch request; a user cannot open a module that their roles do not permit.
 
 ## Library navigation hierarchy
 
@@ -110,12 +123,15 @@ npx shadcn@latest add <component>
 
 JMC brand tokens are in `resources/css/app.css` (blue `#1f4ea7`, green `#2e7d32`, gold `#ffd700`).
 
+The product and design decisions used by coding agents are documented in [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md).
+
 ## Verification
 
 ```bash
 php artisan db:seed
-php artisan test --filter=LibraryInertiaPagesTest
 php artisan test
+npm run test:unit
+npx tsc --noEmit
 npm run build
 ./vendor/bin/pint
 ```
@@ -124,5 +140,7 @@ npm run build
 
 - Auth flow: `documentation/authfolow.md`
 - Registration flow: `documentation/patronregistrationflow.md`
+- Product context: `PRODUCT.md`
+- Frontend design system: `DESIGN.md`
 - Task tracker: `documentation/taskmd.md`
 - Agent guide: `AGENTS.md`
