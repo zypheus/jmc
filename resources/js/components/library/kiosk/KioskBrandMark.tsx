@@ -21,7 +21,7 @@ export default function KioskBrandMark({
         <div className="flex flex-col items-center text-center">
             <div className="relative mb-4 flex items-center justify-center">
                 <div
-                    className="kiosk-logo-glow absolute inset-0 scale-125 rounded-full opacity-70 blur-2xl motion-reduce:opacity-40"
+                    className="kiosk-logo-glow absolute inset-0 scale-110 rounded-full opacity-60"
                     aria-hidden
                 />
                 <img

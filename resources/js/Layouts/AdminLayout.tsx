@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren } from 'react';
 
 import AdminAppShell from '@/components/layout/AdminAppShell';
 import { superAdminNavigation } from '@/config/superAdminNavigation';

@@ -17,9 +17,9 @@ export default function NavItem({ item, routeName, collapsed, onNavigate }: NavI
     const href = navigationHref(item);
     const Icon = item.icon;
     const classes = cn(
-        'group/nav relative flex min-h-10 items-center gap-3 rounded-lg border-l-[3px] px-3 py-2 text-sm transition-colors',
+        'group/nav relative flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
         active
-            ? 'border-l-[var(--module-accent)] bg-white/14 font-semibold text-white'
+            ? 'bg-white/14 font-semibold text-white ring-1 ring-inset ring-white/20'
             : 'border-l-transparent text-blue-50/82 hover:bg-white/8 hover:text-white',
         collapsed && 'mx-auto size-10 justify-center px-0',
     );

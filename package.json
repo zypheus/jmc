@@ -13,6 +13,7 @@
         "@testing-library/react": "^16.3.2",
         "@testing-library/user-event": "^14.6.1",
         "@types/node": "^26.0.1",
+        "axe-core": "^4.12.1",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "jsdom": "^29.1.1",
@@ -23,7 +24,6 @@
         "vitest": "^4.1.9"
     },
     "dependencies": {
-        "@fontsource/inter": "^5.2.8",
         "@fontsource/poppins": "^5.2.7",
         "@fontsource/source-sans-3": "^5.2.9",
         "@inertiajs/react": "^3.5.0",
@@ -38,7 +38,6 @@
         "@types/react": "^19.2.17",
         "@types/react-dom": "^19.2.3",
         "@vitejs/plugin-react": "^4.7.0",
-        "bootstrap-icons": "^1.13.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",

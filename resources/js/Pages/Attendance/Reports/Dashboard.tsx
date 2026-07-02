@@ -136,7 +136,8 @@ export default function Dashboard({
                             <CardTitle>Top Students by IN Scans</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <table className="w-full text-sm">
+                            <div className="overflow-x-auto">
+                            <table className="min-w-[32rem] w-full text-sm">
                                 <thead>
                                     <tr className="border-b text-left">
                                         <th className="pb-2 font-medium">Name</th>
@@ -156,6 +157,7 @@ export default function Dashboard({
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -164,7 +166,8 @@ export default function Dashboard({
                             <CardTitle>Top Students by Distinct IN Days</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <table className="w-full text-sm">
+                            <div className="overflow-x-auto">
+                            <table className="min-w-[32rem] w-full text-sm">
                                 <thead>
                                     <tr className="border-b text-left">
                                         <th className="pb-2 font-medium">Name</th>
@@ -184,6 +187,7 @@ export default function Dashboard({
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>

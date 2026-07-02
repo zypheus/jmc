@@ -15,14 +15,14 @@ export default function PatronIdentityCard({
     children,
 }: PatronIdentityCardProps & PropsWithChildren) {
     return (
-        <section className="kiosk-identity-card relative overflow-hidden rounded-2xl border border-white/10 p-6 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-8">
+        <section className="kiosk-identity-card relative overflow-hidden rounded-xl border border-white/15 p-6 shadow-md sm:p-8">
             <div
                 className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[var(--jmc-gold)]/10 blur-3xl"
                 aria-hidden
             />
             <div className="relative flex flex-col items-center gap-5 sm:flex-row sm:items-start">
                 <div className="relative shrink-0">
-                    <div className="kiosk-avatar-ring absolute -inset-1 rounded-full opacity-90 blur-sm" />
+                    <div className="kiosk-avatar-ring absolute -inset-1 rounded-full opacity-90" />
                     <div className="relative rounded-full bg-[var(--jmc-navy)] p-1">
                         {avatarUrl ? (
                             <img

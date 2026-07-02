@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 
 import PaginationLinks from '@/components/PaginationLinks';

@@ -116,7 +116,7 @@ export default function Logs({ logs, filters }: LogsProps) {
     const [to, setTo] = useState(filters.to ?? '');
     const [status, setStatus] = useState(filters.status ?? '');
     const [search, setSearch] = useState(filters.search ?? '');
-    const [patronType, setPatronType] = useState(filters.patron_type ?? '');
+    const [patronTypeFilter, setPatronTypeFilter] = useState(filters.patron_type ?? '');
 
     function applyFilters(event: FormEvent) {
         event.preventDefault();
@@ -128,7 +128,7 @@ export default function Logs({ logs, filters }: LogsProps) {
                 to: to || undefined,
                 status: status || undefined,
                 search: search || undefined,
-                patron_type: patronType || undefined,
+                patron_type: patronTypeFilter || undefined,
             },
             { preserveState: true },
         );
@@ -139,7 +139,7 @@ export default function Logs({ logs, filters }: LogsProps) {
         setTo('');
         setStatus('');
         setSearch('');
-        setPatronType('');
+        setPatronTypeFilter('');
         router.get('/library/attendance/logs', {}, { preserveState: true });
     }
 
@@ -148,7 +148,7 @@ export default function Logs({ logs, filters }: LogsProps) {
         to: to || undefined,
         status: status || undefined,
         search: search || undefined,
-        patron_type: patronType || undefined,
+        patron_type: patronTypeFilter || undefined,
     };
 
     return (
@@ -207,8 +207,8 @@ export default function Logs({ logs, filters }: LogsProps) {
                                 <select
                                     id="patron_type"
                                     className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm"
-                                    value={patronType}
-                                    onChange={(event) => setPatronType(event.target.value)}
+                                    value={patronTypeFilter}
+                                    onChange={(event) => setPatronTypeFilter(event.target.value)}
                                 >
                                     <option value="">All</option>
                                     <option value="student">Students</option>

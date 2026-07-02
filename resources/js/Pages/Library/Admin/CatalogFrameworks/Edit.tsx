@@ -95,8 +95,7 @@ export default function Edit({
     };
 
     const saveFrameworkFields = () => {
-        updateForm
-            .transform((payload) => ({
+        updateForm.transform((payload) => ({
                 fields: Object.fromEntries(
                     Object.entries(payload.fields).map(([id, row]) => [
                         id,
@@ -109,10 +108,10 @@ export default function Edit({
                         },
                     ]),
                 ),
-            }))
-            .put(`/admin/catalog-frameworks/${catalog_framework.id}/fields`, {
-                preserveScroll: true,
-            });
+            }));
+        updateForm.put(`/admin/catalog-frameworks/${catalog_framework.id}/fields`, {
+            preserveScroll: true,
+        });
     };
 
     const detachField = (fieldId: number) => {
@@ -131,14 +130,13 @@ export default function Edit({
     };
 
     const createAndAttachField = () => {
-        createMarcForm
-            .transform((payload) => ({
+        createMarcForm.transform((payload) => ({
                 ...payload,
                 repeatable: payload.repeatable ? '1' : '0',
-            }))
-            .post(`/admin/catalog-frameworks/${catalog_framework.id}/marc-fields`, {
-                preserveScroll: true,
-            });
+            }));
+        createMarcForm.post(`/admin/catalog-frameworks/${catalog_framework.id}/marc-fields`, {
+            preserveScroll: true,
+        });
     };
 
     return (

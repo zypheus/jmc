@@ -1,9 +1,16 @@
 import { Link } from '@inertiajs/react';
 import { ChevronDown, LogOut, Settings, Shuffle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import RoleBadge from '@/components/app/RoleBadge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { PageProps } from '@/types';
 
 interface UserMenuProps {
@@ -20,53 +27,44 @@ export function UserAvatar({ auth, className = 'size-8' }: { auth: PageProps['au
 }
 
 export default function UserMenu({ auth, onLogout }: UserMenuProps) {
-    const [open, setOpen] = useState(false);
-    const rootRef = useRef<HTMLDivElement | null>(null);
     const user = auth.user;
 
-    useEffect(() => {
-        const close = (event: MouseEvent) => {
-            if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
-        };
-        const escape = (event: KeyboardEvent) => event.key === 'Escape' && setOpen(false);
-        document.addEventListener('mousedown', close);
-        document.addEventListener('keydown', escape);
-        return () => {
-            document.removeEventListener('mousedown', close);
-            document.removeEventListener('keydown', escape);
-        };
-    }, []);
-
     return (
-        <div className="relative" ref={rootRef}>
-            <Button type="button" variant="ghost" className="h-10 gap-1 rounded-full px-1.5" aria-label="Open user menu" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
-                <UserAvatar auth={auth} />
-                <ChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
-            </Button>
-            {open && (
-                <div className="absolute right-0 z-50 mt-2 w-72 rounded-xl border bg-popover p-2 shadow-lg" role="menu">
-                    <div className="border-b px-2 pb-3 pt-1">
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button type="button" variant="ghost" className="h-10 gap-1 rounded-full px-1.5" aria-label="Open user menu">
+                    <UserAvatar auth={auth} />
+                    <ChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+                <DropdownMenuLabel className="font-normal">
+                    <div className="px-0.5 py-1">
                         <p className="truncate font-display text-sm font-semibold">{user?.name}</p>
                         <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
                         <div className="mt-2 flex flex-wrap gap-1">
                             {user?.roles.map((role) => <RoleBadge key={role} role={role} />)}
                         </div>
                     </div>
-                    <div className="space-y-1 pt-1">
-                        <Link href={route('account.edit')} role="menuitem" className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href={route('account.edit')}>
                             <Settings className="size-4" aria-hidden="true" /> My Account
-                        </Link>
-                        {auth.availableModules.length > 1 && (
-                            <Link href={route('module.select')} role="menuitem" className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+                    </Link>
+                </DropdownMenuItem>
+                {auth.availableModules.length > 1 && (
+                    <DropdownMenuItem asChild>
+                        <Link href={route('module.select')}>
                                 <Shuffle className="size-4" aria-hidden="true" /> Switch Module
-                            </Link>
-                        )}
-                        <button type="button" role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-destructive hover:bg-destructive/10" onClick={() => { setOpen(false); onLogout(); }}>
-                            <LogOut className="size-4" aria-hidden="true" /> Logout
-                        </button>
-                    </div>
-                </div>
-            )}
-        </div>
+                        </Link>
+                    </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onSelect={onLogout}>
+                    <LogOut className="size-4" aria-hidden="true" /> Logout
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

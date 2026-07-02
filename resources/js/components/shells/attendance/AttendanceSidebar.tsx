@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { LogOut } from 'lucide-react';
 
 import FlatNavMenu from '@/components/shells/FlatNavMenu';
 import { dashboardRouteFor } from '@/config/modules';
@@ -58,7 +59,7 @@ export default function AttendanceSidebar({
                     onClick={onLogout}
                 >
                     <span className="sidebar-link__main">
-                        <i className="bi bi-box-arrow-right sidebar-link__icon" aria-hidden="true" />
+                        <LogOut className="sidebar-link__icon size-4" aria-hidden="true" />
                         {!collapsed && <span className="sidebar-link__label">Logout</span>}
                     </span>
                 </button>

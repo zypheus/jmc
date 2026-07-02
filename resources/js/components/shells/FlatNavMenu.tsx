@@ -16,17 +16,9 @@ interface FlatNavMenuProps {
     onNavigate?: () => void;
 }
 
-function BootstrapIcon({ name, className }: { name: string; className?: string }) {
-    return <i className={cn(`bi bi-${name}`, className)} aria-hidden="true" />;
-}
-
 function NavIcon({ item, active, variant }: { item: NavigationItem; active: boolean; variant: FlatNavVariant }) {
-    if (variant === 'attendance' && item.bootstrapIcon) {
-        return <BootstrapIcon name={item.bootstrapIcon} className="sidebar-link__icon" />;
-    }
-
     const Icon = item.icon;
-    return <Icon className={cn('size-4 shrink-0', active ? 'opacity-100' : 'opacity-85')} aria-hidden="true" />;
+    return <Icon className={cn('size-4 shrink-0', variant === 'attendance' && 'sidebar-link__icon', active ? 'opacity-100' : 'opacity-85')} aria-hidden="true" />;
 }
 
 function FlatNavLink({

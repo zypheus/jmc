@@ -1,6 +1,9 @@
 import { Head } from '@inertiajs/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useScannerInput } from '@/hooks/use-scanner-input';
+
 interface ScanProps {
     logoutFeedbackEnabled: boolean;
     sectionPickerEnabled: boolean;
@@ -51,7 +54,6 @@ export default function Scan({
     feedbackEndpoint = null,
     scannerTheme = 'attendance',
 }: ScanProps) {
-    const inputRef = useRef<HTMLTextAreaElement>(null);
     const [display, setDisplay] = useState<DisplayState>({ kind: 'idle' });
     const [profileSrc, setProfileSrc] = useState('/images/2x2_undifined_gender.jpg');
     const [now, setNow] = useState(new Date());
@@ -66,24 +68,24 @@ export default function Scan({
     const hasSections = attendanceSections.length > 0;
     const theme = scannerTheme === 'library'
         ? {
-            page: 'bg-[#f5f7fa] text-[#1f2937]',
-            header: 'border-b border-[#173b7a] bg-[#1f4ea7] px-6 py-4 text-white shadow-sm',
-            eyebrow: 'text-sm uppercase tracking-widest text-[#ffd700]',
-            sidebar: 'flex w-full flex-col items-center gap-4 bg-[#15366f] p-6 text-white lg:w-80',
+            page: 'bg-[var(--jmc-page)] text-[var(--jmc-ink)]',
+            header: 'border-b border-[var(--jmc-navy)] bg-[var(--jmc-blue)] px-6 py-4 text-white',
+            eyebrow: 'text-sm font-medium text-white/85',
+            sidebar: 'flex w-full flex-col items-center gap-4 bg-[var(--jmc-navy)] p-6 text-white lg:w-80',
             date: 'text-sm text-blue-100',
-            time: 'text-3xl font-bold tabular-nums text-[#ffd700]',
-            photo: 'h-40 w-40 rounded-lg border-2 border-[#ffd700] bg-white object-cover shadow-lg',
-            resultCard: 'w-full space-y-2 rounded-lg bg-white p-4 text-center text-[#1f2937] shadow-lg',
-            resultMeta: 'text-xs uppercase text-[#1f4ea7]',
+            time: 'text-3xl font-bold tabular-nums text-[var(--jmc-gold)]',
+            photo: 'h-40 w-40 rounded-lg border-2 border-[var(--jmc-gold)] bg-white object-cover',
+            resultCard: 'w-full space-y-2 rounded-lg bg-white p-4 text-center text-[var(--jmc-ink)] shadow-sm',
+            resultMeta: 'text-xs font-medium text-[var(--jmc-blue)]',
             resultNote: 'text-xs text-slate-500',
-            main: 'relative flex flex-1 items-center justify-center bg-[#eef3fb] p-4',
-            video: 'max-h-[70vh] w-full max-w-3xl rounded-lg border-4 border-white shadow-2xl ring-2 ring-[#ffd700]',
-            footer: 'overflow-hidden border-t border-[#ffd700] bg-[#2e7d32] py-3 text-white',
-            modalTitle: 'mb-4 text-lg font-semibold text-[#15366f]',
-            modalButton: 'rounded-lg border border-[#1f4ea7]/30 px-4 py-3 text-sm font-medium text-[#15366f] hover:bg-[#eef3fb]',
-            feedbackTitle: 'mb-4 text-center text-lg font-semibold text-[#15366f]',
-            feedbackButton: 'flex flex-col items-center gap-1 rounded-lg border border-[#1f4ea7]/30 p-3 text-[#15366f] hover:bg-[#eef3fb]',
-            skipButton: 'mt-4 w-full rounded-lg border border-[#2e7d32]/40 py-2 text-sm text-[#2e7d32] hover:bg-green-50',
+            main: 'relative flex flex-1 items-center justify-center bg-[var(--jmc-page)] p-4',
+            video: 'max-h-[70vh] w-full max-w-3xl rounded-lg border-4 border-white shadow-md ring-2 ring-[var(--jmc-gold)]',
+            footer: 'overflow-hidden border-t border-[var(--jmc-gold)] bg-[var(--jmc-green)] py-3 text-white',
+            modalTitle: 'mb-4 text-lg font-semibold text-[var(--jmc-navy)]',
+            modalButton: 'rounded-lg border border-[var(--jmc-blue)]/30 px-4 py-3 text-sm font-medium text-[var(--jmc-navy)] hover:bg-muted',
+            feedbackTitle: 'mb-4 text-center text-lg font-semibold text-[var(--jmc-navy)]',
+            feedbackButton: 'flex flex-col items-center gap-1 rounded-lg border border-[var(--jmc-blue)]/30 p-3 text-[var(--jmc-navy)] hover:bg-muted',
+            skipButton: 'mt-4 w-full rounded-lg border border-[var(--jmc-green)]/40 py-2 text-sm text-[var(--jmc-green)] hover:bg-muted',
         }
         : {
             page: 'flex min-h-screen flex-col bg-neutral-900 text-white',
@@ -108,11 +110,8 @@ export default function Scan({
 
     useEffect(() => {
         const tick = setInterval(() => setNow(new Date()), 1000);
-        const focus = setInterval(() => inputRef.current?.focus(), 100);
-        inputRef.current?.focus();
         return () => {
             clearInterval(tick);
-            clearInterval(focus);
         };
     }, []);
 
@@ -276,12 +275,8 @@ export default function Scan({
         ],
     );
 
-    const handleKeyPress = useCallback(
-        async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-            if (event.key !== 'Enter') {
-                return;
-            }
-            event.preventDefault();
+    const submitScan = useCallback(
+        async (qrcode: string) => {
             if (cooldownRef.current) {
                 return;
             }
@@ -289,11 +284,6 @@ export default function Scan({
             setTimeout(() => {
                 cooldownRef.current = false;
             }, 300);
-
-            const qrcode = inputRef.current?.value.trim().replace(/\r/g, '') ?? '';
-            if (!qrcode) {
-                return;
-            }
 
             const formData = new FormData();
             formData.append('qrcode', qrcode);
@@ -307,13 +297,15 @@ export default function Scan({
                 setDisplay({ kind: 'error', message: 'Network error. Please try again.' });
                 scheduleClear(2000);
             }
-
-            if (inputRef.current) {
-                inputRef.current.value = '';
-            }
         },
         [handleScanResult, scanEndpoint, scheduleClear],
     );
+
+    useScannerInput({
+        enabled: !sectionModalOpen && !feedbackModalOpen,
+        idleTimeout: 300,
+        onScan: submitScan,
+    });
 
     const selectSection = useCallback(
         async (section: string) => {
@@ -337,7 +329,6 @@ export default function Scan({
             if (!currentStudentId || !feedbackEndpoint) {
                 setFeedbackModalOpen(false);
                 clearDisplay();
-                inputRef.current?.focus();
                 return;
             }
 
@@ -360,7 +351,6 @@ export default function Scan({
             } finally {
                 setFeedbackModalOpen(false);
                 clearDisplay();
-                inputRef.current?.focus();
             }
         },
         [clearDisplay, currentStudentId, feedbackEndpoint],
@@ -409,8 +399,8 @@ export default function Scan({
                                 <p
                                     className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
                                         display.status?.toUpperCase() === 'OUT'
-                                            ? 'bg-[#dc2626] text-white'
-                                            : 'bg-[#2e7d32] text-white'
+                                            ? 'bg-[var(--status-danger)] text-white'
+                                            : 'bg-[var(--status-success)] text-white'
                                     }`}
                                 >
                                     {display.status}
@@ -430,8 +420,8 @@ export default function Scan({
                                 <p
                                     className={`inline-block rounded-full px-4 py-1 text-sm font-bold ${
                                         display.bookStatus?.toLowerCase() === 'not checked out'
-                                            ? 'bg-[#dc2626] text-white'
-                                            : 'bg-[#2e7d32] text-white'
+                                            ? 'bg-[var(--status-danger)] text-white'
+                                            : 'bg-[var(--status-success)] text-white'
                                     }`}
                                 >
                                     {display.bookStatus}
@@ -445,21 +435,12 @@ export default function Scan({
                         {display.kind === 'error' && (
                             <div className="w-full rounded-lg bg-red-50 p-4 text-center text-red-900 shadow-lg ring-1 ring-red-200">
                                 <p className="font-semibold">{display.message}</p>
-                                <p className="text-xs uppercase text-red-600">Error</p>
+                                <p className="text-xs font-semibold text-red-700">Error</p>
                             </div>
                         )}
                     </aside>
 
                     <main className={theme.main}>
-                        <textarea
-                            ref={inputRef}
-                            name="qrcode"
-                            autoComplete="off"
-                            aria-hidden="true"
-                            tabIndex={-1}
-                            className="pointer-events-none absolute opacity-0"
-                            onKeyDown={handleKeyPress}
-                        />
                         <video
                             key={attendanceVideoUrl}
                             autoPlay
@@ -474,16 +455,29 @@ export default function Scan({
                 </div>
 
                 <footer className={theme.footer}>
-                    <p className="animate-pulse whitespace-nowrap text-center text-sm font-semibold">
-                        Welcome to Governor Generoso College of Arts, Sciences and Technology
+                    <p className="text-center text-sm font-semibold">
+                        Welcome to Jose Maria College Foundation Inc.
                     </p>
                 </footer>
             </div>
 
-            {sectionModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-                    <div className="w-full max-w-lg rounded-xl bg-white p-6 text-[#1f2937] shadow-xl">
-                        <h2 className={theme.modalTitle}>Select Section</h2>
+            <div className="sr-only" aria-live="polite" aria-atomic="true">
+                {display.kind === 'patron' && `${display.firstname} ${display.lastname}, ${display.status}`}
+                {display.kind === 'book' && `${display.bookTitle}, ${display.bookStatus}`}
+            </div>
+            {display.kind === 'error' && <div className="sr-only" role="alert">{display.message}</div>}
+
+            <Dialog open={sectionModalOpen} onOpenChange={(open) => {
+                if (!open) {
+                    setSectionModalOpen(false);
+                    clearDisplay();
+                }
+            }}>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Select section</DialogTitle>
+                        <DialogDescription>Choose the section for this attendance entry. Closing cancels the scan.</DialogDescription>
+                    </DialogHeader>
                         <div className="grid gap-2 sm:grid-cols-2">
                             {attendanceSections.map((section) => (
                                 <button
@@ -496,16 +490,17 @@ export default function Scan({
                                 </button>
                             ))}
                         </div>
-                    </div>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
 
-            {feedbackModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-                    <div className="w-full max-w-md rounded-xl bg-white p-6 text-[#1f2937] shadow-xl">
-                        <h2 className={theme.feedbackTitle}>
-                            How was your library experience?
-                        </h2>
+            <Dialog open={feedbackModalOpen} onOpenChange={(open) => {
+                if (!open && feedbackModalOpen) void sendFeedback(null, true);
+            }}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>How was your library experience?</DialogTitle>
+                        <DialogDescription>Select a rating or skip this optional question.</DialogDescription>
+                    </DialogHeader>
                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                             {(
                                 [
@@ -534,9 +529,8 @@ export default function Scan({
                         >
                             Skip
                         </button>
-                    </div>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

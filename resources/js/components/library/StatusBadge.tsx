@@ -13,15 +13,15 @@ type StatusTone =
     | 'rejected';
 
 const statusClasses: Record<StatusTone, string> = {
-    available: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    borrowed: 'bg-red-100 text-red-800 border-red-200',
-    reserved: 'bg-amber-100 text-amber-900 border-amber-200',
-    in: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    out: 'bg-blue-100 text-blue-800 border-blue-200',
-    overdue: 'bg-rose-100 text-rose-800 border-rose-200',
-    pending: 'bg-orange-100 text-orange-800 border-orange-200',
-    approved: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    rejected: 'bg-slate-200 text-slate-800 border-slate-300',
+    available: 'bg-[var(--status-success-surface)] text-[var(--status-success)] border-[var(--status-success)]/30',
+    borrowed: 'bg-[var(--status-danger-surface)] text-[var(--status-danger)] border-[var(--status-danger)]/30',
+    reserved: 'bg-[var(--status-warning-surface)] text-[var(--status-warning)] border-[var(--status-warning)]/30',
+    in: 'bg-[var(--status-success-surface)] text-[var(--status-success)] border-[var(--status-success)]/30',
+    out: 'bg-[var(--status-info-surface)] text-[var(--status-info)] border-[var(--status-info)]/30',
+    overdue: 'bg-[var(--status-danger-surface)] text-[var(--status-danger)] border-[var(--status-danger)]/30',
+    pending: 'bg-[var(--status-warning-surface)] text-[var(--status-warning)] border-[var(--status-warning)]/30',
+    approved: 'bg-[var(--status-success-surface)] text-[var(--status-success)] border-[var(--status-success)]/30',
+    rejected: 'bg-muted text-foreground border-border',
 };
 
 interface StatusBadgeProps {

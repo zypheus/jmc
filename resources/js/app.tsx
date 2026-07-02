@@ -2,6 +2,7 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import type { ComponentType } from 'react';
 
 createInertiaApp({
     title: (title) => (title ? `${title} — JMC (JOSE MARIA COLLEGE Foundation Inc.)` : 'JMC (JOSE MARIA COLLEGE Foundation Inc.)'),
@@ -9,7 +10,7 @@ createInertiaApp({
         resolvePageComponent(
             `./Pages/${name}.tsx`,
             import.meta.glob('./Pages/**/*.tsx'),
-        ),
+        ) as Promise<ComponentType>,
     setup({ el, App, props }) {
         createRoot(el).render(<App {...props} />);
     },
