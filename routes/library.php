@@ -83,7 +83,7 @@ Route::middleware(['auth', 'library.access'])
         Route::get('/library/navigation-status', LibraryNavigationStatusController::class)->name('navigation.status');
 
         Route::get('/book/catalog/courses-for-programs', [BookController::class, 'coursesForPrograms'])->name('books.coursesForPrograms');
-        Route::resource('book', BookController::class)->except('index');
+        Route::resource('book', BookController::class)->only(['create', 'store', 'show']);
         Route::get('/books', [BookController::class, 'index'])->name('books.index');
         Route::get('/staff/books/copies', [BookController::class, 'viewCopiesStaff'])->name('books.copies.staff');
         Route::get('/staff/books/archived', [BookController::class, 'archivedIndex'])->name('books.archived');
@@ -123,6 +123,8 @@ Route::middleware(['auth', 'library.access'])
 Route::middleware(['auth', 'library.admin'])
     ->name('library.')
     ->group(function (): void {
+        Route::resource('book', BookController::class)->only(['edit', 'update', 'destroy']);
+
         Route::get('/logs', [BookLogController::class, 'index'])->name('logs.index');
         Route::post('/logs', [BookLogController::class, 'store'])->name('logs.store');
         Route::post('/logs/{book}/renew', [BookLogController::class, 'renew'])->name('logs.renew');

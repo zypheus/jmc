@@ -205,4 +205,42 @@ class LibraryInertiaPagesTest extends TestCase
 
         $this->actingAs($user)->get('/logs')->assertForbidden();
     }
+
+    public function test_library_admin_can_move_a_book_to_trash(): void
+    {
+        $book = LibraryBook::query()->create([
+            'title_statement' => 'Trashable Catalog Record',
+            'availability' => 'Available',
+        ]);
+
+        $this->actingAs($this->libraryAdmin())
+            ->delete(route('library.book.destroy', $book))
+            ->assertRedirect(route('library.books.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSoftDeleted('library_books', ['id' => $book->id]);
+    }
+
+    public function test_library_staff_cannot_edit_or_delete_books(): void
+    {
+        $staff = User::factory()->create(['email' => 'lib-staff-catalog@test.test']);
+        $staff->assignRole('library_staff');
+        $book = LibraryBook::query()->create([
+            'title_statement' => 'Admin Managed Catalog Record',
+            'availability' => 'Available',
+        ]);
+
+        $this->actingAs($staff)
+            ->get(route('library.book.edit', $book))
+            ->assertForbidden();
+
+        $this->actingAs($staff)
+            ->delete(route('library.book.destroy', $book))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('library_books', [
+            'id' => $book->id,
+            'deleted_at' => null,
+        ]);
+    }
 }

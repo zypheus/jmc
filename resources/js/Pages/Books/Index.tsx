@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 import CatalogWelcomePanel from '@/components/library/CatalogWelcomePanel';
@@ -58,6 +59,7 @@ export default function Index({
     library_programs,
     filters,
     hasActiveQuery,
+    auth,
 }: IndexProps) {
     const [search, setSearch] = useState(filters.search ?? '');
     const [program, setProgram] = useState(filters.program ?? '');
@@ -65,6 +67,17 @@ export default function Index({
     const [year1, setYear1] = useState(filters.year1 ?? '');
     const [year2, setYear2] = useState(filters.year2 ?? '');
     const [status, setStatus] = useState(filters.status ?? '');
+    const canManageBooks = auth.isSuperAdmin || (auth.user?.roles.includes('library_admin') ?? false);
+
+    function deleteBook(book: BookRow) {
+        if (!window.confirm(`Move "${book.title_statement}" to Trash?`)) {
+            return;
+        }
+
+        router.delete(`/book/${book.sample_id}`, {
+            preserveScroll: true,
+        });
+    }
 
     function applyFilters(event: FormEvent, showAll = false) {
         event.preventDefault();
@@ -230,6 +243,7 @@ export default function Index({
                                                 <TableHead>Type</TableHead>
                                                 <TableHead>Copies</TableHead>
                                                 <TableHead>Availability</TableHead>
+                                                {canManageBooks && <TableHead className="text-right">Actions</TableHead>}
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -249,6 +263,27 @@ export default function Index({
                                                             <span>{book.copies} copies</span>
                                                         )}
                                                     </TableCell>
+                                                    {canManageBooks && (
+                                                        <TableCell>
+                                                            <div className="flex justify-end gap-2">
+                                                                <Button asChild variant="outline" size="sm">
+                                                                    <Link href={`/book/${book.sample_id}/edit`}>
+                                                                        <Pencil className="size-4" />
+                                                                        Edit
+                                                                    </Link>
+                                                                </Button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="destructive"
+                                                                    size="sm"
+                                                                    onClick={() => deleteBook(book)}
+                                                                >
+                                                                    <Trash2 className="size-4" />
+                                                                    Delete
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    )}
                                                 </TableRow>
                                             ))}
                                         </TableBody>
