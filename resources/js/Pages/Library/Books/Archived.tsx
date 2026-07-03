@@ -1,5 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
+import ConfirmActionDialog from '@/components/library/ConfirmActionDialog';
 import EmptyState from '@/components/library/EmptyState';
 import PageHeader from '@/components/library/PageHeader';
 import PaginationLinks from '@/components/PaginationLinks';
@@ -22,8 +24,12 @@ interface ArchivedProps extends PageProps {
 }
 
 export default function Archived({ books }: ArchivedProps) {
-    const unarchiveBook = (bookId: number) => {
-        router.post(`/books/${bookId}/unarchive`);
+    const [bookToRestore, setBookToRestore] = useState<ArchivedBookRow | null>(null);
+
+    const unarchiveBook = () => {
+        if (!bookToRestore) return;
+        router.post(`/books/${bookToRestore.id}/unarchive`);
+        setBookToRestore(null);
     };
 
     return (
@@ -91,7 +97,7 @@ export default function Archived({ books }: ArchivedProps) {
                                                         <Button
                                                             type="button"
                                                             size="sm"
-                                                            onClick={() => unarchiveBook(book.id)}
+                                                            onClick={() => setBookToRestore(book)}
                                                         >
                                                             Unarchive
                                                         </Button>
@@ -107,6 +113,15 @@ export default function Archived({ books }: ArchivedProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmActionDialog
+                open={bookToRestore !== null}
+                onOpenChange={(open) => !open && setBookToRestore(null)}
+                title="Restore this archived book?"
+                description={`“${bookToRestore?.title_statement ?? 'This book'}” will return to the active catalog.`}
+                confirmLabel="Restore Book"
+                onConfirm={unarchiveBook}
+            />
         </LibraryLayout>
     );
 }

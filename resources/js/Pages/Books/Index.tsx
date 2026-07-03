@@ -1,8 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ChevronDown, Pencil, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 import CatalogWelcomePanel from '@/components/library/CatalogWelcomePanel';
+import ConfirmActionDialog from '@/components/library/ConfirmActionDialog';
 import FilterSidebarCard from '@/components/library/FilterSidebarCard';
 import StatusBadge from '@/components/library/StatusBadge';
 import PaginationLinks from '@/components/PaginationLinks';
@@ -10,6 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import LibraryLayout from '@/Layouts/LibraryLayout';
 import type { PageProps, Paginated } from '@/types';
@@ -47,6 +55,8 @@ interface IndexProps extends PageProps {
     hasActiveQuery: boolean;
 }
 
+type PendingBookAction = { type: 'edit' | 'trash'; book: BookRow } | null;
+
 function availabilityTone(availability: string | null) {
     if (availability === 'Available') return 'available';
     if (availability === 'Borrowed') return 'borrowed';
@@ -67,16 +77,18 @@ export default function Index({
     const [year1, setYear1] = useState(filters.year1 ?? '');
     const [year2, setYear2] = useState(filters.year2 ?? '');
     const [status, setStatus] = useState(filters.status ?? '');
+    const [pendingAction, setPendingAction] = useState<PendingBookAction>(null);
     const canManageBooks = auth.isSuperAdmin || (auth.user?.roles.includes('library_admin') ?? false);
 
-    function deleteBook(book: BookRow) {
-        if (!window.confirm(`Move "${book.title_statement}" to Trash?`)) {
-            return;
-        }
+    function confirmPendingAction() {
+        if (!pendingAction) return;
 
-        router.delete(`/book/${book.sample_id}`, {
-            preserveScroll: true,
-        });
+        if (pendingAction.type === 'edit') {
+            router.visit(`/book/${pendingAction.book.sample_id}/edit`);
+        } else {
+            router.delete(`/book/${pendingAction.book.sample_id}`, { preserveScroll: true });
+        }
+        setPendingAction(null);
     }
 
     function applyFilters(event: FormEvent, showAll = false) {
@@ -264,24 +276,34 @@ export default function Index({
                                                         )}
                                                     </TableCell>
                                                     {canManageBooks && (
-                                                        <TableCell>
-                                                            <div className="flex justify-end gap-2">
-                                                                <Button asChild variant="outline" size="sm">
-                                                                    <Link href={`/book/${book.sample_id}/edit`}>
+                                                        <TableCell className="text-right">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        aria-label={`Open actions for ${book.title_statement}`}
+                                                                    >
+                                                                        Actions
+                                                                        <ChevronDown className="size-4" aria-hidden="true" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem onSelect={() => setPendingAction({ type: 'edit', book })}>
                                                                         <Pencil className="size-4" />
                                                                         Edit
-                                                                    </Link>
-                                                                </Button>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="destructive"
-                                                                    size="sm"
-                                                                    onClick={() => deleteBook(book)}
-                                                                >
-                                                                    <Trash2 className="size-4" />
-                                                                    Delete
-                                                                </Button>
-                                                            </div>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuSeparator />
+                                                                    <DropdownMenuItem
+                                                                        variant="destructive"
+                                                                        onSelect={() => setPendingAction({ type: 'trash', book })}
+                                                                    >
+                                                                        <Trash2 className="size-4" />
+                                                                        Move to Trash
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
                                                         </TableCell>
                                                     )}
                                                 </TableRow>
@@ -295,6 +317,18 @@ export default function Index({
                     </Card>
                 </div>
             </div>
+
+            <ConfirmActionDialog
+                open={pendingAction !== null}
+                onOpenChange={(open) => !open && setPendingAction(null)}
+                title={pendingAction?.type === 'edit' ? 'Edit this catalog record?' : 'Move this book to Trash?'}
+                description={pendingAction?.type === 'edit'
+                    ? `You are about to edit “${pendingAction.book.title_statement}”. Continue to the edit form?`
+                    : `“${pendingAction?.book.title_statement ?? 'This book'}” will be removed from the active catalog. You can restore it later from Trash.`}
+                confirmLabel={pendingAction?.type === 'edit' ? 'Continue to Edit' : 'Move to Trash'}
+                destructive={pendingAction?.type === 'trash'}
+                onConfirm={confirmPendingAction}
+            />
         </LibraryLayout>
     );
 }

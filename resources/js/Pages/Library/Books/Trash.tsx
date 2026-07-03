@@ -1,5 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
+import ConfirmActionDialog from '@/components/library/ConfirmActionDialog';
 import EmptyState from '@/components/library/EmptyState';
 import PageHeader from '@/components/library/PageHeader';
 import PaginationLinks from '@/components/PaginationLinks';
@@ -21,16 +23,20 @@ interface TrashProps extends PageProps {
     books: Paginated<TrashedBookRow>;
 }
 
-export default function Trash({ books }: TrashProps) {
-    const restoreBook = (bookId: number) => {
-        router.post(`/books/${bookId}/restore`);
-    };
+type PendingTrashAction = { type: 'restore' | 'force-delete'; book: TrashedBookRow } | null;
 
-    const forceDeleteBook = (bookId: number) => {
-        if (!window.confirm('Permanently delete this book? This cannot be undone.')) {
-            return;
+export default function Trash({ books }: TrashProps) {
+    const [pendingAction, setPendingAction] = useState<PendingTrashAction>(null);
+
+    const confirmPendingAction = () => {
+        if (!pendingAction) return;
+
+        if (pendingAction.type === 'restore') {
+            router.post(`/books/${pendingAction.book.id}/restore`);
+        } else {
+            router.delete(`/books/${pendingAction.book.id}/force-delete`);
         }
-        router.delete(`/books/${bookId}/force-delete`);
+        setPendingAction(null);
     };
 
     return (
@@ -90,14 +96,14 @@ export default function Trash({ books }: TrashProps) {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex justify-end gap-2">
-                                                        <Button type="button" size="sm" onClick={() => restoreBook(book.id)}>
+                                                        <Button type="button" size="sm" onClick={() => setPendingAction({ type: 'restore', book })}>
                                                             Restore
                                                         </Button>
                                                         <Button
                                                             type="button"
                                                             size="sm"
                                                             variant="destructive"
-                                                            onClick={() => forceDeleteBook(book.id)}
+                                                            onClick={() => setPendingAction({ type: 'force-delete', book })}
                                                         >
                                                             Delete forever
                                                         </Button>
@@ -113,6 +119,18 @@ export default function Trash({ books }: TrashProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmActionDialog
+                open={pendingAction !== null}
+                onOpenChange={(open) => !open && setPendingAction(null)}
+                title={pendingAction?.type === 'restore' ? 'Restore this book?' : 'Permanently delete this book?'}
+                description={pendingAction?.type === 'restore'
+                    ? `“${pendingAction.book.title_statement}” will return to the active catalog.`
+                    : `“${pendingAction?.book.title_statement ?? 'This book'}” and its catalog record will be permanently deleted. This action cannot be undone.`}
+                confirmLabel={pendingAction?.type === 'restore' ? 'Restore Book' : 'Delete Permanently'}
+                destructive={pendingAction?.type === 'force-delete'}
+                onConfirm={confirmPendingAction}
+            />
         </LibraryLayout>
     );
 }
