@@ -1,19 +1,23 @@
 import { Head, Link } from '@inertiajs/react';
 import {
     ArrowLeftRight,
+    ArrowUpRight,
+    BarChart3,
     BookOpen,
     CalendarCheck,
-    Clock3,
-    DoorOpen,
+    ChevronRight,
+    CircleDollarSign,
+    FileArchive,
     Hourglass,
-    PlusCircle,
+    LibraryBig,
+    Settings2,
     ShieldAlert,
-    UserCog,
+    UserRoundCheck,
     Users,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import LibraryLayout from '@/Layouts/LibraryLayout';
 import type { LibraryDashboardStats, PageProps } from '@/types';
 
@@ -22,60 +26,24 @@ interface LibraryAdminPageProps extends PageProps {
 }
 
 const metricCards = [
-    {
-        key: 'studentsCount' as const,
-        label: 'Students',
-        description: 'Patron directory & ID cards',
-        href: '/students',
-        icon: Users,
-        tone: 'text-[#23408E]',
-    },
-    {
-        key: 'employeesCount' as const,
-        label: 'Employees',
-        description: 'Staff & faculty patrons',
-        href: '/employees',
-        icon: Users,
-        tone: 'text-[#2E7D32]',
-    },
-    {
-        key: 'booksCount' as const,
-        label: 'Book copies',
-        description: 'Catalog & collections',
-        href: '/books?show_all=1',
-        icon: BookOpen,
-        tone: 'text-[#23408E]',
-    },
-    {
-        key: 'activeLoansCount' as const,
-        label: 'Active loans',
-        description: 'Checkout & renewals',
-        href: '/logs',
-        icon: Clock3,
-        tone: 'text-[#2E7D32]',
-    },
-];
-
-const quickActions = [
-    { label: 'Open catalog', href: '/books', icon: BookOpen, variant: 'default' as const },
-    { label: 'Circulation desk', href: '/logs', icon: ArrowLeftRight, variant: 'secondary' as const },
-    { label: 'Attendance logs', href: '/library/attendance/logs', icon: CalendarCheck, variant: 'outline' as const },
-    { label: 'Room requests', href: '/rooms/pending', icon: DoorOpen, variant: 'outline' as const },
-    { label: 'Holdings report', href: '/reports/library-holdings', icon: BookOpen, variant: 'outline' as const },
-];
+    { key: 'studentsCount', label: 'Students', href: '/students', icon: Users, tone: 'bg-blue-50 text-blue-800' },
+    { key: 'employeesCount', label: 'Employees', href: '/employees', icon: Users, tone: 'bg-emerald-50 text-emerald-800' },
+    { key: 'booksCount', label: 'Book copies', href: '/books?show_all=1', icon: BookOpen, tone: 'bg-violet-50 text-violet-800' },
+    { key: 'activeLoansCount', label: 'Active loans', href: '/logs', icon: ArrowLeftRight, tone: 'bg-amber-50 text-amber-800' },
+] as const;
 
 const modules = [
-    { title: 'Catalog', description: 'Search and manage book copies.', href: '/books', label: 'Open catalog' },
-    { title: 'Circulation', description: 'Checkout, return, renewals.', href: '/logs', label: 'Circulation desk' },
-    { title: 'Patrons', description: 'Students and employees.', href: '/students', label: 'Patron directory' },
-    { title: 'Pending approvals', description: 'Review registration requests.', href: '/pending', label: 'Pending queue' },
-    { title: 'OPAC', description: 'Public online catalog.', href: '/opac', label: 'View OPAC', external: true },
-    { title: 'Fines & policy', description: 'Circulation rules and clearance.', href: '/admin/circulation-policy', label: 'Policy settings' },
-    { title: 'Outstanding fines', description: 'Clear overdue fines.', href: '/admin/fines/outstanding', label: 'Fines queue' },
-    { title: 'Repository', description: 'Shared library documents.', href: '/files', label: 'File repository' },
-    { title: 'Reports', description: 'Holdings and activity exports.', href: '/reports/library-holdings', label: 'Reports' },
-    { title: 'Attendance logs', description: 'Library scanner IN and OUT history.', href: '/library/attendance/logs', label: 'View logs' },
-];
+    { title: 'Catalog', description: 'Manage full bibliographic records and material metadata.', href: '/books', label: 'Manage catalog', icon: LibraryBig, tone: 'bg-slate-100 text-slate-700', featured: false, external: false },
+    { title: 'Circulation', description: 'Track check-outs, returns, and transaction queues.', href: '/logs', label: 'View circulation', icon: ArrowLeftRight, tone: 'bg-emerald-50 text-emerald-800', featured: false, external: false },
+    { title: 'Patrons', description: 'Directory of students, faculty, and community members.', href: '/students', label: 'Manage patrons', icon: Users, tone: 'bg-indigo-50 text-indigo-800', featured: true, external: false },
+    { title: 'Pending approvals', description: 'Review new account requests and resolve exceptions.', href: '/pending', label: 'Review queue', icon: UserRoundCheck, tone: 'bg-rose-50 text-rose-800', featured: false, external: false },
+    { title: 'OPAC', description: 'Open the public access catalog experience for students.', href: '/opac', label: 'View portal', icon: BookOpen, tone: 'bg-amber-50 text-amber-800', featured: false, external: true },
+    { title: 'Fines & policy', description: 'Configure borrowing rules and daily fine rates.', href: '/admin/circulation-policy', label: 'Edit policy', icon: Settings2, tone: 'bg-slate-100 text-slate-700', featured: false, external: false },
+    { title: 'Outstanding fines', description: 'Monitor unsettled balances and manage clearance.', href: '/admin/fines/outstanding', label: 'Open fines', icon: CircleDollarSign, tone: 'bg-rose-50 text-rose-800', featured: false, external: false },
+    { title: 'Repository', description: 'Store and manage local and institutional documents.', href: '/files', label: 'Browse files', icon: FileArchive, tone: 'bg-cyan-50 text-cyan-800', featured: false, external: false },
+    { title: 'Reports', description: 'Generate institutional analysis and usage summaries.', href: '/reports/library-holdings', label: 'Open reports', icon: BarChart3, tone: 'bg-slate-100 text-slate-700', featured: false, external: false },
+    { title: 'Attendance logs', description: 'Review library entry and exit activity.', href: '/library/attendance/logs', label: 'View logs', icon: CalendarCheck, tone: 'bg-blue-50 text-blue-800', featured: false, external: false },
+] as const;
 
 export default function LibraryAdmin({ stats, auth }: LibraryAdminPageProps) {
     const firstName = auth.user?.fname;
@@ -84,148 +52,120 @@ export default function LibraryAdmin({ stats, auth }: LibraryAdminPageProps) {
         <LibraryLayout>
             <Head title="Library Admin Dashboard" />
 
-            <div className="dashboard-home space-y-6">
-                <Card className="dashboard-hero overflow-hidden border-[#E5E7EB] shadow-sm">
-                    <div className="h-1.5 bg-[#ffd700]" />
-                    <CardContent className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="space-y-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#23408E]">
-                                Library command center
-                            </p>
-                            <h1 className="text-2xl font-semibold">
+            <div className="mx-auto w-full max-w-[1440px] space-y-6">
+                <section className="relative overflow-hidden rounded-xl bg-[#0f5238] text-white" aria-labelledby="library-dashboard-title">
+                    <div className="absolute inset-x-0 top-0 h-1 bg-[#facc15]" aria-hidden="true" />
+                    <div className="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="max-w-2xl">
+                            <h1 id="library-dashboard-title" className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
                                 Welcome back{firstName ? `, ${firstName}` : ''}
                             </h1>
-                            <p className="max-w-xl text-sm text-muted-foreground">
-                                JOSE MARIA COLLEGE Foundation Inc. — manage catalog, circulation, patrons,
-                                and library operations from one place.
+                            <p className="mt-2 text-sm leading-6 text-emerald-50/90 sm:text-base">
+                                Your library command center is ready for catalog, circulation, patron, and reporting tasks.
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap gap-2 lg:max-w-md lg:justify-end">
-                            <Link
-                                href="/pending"
-                                className="inline-flex items-center gap-2 rounded-[10px] border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900 transition-transform hover:-translate-y-0.5"
-                            >
-                                <Hourglass className="size-4" />
-                                Pending: {stats.pendingCount}
+                        <div className="flex flex-wrap gap-3">
+                            <Link href="/pending" className="min-w-36 rounded-lg bg-emerald-950/40 px-4 py-3 outline-none transition-colors hover:bg-emerald-950/60 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f5238]">
+                                <span className="flex items-center gap-2 text-xs font-medium text-emerald-50">
+                                    <Hourglass className="size-4" aria-hidden="true" /> Pending requests
+                                </span>
+                                <strong className="mt-1 block text-2xl font-semibold tabular-nums">{stats.pendingCount}</strong>
                             </Link>
-                            <Link
-                                href="/admin/fines/outstanding"
-                                className="inline-flex items-center gap-2 rounded-[10px] border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-900 transition-transform hover:-translate-y-0.5"
-                            >
-                                <ShieldAlert className="size-4" />
-                                Fines: {stats.outstandingFinesCount}
+                            <Link href="/admin/fines/outstanding" className="min-w-36 rounded-lg bg-emerald-950/40 px-4 py-3 outline-none transition-colors hover:bg-emerald-950/60 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f5238]">
+                                <span className="flex items-center gap-2 text-xs font-medium text-emerald-50">
+                                    <ShieldAlert className="size-4" aria-hidden="true" /> Unpaid fines
+                                </span>
+                                <strong className="mt-1 block text-2xl font-semibold tabular-nums">{stats.outstandingFinesCount}</strong>
                             </Link>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </section>
 
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <section aria-labelledby="library-actions-title">
+                    <h2 id="library-actions-title" className="mb-3 text-sm font-medium text-slate-600">Command center</h2>
+                    <div className="grid gap-3 lg:grid-cols-2">
+                        <Link href="/staff-users" className="group flex min-h-20 items-center gap-4 rounded-xl bg-[#23408e] p-4 text-white outline-none transition-colors hover:bg-[#1d3578] focus-visible:ring-2 focus-visible:ring-[#23408e] focus-visible:ring-offset-2">
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-white/12">
+                                <Users className="size-5" aria-hidden="true" />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                                <strong className="block text-sm font-semibold">Manage library staff</strong>
+                                <span className="mt-0.5 block text-xs text-blue-100">Grant permissions and maintain administration access.</span>
+                            </span>
+                            <ChevronRight className="size-5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                        </Link>
+                        <Link href="/books" className="group flex min-h-20 items-center gap-4 rounded-xl bg-[#2e7d32] p-4 text-white outline-none transition-colors hover:bg-[#256829] focus-visible:ring-2 focus-visible:ring-[#2e7d32] focus-visible:ring-offset-2">
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-white/12">
+                                <BookOpen className="size-5" aria-hidden="true" />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                                <strong className="block text-sm font-semibold">Add catalog record</strong>
+                                <span className="mt-0.5 block text-xs text-emerald-100">Register new books, journals, or digital assets.</span>
+                            </span>
+                            <ChevronRight className="size-5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                        </Link>
+                    </div>
+                </section>
+
+                <section aria-label="Library overview" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     {metricCards.map((metric) => {
                         const Icon = metric.icon;
 
                         return (
-                            <Link key={metric.key} href={metric.href} className="group block no-underline">
-                                <Card className="dashboard-stat-card h-full border-[#E5E7EB] shadow-sm">
-                                    <CardContent className="space-y-3 p-5">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-muted-foreground">
-                                                {metric.label}
-                                            </span>
-                                            <span
-                                                className={`flex size-10 items-center justify-center rounded-xl bg-[#F8FAFC] ${metric.tone}`}
-                                            >
-                                                <Icon className="size-5" />
-                                            </span>
-                                        </div>
-                                        <p className="text-3xl font-semibold tracking-tight text-foreground group-hover:text-[#23408E]">
-                                            {stats[metric.key]}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">{metric.description}</p>
+                            <Link key={metric.key} href={metric.href} className="group rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#23408e] focus-visible:ring-offset-2">
+                                <Card className="h-full rounded-xl border-slate-200 py-0 shadow-none transition-colors group-hover:border-slate-300 group-hover:bg-slate-50/70">
+                                    <CardContent className="flex items-center gap-4 p-4">
+                                        <span className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${metric.tone}`}>
+                                            <Icon className="size-4.5" aria-hidden="true" />
+                                        </span>
+                                        <span>
+                                            <strong className="block text-2xl font-semibold tabular-nums tracking-tight text-slate-950">{stats[metric.key]}</strong>
+                                            <span className="text-xs text-slate-500">{metric.label}</span>
+                                        </span>
                                     </CardContent>
                                 </Card>
                             </Link>
                         );
                     })}
-                </div>
+                </section>
 
-                <div className="grid gap-4 lg:grid-cols-3">
-                    <Card className="rounded-2xl border-[#E5E7EB] shadow-sm lg:col-span-1">
-                        <CardHeader className="border-b border-[#E5E7EB] pb-3">
-                            <CardTitle className="text-base font-semibold">Staff management</CardTitle>
-                            <CardDescription>Create and manage library staff accounts</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-3 pt-4">
-                            <Button asChild className="w-full rounded-[10px]">
-                                <Link href="/staff-users">
-                                    <UserCog className="mr-2 size-4" />
-                                    Manage library staff
-                                </Link>
-                            </Button>
-                            <Button asChild variant="secondary" className="w-full rounded-[10px]">
-                                <Link href="/books">
-                                    <PlusCircle className="mr-2 size-4" />
-                                    Add catalog record
-                                </Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="rounded-2xl border-[#E5E7EB] shadow-sm lg:col-span-2">
-                        <CardHeader className="border-b border-[#E5E7EB] pb-3">
-                            <CardTitle className="text-base font-semibold">Quick actions</CardTitle>
-                            <CardDescription>Common library workflows</CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid gap-3 pt-4 sm:grid-cols-2">
-                            {quickActions.map((action) => {
-                                const Icon = action.icon;
-
-                                return (
-                                    <Button
-                                        key={action.href}
-                                        asChild
-                                        variant={action.variant}
-                                        className="h-auto justify-start rounded-[10px] px-4 py-3"
-                                    >
-                                        <Link href={action.href}>
-                                            <Icon className="mr-2 size-4" />
-                                            {action.label}
-                                        </Link>
-                                    </Button>
-                                );
-                            })}
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div>
-                    <h2 className="mb-4 text-base font-semibold">All modules</h2>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {modules.map((item) => (
-                            <Card key={item.href} className="dashboard-module-card border-[#E5E7EB] shadow-sm">
-                                <CardHeader>
-                                    <CardTitle className="text-base">{item.title}</CardTitle>
-                                    <CardDescription>{item.description}</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {item.external ? (
-                                        <a href={item.href} target="_blank" rel="noreferrer">
-                                            <Button variant="outline" size="sm" className="rounded-[10px]">
-                                                {item.label}
-                                            </Button>
-                                        </a>
-                                    ) : (
-                                        <Link href={item.href}>
-                                            <Button variant="outline" size="sm" className="rounded-[10px]">
-                                                {item.label}
-                                            </Button>
-                                        </Link>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        ))}
+                <section aria-labelledby="library-modules-title">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h2 id="library-modules-title" className="text-lg font-semibold text-[#0f5238]">Library modules</h2>
+                            <p className="mt-1 text-sm text-slate-600">Choose an area to continue managing library operations.</p>
+                        </div>
+                        <Badge variant="secondary" className="rounded-full px-3 py-1">{modules.length} active</Badge>
                     </div>
-                </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {modules.map((item) => {
+                            const Icon = item.icon;
+                            const content = (
+                                <Card className={`h-full rounded-xl py-0 shadow-none transition-colors group-hover:bg-slate-50/80 ${item.featured ? 'border-[#23408e]' : 'border-slate-200 group-hover:border-slate-300'}`}>
+                                    <CardContent className="flex min-h-52 flex-col p-5">
+                                        <span className={`flex size-10 items-center justify-center rounded-lg ${item.tone}`}>
+                                            <Icon className="size-5" aria-hidden="true" />
+                                        </span>
+                                        <h3 className="mt-5 text-base font-semibold text-slate-950">{item.title}</h3>
+                                        <p className="mt-2 text-sm leading-5 text-slate-600">{item.description}</p>
+                                        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-[#23408e]">
+                                            {item.label}
+                                            {item.external ? <ArrowUpRight className="size-3.5" aria-hidden="true" /> : <ChevronRight className="size-3.5" aria-hidden="true" />}
+                                        </span>
+                                    </CardContent>
+                                </Card>
+                            );
+
+                            return item.external ? (
+                                <a key={item.href} href={item.href} target="_blank" rel="noreferrer" className="group rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#23408e] focus-visible:ring-offset-2">{content}</a>
+                            ) : (
+                                <Link key={item.href} href={item.href} className="group rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#23408e] focus-visible:ring-offset-2">{content}</Link>
+                            );
+                        })}
+                    </div>
+                </section>
             </div>
         </LibraryLayout>
     );
