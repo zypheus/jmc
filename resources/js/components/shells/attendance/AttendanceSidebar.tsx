@@ -32,6 +32,12 @@ export default function AttendanceSidebar({
             <div className="attendance-sidebar-header">
                 <Link href={dashboardHref} className="attendance-sidebar-brand" onClick={onNavigate} title="JMC Attendance">
                     <img src="/images/d.png" alt="JMC" className="attendance-sidebar-logo" />
+                    {!collapsed && (
+                        <span className="attendance-sidebar-brand-text">
+                            <span className="attendance-sidebar-brand-title">Attendance</span>
+                            <span className="attendance-sidebar-brand-subtitle">Dashboard</span>
+                        </span>
+                    )}
                 </Link>
             </div>
 
