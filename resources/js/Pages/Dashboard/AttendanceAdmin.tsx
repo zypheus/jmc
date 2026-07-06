@@ -7,11 +7,15 @@ import {
     CalendarDays,
     ChevronRight,
     Clock3,
+    ClipboardList,
     IdCard,
     MessageSquareText,
+    Send,
     Settings2,
+    ToggleRight,
     UserRoundCheck,
     Users,
+    Video,
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -40,12 +44,21 @@ const modules = [
         external: false,
     },
     {
-        title: 'Patrons',
-        description: 'Directory of approved attendance patrons and staff.',
+        title: 'Students',
+        description: 'Directory of approved student attendance patrons.',
         href: '/attendance/students',
         label: 'Students',
         icon: Users,
         tone: 'bg-emerald-50 text-emerald-700',
+        external: false,
+    },
+    {
+        title: 'Employees',
+        description: 'Directory of approved employee attendance patrons.',
+        href: '/attendance/employees',
+        label: 'Employees',
+        icon: CalendarDays,
+        tone: 'bg-indigo-50 text-indigo-700',
         external: false,
     },
     {
@@ -67,21 +80,57 @@ const modules = [
         external: false,
     },
     {
-        title: 'Kiosk settings',
-        description: 'Configure sections, feedback messages, and video.',
+        title: 'Feedback report',
+        description: 'Review logout feedback ratings and response trends.',
+        href: '/attendance/feedbacks',
+        label: 'Feedback',
+        icon: ClipboardList,
+        tone: 'bg-cyan-50 text-cyan-700',
+        external: false,
+    },
+    {
+        title: 'Kiosk sections',
+        description: 'Configure the section picker used by the scanner.',
         href: '/attendance/section-picker',
-        label: 'Settings',
+        label: 'Sections',
         icon: Settings2,
         tone: 'bg-slate-100 text-slate-700',
         external: false,
     },
     {
-        title: 'SMS',
-        description: 'Send announcement blasts and scan notifications.',
+        title: 'Logout feedback',
+        description: 'Enable or disable feedback collection after logout scans.',
+        href: '/attendance/logout-feedback',
+        label: 'Feedback setting',
+        icon: ToggleRight,
+        tone: 'bg-lime-50 text-lime-700',
+        external: false,
+    },
+    {
+        title: 'Manage video',
+        description: 'Upload the video displayed on the attendance kiosk.',
+        href: '/attendance/change-video',
+        label: 'Video',
+        icon: Video,
+        tone: 'bg-fuchsia-50 text-fuchsia-700',
+        external: false,
+    },
+    {
+        title: 'SMS blast',
+        description: 'Send announcement messages to filtered recipients.',
         href: '/attendance/sms-blast',
-        label: 'SMS tools',
-        icon: MessageSquareText,
+        label: 'SMS blast',
+        icon: Send,
         tone: 'bg-violet-50 text-violet-700',
+        external: false,
+    },
+    {
+        title: 'Scanner message',
+        description: 'Edit the SMS notification sent from scanner activity.',
+        href: '/attendance/sms/scan-message',
+        label: 'Scan SMS',
+        icon: MessageSquareText,
+        tone: 'bg-purple-50 text-purple-700',
         external: false,
     },
 ] as const;
@@ -204,14 +253,15 @@ export default function AttendanceAdmin({ stats }: AttendanceAdminPageProps) {
                         {modules.map((item) => {
                             const Icon = item.icon;
                             const content = (
-                                <Card className="h-full rounded-xl border-slate-200 py-0 shadow-none transition-colors group-hover:border-slate-300 group-hover:bg-slate-50/80">
+                                <Card className="relative h-full overflow-hidden rounded-xl border-slate-200 py-0 shadow-none transition-all duration-200 group-hover:border-[#0f5238]/35 group-hover:bg-slate-50/90 group-hover:shadow-lg group-hover:shadow-slate-200/70 motion-safe:group-hover:-translate-y-1">
+                                    <span className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-[#facc15] transition-transform duration-200 group-hover:scale-x-100" aria-hidden="true" />
                                     <CardContent className="flex h-full min-h-52 flex-col p-5">
-                                        <span className={`flex size-10 items-center justify-center rounded-lg ${item.tone}`}>
-                                            <Icon className="size-5" aria-hidden="true" />
+                                        <span className={`flex size-10 items-center justify-center rounded-lg transition-transform duration-200 motion-safe:group-hover:-rotate-3 motion-safe:group-hover:scale-110 ${item.tone}`}>
+                                            <Icon className="size-5 transition-transform duration-200 motion-safe:group-hover:scale-105" aria-hidden="true" />
                                         </span>
-                                        <h3 className="mt-5 text-base font-semibold text-slate-950">{item.title}</h3>
+                                        <h3 className="mt-5 text-base font-semibold text-slate-950 transition-colors duration-200 group-hover:text-[#0f5238]">{item.title}</h3>
                                         <p className="mt-2 text-sm leading-5 text-slate-600">{item.description}</p>
-                                        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-[#0f5238]">
+                                        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-[#0f5238] transition-transform duration-200 motion-safe:group-hover:translate-x-1">
                                             {item.label}
                                             {item.external ? <ArrowUpRight className="size-3.5" aria-hidden="true" /> : <ChevronRight className="size-3.5" aria-hidden="true" />}
                                         </span>
