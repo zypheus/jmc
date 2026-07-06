@@ -143,16 +143,16 @@ export default function LibraryAdmin({ stats, auth }: LibraryAdminPageProps) {
                         {modules.map((item) => {
                             const Icon = item.icon;
                             const content = (
-                                <Card className={`h-full rounded-xl py-0 shadow-none transition-colors group-hover:bg-slate-50/80 ${item.featured ? 'border-[#23408e]' : 'border-slate-200 group-hover:border-slate-300'}`}>
+                                <Card className={`h-full rounded-xl py-0 shadow-none transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out group-hover:-translate-y-1 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-slate-900/10 group-focus-visible:-translate-y-1 group-focus-visible:shadow-lg group-focus-visible:shadow-slate-900/10 ${item.featured ? 'border-[#23408e] group-hover:border-[#23408e]' : 'border-slate-200 group-hover:border-[#2e7d32]/55 group-focus-visible:border-[#2e7d32]/55'}`}>
                                     <CardContent className="flex min-h-52 flex-col p-5">
-                                        <span className={`flex size-10 items-center justify-center rounded-lg ${item.tone}`}>
+                                        <span className={`flex size-10 items-center justify-center rounded-lg transition-transform duration-200 ease-out group-hover:scale-110 group-focus-visible:scale-110 ${item.tone}`}>
                                             <Icon className="size-5" aria-hidden="true" />
                                         </span>
-                                        <h3 className="mt-5 text-base font-semibold text-slate-950">{item.title}</h3>
+                                        <h3 className="mt-5 text-base font-semibold text-slate-950 transition-colors group-hover:text-[#0f5238] group-focus-visible:text-[#0f5238]">{item.title}</h3>
                                         <p className="mt-2 text-sm leading-5 text-slate-600">{item.description}</p>
                                         <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-[#23408e]">
                                             {item.label}
-                                            {item.external ? <ArrowUpRight className="size-3.5" aria-hidden="true" /> : <ChevronRight className="size-3.5" aria-hidden="true" />}
+                                            {item.external ? <ArrowUpRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-focus-visible:translate-x-0.5 group-focus-visible:-translate-y-0.5" aria-hidden="true" /> : <ChevronRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1 group-focus-visible:translate-x-1" aria-hidden="true" />}
                                         </span>
                                     </CardContent>
                                 </Card>
