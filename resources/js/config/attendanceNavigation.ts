@@ -1,10 +1,13 @@
 import {
+    ChartNoAxesColumnIncreasing,
     ClipboardCheck,
     Database,
     Home,
     MessageSquareMore,
     Send,
     Shield,
+    ToggleRight,
+    Video,
 } from 'lucide-react';
 
 import { dashboardRouteFor } from '@/config/modules';
@@ -48,6 +51,33 @@ export function attendanceNavigation(auth: PageProps['auth']): NavigationGroup[]
                             bootstrapIcon: 'clipboard-check',
                             routeName: 'attendance.logs.index',
                             routePrefixes: ['attendance.logs.'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'attendance-feedback-report',
+                            label: 'Feedback Report',
+                            icon: ChartNoAxesColumnIncreasing,
+                            bootstrapIcon: 'bar-chart',
+                            routeName: 'attendance.feedbacks',
+                            routePrefixes: ['attendance.feedbacks'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'manage-video',
+                            label: 'Manage Video',
+                            icon: Video,
+                            bootstrapIcon: 'camera-video',
+                            routeName: 'attendance.changeVideo',
+                            routePrefixes: ['attendance.changeVideo', 'attendance.uploadVideo'],
+                            roles: adminRoles,
+                        },
+                        {
+                            id: 'logout-feedback',
+                            label: 'Logout Feedback',
+                            icon: ToggleRight,
+                            bootstrapIcon: 'toggles',
+                            routeName: 'attendance.feedback.settings',
+                            routePrefixes: ['attendance.feedback.settings'],
                             roles: adminRoles,
                         },
                         {

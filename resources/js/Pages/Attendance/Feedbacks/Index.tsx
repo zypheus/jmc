@@ -84,11 +84,11 @@ export default function Index({ feedbacks, summary, filters }: IndexProps) {
 
     return (
         <AttendanceLayout>
-            <Head title="Logout Feedback" />
+            <Head title="Attendance Feedback Report" />
 
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-2xl font-semibold">Logout Feedback</h1>
+                    <h1 className="text-2xl font-semibold">Attendance Feedback Report</h1>
                     <p className="text-muted-foreground">Student feedback collected at the attendance kiosk.</p>
                 </div>
 
@@ -160,17 +160,25 @@ export default function Index({ feedbacks, summary, filters }: IndexProps) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {feedbacks.data.map((feedback) => (
-                                        <tr key={feedback.id} className="border-b last:border-0">
-                                            <td className="py-3">
-                                                {feedback.student
-                                                    ? `${feedback.student.firstname} ${feedback.student.lastname}`
-                                                    : '—'}
+                                    {feedbacks.data.length > 0 ? (
+                                        feedbacks.data.map((feedback) => (
+                                            <tr key={feedback.id} className="border-b last:border-0">
+                                                <td className="py-3">
+                                                    {feedback.student
+                                                        ? `${feedback.student.firstname} ${feedback.student.lastname}`
+                                                        : '—'}
+                                                </td>
+                                                <td className="py-3 capitalize">{ratingLabel(feedback)}</td>
+                                                <td className="py-3">{feedback.created_at}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={3} className="py-10 text-center text-muted-foreground">
+                                                No attendance feedback matches the selected rating.
                                             </td>
-                                            <td className="py-3 capitalize">{ratingLabel(feedback)}</td>
-                                            <td className="py-3">{feedback.created_at}</td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>

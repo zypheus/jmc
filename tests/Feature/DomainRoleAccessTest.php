@@ -68,6 +68,9 @@ class DomainRoleAccessTest extends TestCase
         $user = $this->userWithRole('library_admin');
 
         $this->actingAs($user)->get('/attendance/logs')->assertForbidden();
+        $this->actingAs($user)->get('/attendance/feedbacks')->assertForbidden();
+        $this->actingAs($user)->get('/attendance/change-video')->assertForbidden();
+        $this->actingAs($user)->get('/attendance/logout-feedback')->assertForbidden();
         $this->actingAs($user)->get('/attendance/students/create')->assertForbidden();
     }
 
