@@ -27,7 +27,7 @@ const COLLAPSE_STORAGE_KEY = 'jmc.staff.sidebar.collapsed';
 export default function AdminAppShell({ module, navigation, routeName, auth, adminActivity, flash, children }: AdminAppShellProps) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+    const [openGroupIds, setOpenGroupIds] = useState<string[]>([]);
     const [logoutOpen, setLogoutOpen] = useState(false);
     const visibleNavigation = useMemo(() => filterNavigation(navigation, auth, module), [navigation, auth, module]);
     const breadcrumbs = useMemo(
@@ -45,7 +45,11 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
 
     useEffect(() => {
         const activeGroup = visibleNavigation.find((group) => group.items.some((item) => isNavigationBranchActive(item, routeName)));
-        setOpenGroupId((current) => activeGroup?.id ?? current ?? visibleNavigation[0]?.id ?? null);
+        setOpenGroupIds((current) => {
+            if (current.length === 0) return visibleNavigation.map((group) => group.id);
+            if (!activeGroup || current.includes(activeGroup.id)) return current;
+            return [...current, activeGroup.id];
+        });
     }, [visibleNavigation, routeName]);
 
     useEffect(() => {
@@ -59,9 +63,10 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
         };
     }, [mobileOpen]);
 
-    const toggleGroup = (groupId: string, active: boolean) => {
-        if (active && openGroupId === groupId) return;
-        setOpenGroupId((current) => current === groupId ? null : groupId);
+    const toggleGroup = (groupId: string) => {
+        setOpenGroupIds((current) => current.includes(groupId)
+            ? current.filter((id) => id !== groupId)
+            : [...current, groupId]);
     };
 
     const sidebar = (isCollapsed: boolean, onNavigate?: () => void) => (
@@ -71,7 +76,7 @@ export default function AdminAppShell({ module, navigation, routeName, auth, adm
             routeName={routeName}
             auth={auth}
             collapsed={isCollapsed}
-            openGroupId={openGroupId}
+            openGroupIds={openGroupIds}
             onGroupToggle={toggleGroup}
             onNavigate={onNavigate}
         />

@@ -21,7 +21,7 @@ export default function NavGroup({ group, routeName, open, onToggle, onNavigate 
             <button
                 type="button"
                 className={cn(
-                    'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-100/58 hover:bg-white/6 hover:text-blue-50',
+                    'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-100/58 hover:bg-white/6 hover:text-blue-50 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-white/70 focus-visible:ring-offset-0',
                     active && 'text-white',
                 )}
                 aria-expanded={open}
