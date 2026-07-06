@@ -82,6 +82,31 @@ export interface AttendanceDashboardStats {
     logsThisWeekCount: number;
 }
 
+export interface SuperAdminDashboardStats {
+    totalStaffCount: number;
+    activeStaffCount: number;
+    inactiveStaffCount: number;
+    superAdminCount: number;
+    libraryStaffCount: number;
+    attendanceStaffCount: number;
+}
+
+export interface SuperAdminRoleBreakdown {
+    super_admin: number;
+    library_admin: number;
+    library_staff: number;
+    attendance_admin: number;
+    attendance_staff: number;
+}
+
+export interface SuperAdminStaffActivity {
+    id: number;
+    title: string;
+    body: string | null;
+    actionUrl: string | null;
+    createdAt: string | null;
+}
+
 export interface StaffUser {
     id: number;
     fname: string;

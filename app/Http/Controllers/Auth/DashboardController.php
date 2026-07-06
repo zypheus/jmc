@@ -7,14 +7,17 @@ use App\Domain\Attendance\Models\AttendanceLog;
 use App\Domain\Attendance\Models\AttendancePendingEmployee;
 use App\Domain\Attendance\Models\AttendancePendingStudent;
 use App\Domain\Attendance\Models\AttendanceStudent;
+use App\Domain\Library\Models\AdminActivity;
 use App\Domain\Library\Models\LibraryBook;
 use App\Domain\Library\Models\LibraryBookLog;
 use App\Domain\Library\Models\LibraryEmployee;
 use App\Domain\Library\Models\LibraryStudent;
 use App\Domain\Library\Services\LibraryNavigationStatusService;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\Auth\ModuleAccessService;
 use Carbon\Carbon;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -106,6 +109,36 @@ class DashboardController extends Controller
 
     public function superAdmin(): Response
     {
-        return Inertia::render('Dashboard/SuperAdmin');
+        return Inertia::render('Dashboard/SuperAdmin', [
+            'stats' => [
+                'totalStaffCount' => User::query()->role(RoleSeeder::ROLES)->count(),
+                'activeStaffCount' => User::query()->role(RoleSeeder::ROLES)->where('is_active', true)->count(),
+                'inactiveStaffCount' => User::query()->role(RoleSeeder::ROLES)->where('is_active', false)->count(),
+                'superAdminCount' => User::query()->role('super_admin')->count(),
+                'libraryStaffCount' => User::query()->role(['library_admin', 'library_staff'])->count(),
+                'attendanceStaffCount' => User::query()->role(['attendance_admin', 'attendance_staff'])->count(),
+            ],
+            'roleBreakdown' => [
+                'super_admin' => User::query()->role('super_admin')->count(),
+                'library_admin' => User::query()->role('library_admin')->count(),
+                'library_staff' => User::query()->role('library_staff')->count(),
+                'attendance_admin' => User::query()->role('attendance_admin')->count(),
+                'attendance_staff' => User::query()->role('attendance_staff')->count(),
+            ],
+            'recentStaffActivity' => AdminActivity::query()
+                ->where('type', AdminActivity::TYPE_USER)
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(fn (AdminActivity $activity) => [
+                    'id' => $activity->id,
+                    'title' => $activity->title,
+                    'body' => $activity->body,
+                    'actionUrl' => $activity->action_url,
+                    'createdAt' => $activity->created_at?->timezone('Asia/Manila')->diffForHumans(),
+                ])
+                ->values()
+                ->all(),
+        ]);
     }
 }

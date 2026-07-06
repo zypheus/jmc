@@ -16,12 +16,12 @@ interface AppSidebarProps {
     routeName?: string | null;
     auth: PageProps['auth'];
     collapsed: boolean;
-    openGroupId: string | null;
-    onGroupToggle: (groupId: string, active: boolean) => void;
+    openGroupIds: string[];
+    onGroupToggle: (groupId: string) => void;
     onNavigate?: () => void;
 }
 
-export default function AppSidebar({ module, navigation, routeName, auth, collapsed, openGroupId, onGroupToggle, onNavigate }: AppSidebarProps) {
+export default function AppSidebar({ module, navigation, routeName, auth, collapsed, openGroupIds, onGroupToggle, onNavigate }: AppSidebarProps) {
     const details = moduleDefinitions[module];
     const activeRole = activeModuleRole(auth, module);
     const dashboardHref = route(dashboardRouteFor(module, auth));
@@ -55,10 +55,9 @@ export default function AppSidebar({ module, navigation, routeName, auth, collap
             <nav className="flex-1 space-y-2 overflow-x-hidden overflow-y-auto px-2 py-3" aria-label={`${details.label} navigation`}>
                 {collapsed
                     ? navigation.flatMap((group) => group.items).map((item) => <NavItem key={item.id} item={item} routeName={routeName} collapsed onNavigate={onNavigate} />)
-                    : navigation.map((group) => {
-                        const active = group.items.some((item) => item.routeName === routeName || item.routePrefixes?.some((prefix) => routeName?.startsWith(prefix)));
-                        return <NavGroup key={group.id} group={group} routeName={routeName} open={openGroupId === group.id} onToggle={() => onGroupToggle(group.id, Boolean(active))} onNavigate={onNavigate} />;
-                    })}
+                    : navigation.map((group) => (
+                        <NavGroup key={group.id} group={group} routeName={routeName} open={openGroupIds.includes(group.id)} onToggle={() => onGroupToggle(group.id)} onNavigate={onNavigate} />
+                    ))}
             </nav>
 
             <div className="border-t border-white/10 p-3">
