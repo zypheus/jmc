@@ -114,14 +114,14 @@ export default function LibraryAdmin({ stats, auth }: LibraryAdminPageProps) {
 
                         return (
                             <Link key={metric.key} href={metric.href} className="group rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#23408e] focus-visible:ring-offset-2">
-                                <Card className="h-full rounded-xl border-slate-200 py-0 shadow-none transition-colors group-hover:border-slate-300 group-hover:bg-slate-50/70">
+                                <Card className="h-full rounded-xl border-slate-200 py-0 shadow-none transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out group-hover:-translate-y-1 group-hover:border-[#2e7d32]/55 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-slate-900/10 group-focus-visible:-translate-y-1 group-focus-visible:border-[#2e7d32]/55 group-focus-visible:shadow-lg group-focus-visible:shadow-slate-900/10">
                                     <CardContent className="flex items-center gap-4 p-4">
-                                        <span className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${metric.tone}`}>
+                                        <span className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 ease-out group-hover:scale-110 group-focus-visible:scale-110 ${metric.tone}`}>
                                             <Icon className="size-4.5" aria-hidden="true" />
                                         </span>
                                         <span>
-                                            <strong className="block text-2xl font-semibold tabular-nums tracking-tight text-slate-950">{stats[metric.key]}</strong>
-                                            <span className="text-xs text-slate-500">{metric.label}</span>
+                                            <strong className="block text-2xl font-semibold tabular-nums tracking-tight text-slate-950 transition-colors group-hover:text-[#0f5238] group-focus-visible:text-[#0f5238]">{stats[metric.key]}</strong>
+                                            <span className="text-xs text-slate-500 transition-colors group-hover:text-slate-700 group-focus-visible:text-slate-700">{metric.label}</span>
                                         </span>
                                     </CardContent>
                                 </Card>
