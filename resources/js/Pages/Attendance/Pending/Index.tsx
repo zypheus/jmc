@@ -136,7 +136,7 @@ export default function Index({
                     <Button type="submit">Search</Button>
                 </form>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     <Button
                         variant={activeTab === 'students' ? 'default' : 'outline'}
                         onClick={() => switchTab('students')}
@@ -178,7 +178,7 @@ export default function Index({
                                                 <td className="py-3">{student.course ?? '—'}</td>
                                                 <td className="py-3">{student.year ?? '—'}</td>
                                                 <td className="py-3 text-right">
-                                                    <div className="flex justify-end gap-2">
+                                                    <div className="flex flex-wrap justify-end gap-2">
                                                         <Button size="sm" onClick={() => approveStudent(student.id)}>
                                                             Approve
                                                         </Button>
@@ -228,7 +228,7 @@ export default function Index({
                                                 <td className="py-3">{employee.department ?? '—'}</td>
                                                 <td className="py-3">{employee.position ?? '—'}</td>
                                                 <td className="py-3 text-right">
-                                                    <div className="flex justify-end gap-2">
+                                                    <div className="flex flex-wrap justify-end gap-2">
                                                         <Button size="sm" onClick={() => approveEmployee(employee.id)}>
                                                             Approve
                                                         </Button>

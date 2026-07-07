@@ -130,7 +130,7 @@ export default function Index({ activities, category, dateFrom, dateTo }: Activi
                                     onChange={(event) => setLocalDateTo(event.target.value)}
                                 />
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
                                 <Button type="submit" size="sm">
                                     Apply
                                 </Button>

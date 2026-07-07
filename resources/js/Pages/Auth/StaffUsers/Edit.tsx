@@ -106,7 +106,7 @@ export default function Edit({ staffUser, manageableRoles, actingRole }: EditPro
                                 {errors.roles && <p className="text-sm text-destructive">{errors.roles}</p>}
                             </fieldset>
 
-                            <div className="flex items-center gap-3 rounded-lg border p-4">
+                            <div className="flex items-start gap-3 rounded-lg border p-4">
                                 <Checkbox id="is-active" checked={data.is_active} onCheckedChange={(checked) => setData('is_active', checked === true)} />
                                 <div>
                                     <Label htmlFor="is-active">Active account</Label>
@@ -115,7 +115,7 @@ export default function Edit({ staffUser, manageableRoles, actingRole }: EditPro
                             </div>
                             {errors.is_active && <p className="text-sm text-destructive">{errors.is_active}</p>}
 
-                            <div className="flex gap-3">
+                            <div className="flex flex-col gap-3 sm:flex-row">
                                 <Button type="submit" disabled={processing}>Save Changes</Button>
                                 <Button asChild type="button" variant="outline"><Link href="/staff-users">Cancel</Link></Button>
                             </div>

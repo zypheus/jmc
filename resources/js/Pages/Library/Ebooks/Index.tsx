@@ -270,7 +270,7 @@ export default function Index({
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex gap-2 pt-1">
+                            <div className="flex flex-wrap gap-2 pt-1">
                                 <Button type="submit" size="sm">
                                     Apply
                                 </Button>
@@ -329,7 +329,7 @@ export default function Index({
                                                     <TableCell>{ebook.program?.program_name ?? '—'}</TableCell>
                                                     <TableCell>{ebook.course?.course_name ?? '—'}</TableCell>
                                                     <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-2">
+                                                        <div className="flex flex-wrap justify-end gap-2">
                                                             {ebook.link && (
                                                                 <a href={ebook.link} target="_blank" rel="noreferrer">
                                                                     <Button variant="outline" size="sm">

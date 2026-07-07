@@ -105,7 +105,7 @@ export default function Create({ manageableRoles, actingRole }: CreateProps) {
                                 {errors.roles && <p className="text-sm text-destructive">{errors.roles}</p>}
                             </fieldset>
 
-                            <div className="flex gap-3">
+                            <div className="flex flex-col gap-3 sm:flex-row">
                                 <Button type="submit" disabled={processing}>Create User</Button>
                                 <Button asChild type="button" variant="outline"><Link href="/staff-users">Cancel</Link></Button>
                             </div>

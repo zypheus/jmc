@@ -154,7 +154,7 @@ export default function Index({
                 </CardContent>
             </Card>
 
-            <div className="mb-4 flex gap-2">
+            <div className="mb-4 flex flex-wrap gap-2">
                 <Button
                     type="button"
                     variant={tab === 'students' ? 'default' : 'outline'}
@@ -208,7 +208,7 @@ export default function Index({
                                             <td className="py-2 pr-3">{s.year ?? '—'}</td>
                                             <td className="py-2 pr-3">{s.mobile_number ?? s.email ?? '—'}</td>
                                             <td className="py-2 text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2">
                                                     <Button size="sm" onClick={() => approveStudent(s.id)}>
                                                         Approve
                                                     </Button>
@@ -266,7 +266,7 @@ export default function Index({
                                             <td className="py-2 pr-3">{e.program ?? e.department ?? '—'}</td>
                                             <td className="py-2 pr-3">{e.mobile_number ?? '—'}</td>
                                             <td className="py-2 text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2">
                                                     <Button size="sm" onClick={() => approveEmployee(e.id)}>
                                                         Approve
                                                     </Button>

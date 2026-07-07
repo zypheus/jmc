@@ -219,7 +219,7 @@ export default function Edit({ ebook, programs, courses }: EditEbookProps) {
                                     </div>
                                 </div>
 
-                                <div className="flex gap-2 pt-2">
+                                <div className="flex flex-wrap gap-2 pt-2">
                                     <Button type="submit" disabled={processing}>
                                         {processing ? 'Saving...' : 'Save changes'}
                                     </Button>

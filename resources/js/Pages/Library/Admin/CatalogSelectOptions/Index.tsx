@@ -133,7 +133,7 @@ export default function Index({ sections, activeField }: CatalogSelectOptionsInd
                                                     {section.saved.map((option) => (
                                                         <div
                                                             key={option}
-                                                            className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                                                            className="flex flex-col gap-2 rounded-md border px-3 py-2 text-sm sm:flex-row sm:items-center sm:justify-between"
                                                         >
                                                             <span>{option}</span>
                                                             <Button
@@ -163,7 +163,7 @@ export default function Index({ sections, activeField }: CatalogSelectOptionsInd
 
                                         <div className="space-y-2">
                                             <p className="text-sm font-medium">Add option</p>
-                                            <div className="flex gap-2">
+                                            <div className="flex flex-col gap-2 sm:flex-row">
                                                 <Input
                                                     value={newOptions[anchor] ?? ''}
                                                     onChange={(event) =>
@@ -174,7 +174,7 @@ export default function Index({ sections, activeField }: CatalogSelectOptionsInd
                                                     }
                                                     placeholder={`New ${sectionTitle.toLowerCase()}`}
                                                 />
-                                                <Button type="button" onClick={() => addOption(section)}>
+                                                <Button type="button" className="w-full sm:w-auto" onClick={() => addOption(section)}>
                                                     Add
                                                 </Button>
                                             </div>

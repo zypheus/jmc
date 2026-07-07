@@ -146,7 +146,7 @@ export default function Index({
                                 placeholder="e.g. 1st Year"
                             />
                         </div>
-                        <div className="flex items-end gap-2">
+                        <div className="flex flex-wrap items-end gap-2">
                             <Button type="submit">Apply</Button>
                             <Button type="button" variant="outline" onClick={clearFilters}>
                                 Clear

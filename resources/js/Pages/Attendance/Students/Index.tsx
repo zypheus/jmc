@@ -93,13 +93,13 @@ export default function Index({ students, programs, filters }: IndexProps) {
             <Head title="Attendance Students" />
 
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold">Students</h1>
                         <p className="text-muted-foreground">Manage attendance student records.</p>
                     </div>
-                    <Link href="/attendance/students/create">
-                        <Button>Add Student</Button>
+                    <Link href="/attendance/students/create" className="w-full sm:w-auto">
+                        <Button className="w-full sm:w-auto">Add Student</Button>
                     </Link>
                 </div>
 
@@ -178,7 +178,7 @@ export default function Index({ students, programs, filters }: IndexProps) {
                                             <td className="py-3">{student.year ?? '—'}</td>
                                             <td className="py-3 font-mono text-xs">{student.qrcode ?? '—'}</td>
                                             <td className="py-3 text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2">
                                                     <Link href={`/attendance/students/${student.id}/edit`}>
                                                         <Button variant="outline" size="sm">
                                                             Edit

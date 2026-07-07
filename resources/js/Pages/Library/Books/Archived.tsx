@@ -88,7 +88,7 @@ export default function Archived({ books }: ArchivedProps) {
                                                         : '—'}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
+                                                    <div className="flex flex-wrap justify-end gap-2">
                                                         <Link href={`/book/${book.id}`}>
                                                             <Button size="sm" variant="outline">
                                                                 View

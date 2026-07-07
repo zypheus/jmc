@@ -84,13 +84,13 @@ export default function Index({ employees, departments, positions, filters }: In
             <Head title="Attendance Employees" />
 
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold">Employees</h1>
                         <p className="text-muted-foreground">Manage attendance employee records.</p>
                     </div>
-                    <Link href="/attendance/employees/create">
-                        <Button>Add Employee</Button>
+                    <Link href="/attendance/employees/create" className="w-full sm:w-auto">
+                        <Button className="w-full sm:w-auto">Add Employee</Button>
                     </Link>
                 </div>
 
@@ -177,7 +177,7 @@ export default function Index({ employees, departments, positions, filters }: In
                                             <td className="py-3">{employee.position ?? '—'}</td>
                                             <td className="py-3 font-mono text-xs">{employee.qrcode ?? '—'}</td>
                                             <td className="py-3 text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2">
                                                     <Link href={`/attendance/employees/${employee.id}/edit`}>
                                                         <Button variant="outline" size="sm">
                                                             Edit

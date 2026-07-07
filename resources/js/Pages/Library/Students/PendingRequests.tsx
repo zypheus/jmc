@@ -167,7 +167,7 @@ function StudentRequestsTable({
                             {showReviewedAt && <TableCell>{formatDate(request.reviewed_at)}</TableCell>}
                             {showActions && (
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
+                                    <div className="flex flex-wrap justify-end gap-2">
                                         <Button
                                             type="button"
                                             size="sm"
@@ -245,7 +245,7 @@ function EmployeeRequestsTable({
                             {showReviewedAt && <TableCell>{formatDate(request.reviewed_at)}</TableCell>}
                             {showActions && (
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
+                                    <div className="flex flex-wrap justify-end gap-2">
                                         <Button
                                             type="button"
                                             size="sm"

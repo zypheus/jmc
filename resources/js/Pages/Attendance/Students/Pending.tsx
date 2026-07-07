@@ -39,13 +39,13 @@ export default function Pending({ pendingStudents }: PendingProps) {
             <Head title="Pending Students" />
 
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold">Pending Students</h1>
                         <p className="text-muted-foreground">Approve or reject student registration requests.</p>
                     </div>
-                    <Link href="/attendance/pending">
-                        <Button variant="outline">All Pending</Button>
+                    <Link href="/attendance/pending" className="w-full sm:w-auto">
+                        <Button variant="outline" className="w-full sm:w-auto">All Pending</Button>
                     </Link>
                 </div>
 
@@ -88,7 +88,7 @@ export default function Pending({ pendingStudents }: PendingProps) {
                                             <td className="py-3">{student.year ?? '—'}</td>
                                             <td className="py-3">{student.mobile_number ?? '—'}</td>
                                             <td className="py-3 text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2">
                                                     <Button size="sm" onClick={() => approve(student.id)}>
                                                         Approve
                                                     </Button>

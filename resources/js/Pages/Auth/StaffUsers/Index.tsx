@@ -103,7 +103,7 @@ export default function Index({ users, manageableRoles, actingRole, auth }: Inde
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex justify-end gap-2">
+                                            <div className="flex flex-wrap justify-end gap-2">
                                                 <Button asChild variant="outline" size="sm">
                                                     <Link href={`/staff-users/${user.id}/edit`}>Edit</Link>
                                                 </Button>

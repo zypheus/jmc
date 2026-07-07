@@ -178,7 +178,7 @@ export default function Index({
                                                 <TableCell>{file.filename}</TableCell>
                                                 <TableCell>{file.folder}</TableCell>
                                                 <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
+                                                    <div className="flex flex-wrap justify-end gap-2">
                                                         <a href={`/files/view/${file.id}`} target="_blank" rel="noreferrer">
                                                             <Button variant="outline" size="sm">
                                                                 View

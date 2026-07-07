@@ -119,7 +119,7 @@ export default function Pending({ reservations }: PendingProps) {
                                                 <StatusBadge tone="pending">{reservation.status}</StatusBadge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex flex-wrap justify-end gap-2">
                                                     <Link href={`/rooms/${reservation.id}/approve`} method="post" as="button">
                                                         <Button size="sm">Approve</Button>
                                                     </Link>

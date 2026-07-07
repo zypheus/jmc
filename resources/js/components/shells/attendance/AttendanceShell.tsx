@@ -80,15 +80,6 @@ export default function AttendanceShell({
         >
             <button
                 type="button"
-                className="attendance-mobile-trigger lg:hidden"
-                aria-label="Open menu"
-                onClick={() => setMobileOpen(true)}
-            >
-                <span /><span /><span />
-            </button>
-
-            <button
-                type="button"
                 className="attendance-collapse-toggle hidden lg:flex"
                 aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 aria-expanded={!collapsed}

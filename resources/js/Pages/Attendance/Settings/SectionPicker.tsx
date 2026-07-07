@@ -85,7 +85,7 @@ export default function SectionPicker({ enabled, sections }: SectionPickerProps)
                             <div className="space-y-3">
                                 <Label>Sections</Label>
                                 {data.sections.map((section, index) => (
-                                    <div key={index} className="flex gap-2">
+                                    <div key={index} className="flex flex-col gap-2 sm:flex-row">
                                         <Input
                                             value={section}
                                             onChange={(e) => updateSection(index, e.target.value)}
@@ -95,6 +95,7 @@ export default function SectionPicker({ enabled, sections }: SectionPickerProps)
                                         <Button
                                             type="button"
                                             variant="outline"
+                                            className="w-full sm:w-auto"
                                             onClick={() => removeSection(index)}
                                             disabled={data.sections.length <= 1}
                                         >

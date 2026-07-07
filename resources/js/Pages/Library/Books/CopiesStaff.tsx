@@ -103,7 +103,7 @@ export default function CopiesStaff({ copies, title, author, year }: CopiesStaff
                                                         : '—'}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
+                                                    <div className="flex flex-wrap justify-end gap-2">
                                                         <Link href={`/book/${copy.id}`}>
                                                             <Button variant="outline" size="sm">
                                                                 View

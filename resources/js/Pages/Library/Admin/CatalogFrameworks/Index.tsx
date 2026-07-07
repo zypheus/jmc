@@ -54,7 +54,7 @@ export default function Index({ frameworks }: CatalogFrameworkIndexProps) {
                                 <Link
                                     key={framework.id}
                                     href={`/admin/catalog-frameworks/${framework.id}/edit`}
-                                    className="flex items-center justify-between rounded-md border px-4 py-3 text-sm hover:bg-muted"
+                                    className="flex flex-col gap-2 rounded-md border px-4 py-3 text-sm hover:bg-muted sm:flex-row sm:items-center sm:justify-between"
                                 >
                                     <span className="font-medium">{framework.name}</span>
                                     <span className="text-muted-foreground">Edit</span>

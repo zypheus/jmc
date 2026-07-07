@@ -246,6 +246,76 @@ export default function Index({
                                 </div>
                             ) : (
                                 <>
+                                    <div className="space-y-3 md:hidden">
+                                        {library_books.data.map((book) => (
+                                            <div key={book.sample_id} className="rounded-xl border bg-white p-4 shadow-sm">
+                                                <div className="space-y-2">
+                                                    <div>
+                                                        <h3 className="font-semibold leading-snug text-slate-950">
+                                                            {book.title_statement}
+                                                        </h3>
+                                                        <p className="mt-1 text-sm text-muted-foreground">
+                                                            {book.main_author || 'Unknown author'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                                                        <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                                                            {book.pub_year ?? 'No year'}
+                                                        </span>
+                                                        <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                                                            {book.content_type ?? 'No type'}
+                                                        </span>
+                                                        <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                                                            {book.copies} {book.copies === 1 ? 'copy' : 'copies'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                                    <div>
+                                                        {book.copies === 1 ? (
+                                                            <StatusBadge tone={availabilityTone(book.availability)}>
+                                                                {book.availability ?? 'Unknown'}
+                                                            </StatusBadge>
+                                                        ) : (
+                                                            <span className="text-sm text-muted-foreground">{book.copies} copies</span>
+                                                        )}
+                                                    </div>
+                                                    {canManageBooks && (
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    aria-label={`Open actions for ${book.title_statement}`}
+                                                                >
+                                                                    Actions
+                                                                    <ChevronDown className="size-4" aria-hidden="true" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem onSelect={() => setPendingAction({ type: 'edit', book })}>
+                                                                    <Pencil className="size-4" />
+                                                                    Edit
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem
+                                                                    variant="destructive"
+                                                                    onSelect={() => setPendingAction({ type: 'trash', book })}
+                                                                >
+                                                                    <Trash2 className="size-4" />
+                                                                    Move to Trash
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="hidden md:block">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -310,6 +380,7 @@ export default function Index({
                                             ))}
                                         </TableBody>
                                     </Table>
+                                    </div>
                                     <PaginationLinks links={library_books.links} />
                                 </>
                             )}
