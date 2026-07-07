@@ -26,6 +26,12 @@ jobs:
           extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite, gd, intl, zip
           coverage: none
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
@@ -33,6 +39,12 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Check PHP formatting
         run: vendor/bin/pint --test
@@ -59,6 +71,8 @@ jobs:
 
       - name: Run frontend unit tests
         run: npm run test:unit
+        env:
+          LARAVEL_BYPASS_ENV_CHECK: "1"
 
       - name: Build frontend
         run: npm run build
