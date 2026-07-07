@@ -29,6 +29,7 @@ class LibraryBookSampleSeeder extends Seeder
 
             if ($programCodes === []) {
                 $book->programs()->detach();
+
                 continue;
             }
 
